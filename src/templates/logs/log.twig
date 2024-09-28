@@ -1,0 +1,105 @@
+{% extends "_layouts/cp" %}
+{% import '_includes/forms' as forms %}
+{% set title = log.dateCreated|datetime('j F Y - H:i:s') %}
+
+{% do view.registerAssetBundle("cloudgrayau\\utils\\assetbundles\\CloudGrayAsset") %}
+
+{% set crumbs = [
+  { label: (settings.pluginName) ? settings.pluginName : 'OOPSpam', url: url('oopspam') },
+  { label: 'Logs', url: url('oopspam/logs') }
+] %}
+{% set selectedSubnavItem = 'logs' %}
+{% set fullPageForm = true %}
+
+{% block content %}
+    <input type="hidden" name="action" value="oopspam/logs/update">
+    <input type="hidden" name="uid" value="{{ log.uid }}">
+    <h2>Parameters</h2>
+    <code>{{ dump(log.getParams()) }}</code>
+    <hr>
+    <h2>Response</h2>
+    <code>{{ dump(log.getResponses()) }}</code>
+    {% include 'cloudgrayau-utils/footer' %}
+{% endblock %}
+
+{% block actionButton %}
+{% if (log.isValid and (log.isReport == 0)) %}
+<div class="buttons">
+  <div class="btngroup submit hidden" id="saveLog">
+    <input type="submit" class="btn submit" value="Save">
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block details %}
+<div id="settings" class="meta">
+  <div class="field">
+    <div class="heading">Status</div>
+    <div class="input ltr">
+      <div>
+{% if (log.isValid == 0) %}
+        <span class="status red"></span> Failed
+{% elseif (log.isSpam) %}
+        <span class="status {{ (log.isReport) ? 'yellow' : 'blue' }}"></span> Spam
+{% else %}
+        <span class="status {{ (log.isReport) ? 'yellow' : 'green' }}"></span> Pass
+{% endif %}
+      </div>
+    </div>
+  </div>
+{% if (log.isValid == 1) %}
+  <div class="field">
+    <div class="heading">Spam Score</div>
+    <div class="input ltr">
+      {{ log.getResponse('Score') }}
+    </div>
+  </div>
+{% endif %}
+</div>
+{% if (log.isValid == 1) %}
+<div id="meta-details" class="meta">
+  <div class="field">
+      <div class="heading" style="flex:1;">
+          <label>{{ (log.isSpam) ? 'Report as not spam' : 'Report as spam' }}</label>
+      </div>
+      <div>
+          {{ forms.lightswitchField({
+              id: 'isReport',
+              name: 'isReport',
+              on: log.isReport,
+              disabled: (log.isReport) ? true : false
+          }) }}
+      </div>
+  </div>
+</div>
+{% endif %}
+<div id="meta-details" class="meta read-only">
+  <div class="data">
+    <div class="heading">Endpoint</div>
+    <div class="value">{{ log.endpoint }}</div>
+  </div>
+  <div class="data">
+    <div class="heading">Email</div>
+    <div class="value">{{ log.getParam('email') }}</div>
+  </div>
+  <div class="data">
+    <div class="heading">Integration</div>
+    <div class="value">{{ log.type }}</div>
+  </div>
+  <div class="data">
+    <h5 class="heading">{{ 'Created at' | t('app') }}</h5>
+    <div id="date-created-value" class="value">{{ log.dateCreated | datetime('short') }}</div>
+  </div>
+{% if (log.isReport) %}
+  <div class="data">
+    <h5 class="heading">{{ 'Reported at' | t('app') }}</h5>
+    <div id="date-created-value" class="value">{{ log.dateUpdated | datetime('short') }}</div>
+  </div>
+{% endif %}
+  <div class="data">
+    <h5 class="heading">{{ 'IP Address' | t('app') }}</h5>
+    <div class="value">{{ log.getParam('senderIP') ?: 'None provided' }}</div>
+  </div>
+</div>
+{% endblock %}

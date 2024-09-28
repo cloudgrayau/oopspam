@@ -1,0 +1,68 @@
+{% import "_includes/forms" as forms %}
+{% import 'cloudgrayau-utils/_macros' as macros %}
+<div id="general">
+    {% namespace "settings" %}
+    
+{% if (settings.apiUsage.limit > 0) %}
+    <h2>API Usage</h2>
+    <h3 style="padding: 10px 25px; background: #eee; display: inline-block; margin: 0;">{{ (settings.apiUsage.limit-settings.apiUsage.remaining)|number_format }} / {{ settings.apiUsage.limit|number_format }}</h3>
+    <hr>
+{% endif %}
+    
+    {{ forms.autosuggestField({
+        label: "API Key",
+        instructions: "The [OOPSpam](https://oopspam.com/?ref=cloudgray) service API key."|md,
+        name: 'apiKey',
+        value: settings['apiKey'],
+        suggestEnvVars: true,
+        required: true,
+        errors: settings.getErrors('apiKey'),
+        warning: macros.configWarning('apiKey', 'oopspam')
+    }) }}
+    
+    {{ forms.selectField({
+        label: "API Service",
+        instructions: "Select the service that you got the API key from.",
+        name: 'apiService',
+        options: helper.services,
+        value: settings['apiService'],
+        required: true,
+        errors: settings.getErrors('apiService'),
+        warning: macros.configWarning('apiService', 'oopspam')
+    }) }}
+    
+    {{ forms.lightswitchField({
+        label: 'Enable Logs?',
+        instructions: 'Store spam submission calls and responses in Craft CMS.',
+        name: 'enableLogs',
+        on: settings.enableLogs,
+        toggle: 'logs-fields',
+        errors: settings.getErrors('enableLogs'),
+        warning: macros.configWarning('enableLogs', 'oopspam'),
+    }) }}
+    
+    <div id="logs-fields" class="field {{ not settings.enableLogs ? 'hidden' }}">
+      {{ forms.textField({
+          label: "Maximum Logs",
+          instructions: "Maximum amount of days to store logs.",
+          name: 'maxLogs',
+          value: settings['maxLogs'],
+          type: 'number',
+          min: 1,
+          max: 30,
+          errors: settings.getErrors('maxLogs'),
+          warning: macros.configWarning('maxLogs', 'oopspam')
+      }) }}
+      {{ forms.textField({
+          label: "Plugin Name",
+          instructions: "Override the plugin name (optional).",
+          name: 'pluginName',
+          value: settings['pluginName'],
+          type: 'text',
+          errors: settings.getErrors('pluginName'),
+          warning: macros.configWarning('pluginName', 'oopspam')
+      }) }}
+    </div>
+
+    {% endnamespace %}
+</div>

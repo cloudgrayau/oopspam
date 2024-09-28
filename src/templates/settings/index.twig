@@ -1,0 +1,48 @@
+{% extends "_layouts/cp" %}
+{% set title = (settings.pluginName) ? settings.pluginName : 'OOPSpam' %}
+{% requireAdmin %}
+
+{% do view.registerAssetBundle("cloudgrayau\\utils\\assetbundles\\CloudGrayAsset") %}
+
+{% if settings.enableLogs %}
+{% set crumbs = [
+  { label: (settings.pluginName) ? settings.pluginName : 'OOPSpam', url: url('oopspam') },
+  { label: 'Settings', url: url('oopspam/settings') }
+] %}
+{% else %}
+{% set crumbs = [
+  { label: 'Settings', url: url('settings') },
+  { label: 'Plugins', url: url('settings/plugins') }
+] %}
+{% endif %}
+
+{% set selectedSubnavItem = 'settings' %}
+
+{% set fullPageForm = true %}
+{% set tabs = {
+  "general": {label: "Settings", url: "#general"},
+  "security": {label: "Security", url: "#security"},
+  "integrations": {label: "Integrations", url: "#integrations"},
+  "manual": {label: "Manual", url: "#manual"}
+} %}
+
+{% block content %}
+
+  <input type="hidden" name="action" value="plugins/save-plugin-settings">
+  <input type="hidden" name="pluginHandle" value="oopspam">
+  {{ redirectInput("oopspam/settings") }}
+  
+  {# -- General settings -- #}
+  {% include "oopspam/settings/_includes/general" %}
+  
+  {# -- Security settings -- #}
+  {% include "oopspam/settings/_includes/security" %}
+  
+  {# -- Integrations settings -- #}
+  {% include "oopspam/settings/_includes/integrations" %}
+  
+  {# -- Integrations settings -- #}
+  {% include "oopspam/settings/_includes/manual" %}
+
+  {% include 'cloudgrayau-utils/footer' %}
+{% endblock %}

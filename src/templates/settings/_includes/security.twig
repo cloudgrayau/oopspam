@@ -1,0 +1,90 @@
+{% import "_includes/forms" as forms %}
+{% import 'cloudgrayau-utils/_macros' as macros %}
+<div id="security" class="hidden">
+    {% namespace "settings" %}
+    
+    {{ forms.selectField({
+      label: 'Spam Score',
+      instructions: 'Block the overall spam score based on the parameters. The higher the score, the more likely it is to be spam.<br><span class="success">While it depends on your use case, generally a Score 3 and above can be considered spam.</span>',
+      id: 'spamScore',
+      name: 'spamScore',
+      value: settings['spamScore'],
+      options: helper.scores,
+      errors: settings.getErrors('spamScore'),
+      warning: macros.configWarning('spamScore', 'oopspam')
+    }) }}
+    
+    {{ forms.lightswitchField({
+      label: 'Block Temporary Emails',
+      instructions: 'Block temporary/disposable emails.',
+      name: 'blockTempEmail',
+      on: settings.blockTempEmail,
+      errors: settings.getErrors('blockTempEmail'),
+      warning: macros.configWarning('blockTempEmail', 'oopspam'),
+    }) }}
+    
+    {{ forms.lightswitchField({
+      label: 'Check Content Length',
+      instructions: 'If the <code>content</code> parameter is shorter than 20 characters, it will be considered spam.',
+      name: 'checkForLength',
+      on: settings.checkForLength,
+      errors: settings.getErrors('checkForLength'),
+      warning: macros.configWarning('checkForLength', 'oopspam'),
+    }) }}
+    
+    {{ forms.lightswitchField({
+      label: 'Log It',
+      instructions: 'Allows you to view logs in the OOPSpam Dashboard.',
+      name: 'logIt',
+      on: settings.logIt,
+      errors: settings.getErrors('logIt'),
+      warning: macros.configWarning('logIt', 'oopspam'),
+    }) }}
+    
+    {{ forms.lightswitchField({
+      label: 'URL Friendly',
+      instructions: 'Make the <code>content</code> parameter more link-friendly and reduce the impact of links on the spam score.',
+      name: 'urlFriendly',
+      on: settings.urlFriendly,
+      errors: settings.getErrors('urlFriendly'),
+      warning: macros.configWarning('urlFriendly', 'oopspam'),
+    }) }}
+    
+    {{ forms.multiSelectField({
+      label: 'Allowed Languages',
+      instructions: 'Allow content based on content language.',
+      id: 'allowedLanguages',
+      name: 'allowedLanguages',
+      values: settings['allowedLanguages'],
+      options: helper.languages,
+      errors: settings.getErrors('allowedLanguages'),
+      warning: macros.configWarning('allowedLanguages', 'oopspam'),
+      allowEmptyOption: true
+    }) }}
+    
+    {{ forms.multiSelectField({
+      label: 'Allowed Countries',
+      instructions: 'Allow content only from certain countries.',
+      id: 'allowedCountries',
+      name: 'allowedCountries',
+      values: settings['allowedCountries'],
+      options: helper.countries,
+      errors: settings.getErrors('allowedCountries'),
+      warning: macros.configWarning('allowedCountries', 'oopspam'),
+      allowEmptyOption: true
+    }) }}
+    
+    {{ forms.multiSelectField({
+      label: 'Blocked Countries',
+      instructions: 'Block content from certain countries.',
+      id: 'blockedCountries',
+      name: 'blockedCountries',
+      values: settings['blockedCountries'],
+      options: helper.countries,
+      errors: settings.getErrors('blockedCountries'),
+      warning: macros.configWarning('blockedCountries', 'oopspam'),
+      allowEmptyOption: true
+    }) }}
+
+    {% endnamespace %}
+</div>

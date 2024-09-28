@@ -1,0 +1,72 @@
+{% extends "_layouts/cp" %}
+{% import '_includes/forms' as forms %}
+{% set title = 'Logs' %}
+
+{% do view.registerAssetBundle("cloudgrayau\\utils\\assetbundles\\CloudGrayAsset") %}
+
+{% set crumbs = [
+  { label: (settings.pluginName) ? settings.pluginName : 'OOPSpam', url: url('oopspam') },
+  { label: 'Logs', url: url('oopspam/logs') }
+] %}
+{% set selectedSubnavItem = 'logs' %}
+{% set fullPageForm = true %}
+
+{% block content %}
+{% if logs|length %}
+<input type="hidden" name="action" value="oopspam/logs/delete">
+<div class="main element-index">
+  <div class="tableview tablepane">
+    <table class="data fullwidth" id="logs">
+      <thead>
+        <tr>
+          <th class="checkbox-cell selectallcontainer"><div class="checkbox" role="checkbox" tabindex="0" aria-checked="false" aria-label="Select all"></div></th>
+          <th scope="col">Date</th>
+          <th scope="col">Integration</th>
+          <th scope="col">Spam Score</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+{% for log in logs %}
+        <tr>
+          <td class="checkbox-cell">{{ forms.checkbox({
+            name: 'deleteLogs[]',
+            value: log.id
+          }) }}</td>
+          <td><a href="{{ url('oopspam/logs/'~log.id) }}">{{ log.dateCreated|datetime('j F Y - H:i:s') }}</a></td>
+          <td>{{ log.type }}</td>
+          <td>{{ log.getResponse('Score') ?: '-' }}</td>
+          <td>
+{% if (log.isValid == 0) %}
+            <span class="status red"></span> Failed
+{% elseif (log.isSpam) %}
+            <span class="status {{ (log.isReport) ? 'yellow' : 'blue' }}"></span> Spam
+{% else %}
+            <span class="status {{ (log.isReport) ? 'yellow' : 'green' }}"></span> Pass
+{% endif %}
+          </td>
+        </tr>
+{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div id="footer" class="flex" style="padding: 20px; margin-bottom: -24px;">
+  <button type="submit" class="btn secondary" data-icon="trash">Delete</button>
+  <div>&nbsp; <span id="selected">0</span> / <span id="total">{{ logs|length }}</span> logs</div>
+</div>
+{% else %}
+<p>No logs found.</p>
+{% endif %}
+{% include 'cloudgrayau-utils/footer' %}
+{% endblock %}
+
+{% block actionButton %}
+{% if (logs|length) %}
+<div class="buttons">
+  <div class="btngroup submit">
+    <a href="{{ url('oopspam/logs/clear') }}" class="btn submit" id="clearLogs">Clear Logs</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

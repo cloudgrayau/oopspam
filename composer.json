@@ -1,0 +1,46 @@
+{
+    "name": "cloudgrayau/oopspam",
+    "description": "OOPSpam Anti-Spam for Craft CMS",
+    "type": "craft-plugin",
+    "version": "1.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "oopspam",
+        "anti-spam",
+        "security"
+    ],
+    "support": {
+        "docs": "https://github.com/cloudgrayau/oopspam",
+        "issues": "https://github.com/cloudgrayau/oopspam/issues"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Cloud Gray Pty Ltd",
+            "homepage": "https://cloudgray.com.au/"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^4.0|^5.0",
+        "php": "^8.0|^8.2",
+        "guzzlehttp/guzzle": "^7.0",
+        "cloudgrayau/utils": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+          "cloudgrayau\\oopspam\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "OOPSpam",
+        "handle": "oopspam",
+        "developer": "Cloud Gray Pty Ltd",
+        "developerUrl": "https://cloudgray.com.au/",
+        "documentationUrl": "https://github.com/cloudgrayau/oopspam/blob/craft4/README.md",
+        "changelogUrl": "https://raw.githubusercontent.com/cloudgrayau/oopspam/craft4/CHANGELOG.md",
+        "class": "cloudgrayau\\oopspam\\OOPSpam"
+    }
+}
