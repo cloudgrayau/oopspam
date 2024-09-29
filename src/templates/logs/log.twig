@@ -23,10 +23,10 @@
 {% endblock %}
 
 {% block actionButton %}
-{% if (log.isValid and (log.isReport == 0)) %}
+{% if (log.isValid and (log.isReport == 0) and (log.getResponse('Details'))) %}
 <div class="buttons">
-  <div class="btngroup submit hidden" id="saveLog">
-    <input type="submit" class="btn submit" value="Save">
+  <div class="btngroup submit">
+    <input type="submit" id="saveLog" class="btn submit disabled" value="Save">
   </div>
 </div>
 {% endif %}
@@ -57,7 +57,7 @@
   </div>
 {% endif %}
 </div>
-{% if (log.isValid == 1) %}
+{% if ((log.isValid == 1) and (log.getResponse('Details'))) %}
 <div id="meta-details" class="meta">
   <div class="field">
       <div class="heading" style="flex:1;">

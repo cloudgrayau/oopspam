@@ -4,8 +4,9 @@
     {% namespace "settings" %}
     
 {% if (settings.apiUsage.limit > 0) %}
+{% set usage = settings.apiUsage.limit-settings.apiUsage.remaining-1 %}
     <h2>API Usage</h2>
-    <h3 style="padding: 10px 25px; background: #eee; display: inline-block; margin: 0;">{{ (settings.apiUsage.limit-settings.apiUsage.remaining)|number_format }} / {{ settings.apiUsage.limit|number_format }}</h3>
+    <h3 style="padding: 10px 25px; background: #eee; display: inline-block; margin: 0;">{{ ((usage > 0) ? usage : 0)|number_format }} / {{ settings.apiUsage.limit|number_format }}</h3>
     <hr>
 {% endif %}
     

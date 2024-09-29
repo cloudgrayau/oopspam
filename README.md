@@ -1,6 +1,6 @@
 # OOPSpam Anti-Spam for Craft CMS
 
-OOPSpam Anti-Spam for Craft CMS.
+A privacy-friendly anti-spam solution to safeguard your customers.
 
 ![Screenshot](resources/oopspam.png)
 

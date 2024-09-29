@@ -85,9 +85,9 @@ JS;
       $js = <<<JS
 $('#isReport').click(function(e){
   if ($('#isReport input').val() == 1){
-    $('#saveLog').removeClass('hidden');
+    $('#saveLog').removeClass('disabled');
   } else {
-    $('#saveLog').addClass('hidden');
+    $('#saveLog').addClass('disabled');
   }
 });
 $('#main-form').submit(function(e){

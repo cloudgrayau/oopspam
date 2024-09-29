@@ -1,7 +1,8 @@
 <?php
 namespace cloudgrayau\oopspam\integrations;
-
 use cloudgrayau\oopspam\OOPSpam;
+
+use yii\base\Event;
 
 class FormieIntegration {
   
@@ -10,10 +11,24 @@ class FormieIntegration {
   }
 
   public function parse(): void {
-    /*$result = OOPSpam::$plugin->antiSpam->checkSpam([
-      'email' => 'aaron@cloudgray.com.au',
-      'content' => 'Dear Agent, We are a manufacturing company which specializes in supplying Aluminum Rod with Zinc Alloy Rod to customers worldwide, based in Japan, Asia. We have been unable to follow up payments effectively for transactions with debtor customers in your country due to our distant locations, thus our reason for requesting for your services representation.'
-    ], $this->getName());*/
+    Event::on(\verbb\formie\services\Submissions::class, \verbb\formie\services\Submissions::EVENT_AFTER_SPAM_CHECK, function(\verbb\formie\events\SubmissionSpamCheckEvent $e){
+      $params = [
+        'content' => []
+      ];
+      foreach($e->submission->form->getCustomFields() as $field){
+        switch(get_class($field)){
+          case 'verbb\formie\fields\formfields\Email':
+            $params['email'] = (string)$e->submission->getFieldValue($field->handle);
+            break;
+          case 'verbb\formie\fields\formfields\MultiLineText':
+            $params['content'][] = (string)$e->submission->getFieldValue($field->handle);
+            break;
+        }
+      }
+      if (!OOPSpam::$plugin->antiSpam->checkSpam($params, $this->getName())){
+        $e->submission->isSpam = true;
+      }
+    });
   }
   
 }

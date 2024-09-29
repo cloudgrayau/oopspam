@@ -33,9 +33,18 @@
             name: 'deleteLogs[]',
             value: log.id
           }) }}</td>
-          <td><a href="{{ url('oopspam/logs/'~log.id) }}">{{ log.dateCreated|datetime('j F Y - H:i:s') }}</a></td>
+          <td>
+{% if (log.isValid == 0) %}
+            <span class="status red"></span>
+{% elseif (log.isSpam) %}
+            <span class="status {{ (log.isReport) ? 'yellow' : 'blue' }}"></span>
+{% else %}
+            <span class="status {{ (log.isReport) ? 'yellow' : 'green' }}"></span> 
+{% endif %}
+            <a href="{{ url('oopspam/logs/'~log.id) }}">{{ log.dateCreated|datetime('j F Y - H:i:s') }}</a>
+          </td>
           <td>{{ log.type }}</td>
-          <td>{{ log.getResponse('Score') ?: '-' }}</td>
+          <td>{{ (log.getResponse('Score') >= 0) ? log.getResponse('Score') : '-' }}</td>
           <td>
 {% if (log.isValid == 0) %}
             <span class="status red"></span> Failed
@@ -51,13 +60,22 @@
     </table>
   </div>
 </div>
-<div id="footer" class="flex" style="padding: 20px; margin-bottom: -24px;">
-  <button type="submit" class="btn secondary" data-icon="trash">Delete</button>
-  <div>&nbsp; <span id="selected">0</span> / <span id="total">{{ logs|length }}</span> logs</div>
-</div>
 {% else %}
 <p>No logs found.</p>
 {% endif %}
+<div id="footer" class="flex" style="padding: 20px; margin-bottom: -24px;">
+{% if logs|length %}
+  <button type="submit" class="btn secondary" data-icon="trash">Delete</button>
+  <div style="flex: 1; padding-left: 5px;"><span id="selected">0</span> / <span id="total">{{ logs|length }}</span> logs selected</div>
+{% else %}
+  <div style="flex: 1;"></div>
+{% endif %}
+{% if (settings.apiUsage.limit > 0) %}
+{% set usage = settings.apiUsage.limit-settings.apiUsage.remaining-1 %}
+  <div style="padding-right: 5px;">API Usage</div>
+  <h3 style="padding: 10px 25px; background: #fff; display: inline-block; margin: 0;">{{ ((usage > 0) ? usage : 0)|number_format }} / {{ settings.apiUsage.limit|number_format }}</h3>
+{% endif %}
+</div>
 {% include 'cloudgrayau-utils/footer' %}
 {% endblock %}
 

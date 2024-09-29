@@ -6,6 +6,7 @@ use cloudgrayau\oopspam\helpers\SettingsHelper;
 
 use Craft;
 use craft\base\Component;
+use craft\helpers\StringHelper;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 
@@ -46,65 +47,57 @@ class AntiSpamService extends Component {
   }
   
   public function checkSpam(array $params, string $type=''): bool {
+    $content = $params['content'] ?? '';
     $email = $params['email'] ?? '';
-    $ip = Craft::$app->request->getUserIP();
+    $data = [
+      'senderIP' => Craft::$app->request->getUserIP(),
+      'email' => StringHelper::trim($email),
+      'content' => (is_array($content)) ? StringHelper::trim(implode('; ', $content)) : StringHelper::trim($content),
+      'checkForLength' => (isset($params['checkForLength'])) ? (bool)$params['checkForLength'] : (bool)OOPSpam::$plugin->settings->checkForLength
+    ];
+    $endpoint = $this->apiVersion.$this->endpoint;
     
     /* DO MANUAL CHECK */
     $blockedEmails = array_map(['\cloudgrayau\oopspam\helpers\SettingsHelper', 'mapSettings'], OOPSpam::$plugin->settings->blockedEmails);
     $blockedIPs = array_map(['\cloudgrayau\oopspam\helpers\SettingsHelper', 'mapSettings'], OOPSpam::$plugin->settings->blockedIPs);
     $allowedEmails = array_map(['\cloudgrayau\oopspam\helpers\SettingsHelper', 'mapSettings'], OOPSpam::$plugin->settings->allowedEmails);
     $allowedIPs = array_map(['\cloudgrayau\oopspam\helpers\SettingsHelper', 'mapSettings'], OOPSpam::$plugin->settings->allowedIPs);
-    if (in_array($email, $blockedEmails) || in_array($ip, $blockedIPs)){
-      return false;
-    } 
-    if (in_array($email, $allowedEmails) || in_array($ip, $allowedIPs)){
+    if (in_array($data['email'], $allowedEmails) || in_array($data['senderIP'], $allowedIPs)){
+      if (OOPSpam::$plugin->settings->enableLogs){
+        OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
+          'Score' => 0,
+          'Reason' => 'Allowed due to manual rules'
+        ], $type);
+      }
       return true;
+    }  
+    if (in_array($data['email'], $blockedEmails) || in_array($data['senderIP'], $blockedIPs)){
+      if (OOPSpam::$plugin->settings->enableLogs){
+        OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
+          'Score' => 6,
+          'Reason' => 'Blocked due to manual rules'
+        ], $type);
+      }
+      return false;
+    }
+    
+    if ($data['checkForLength'] && (StringHelper::count($data['content']) < 20)){
+      if (OOPSpam::$plugin->settings->enableLogs){
+        OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
+          'Score' => 6,
+          'Reason' => 'Blocked due to content length; checkForLength'
+        ], $type);
+      }
+      return false;
     }
     
     /* DO SERVICE CHECK */
-    $content = $params['content'] ?? '';
-    $data = [
-      'senderIP' => $ip,
-      'email' => $email,
-      'content' => (is_array($content)) ? implode('; ', $content) : $content,
-      'checkForLength' => (isset($params['checkForLength'])) ? (bool)$params['checkForLength'] : (bool)OOPSpam::$plugin->settings->checkForLength,
-      'blockTempEmail' => (bool)OOPSpam::$plugin->settings->blockTempEmail,
-      'urlFriendly' => (bool)OOPSpam::$plugin->settings->urlFriendly,
-      'allowedLanguages' => (array)OOPSpam::$plugin->settings->allowedLanguages,
-      'allowedCountries' => (array)OOPSpam::$plugin->settings->allowedCountries,
-      'blockedCountries' => (array)OOPSpam::$plugin->settings->blockedCountries
-    ];
-    $endpoint = $this->apiVersion.$this->endpoint;
-    /*$result = $this->sendRequest($data, $endpoint);*/
-    
-    $result = [
-      'response' => true,
-      'results' => [
-        'Score' => 2,
-        'Details' => [
-          'isIPBlocked' => false,
-          'isEmailBlocked' => false,
-          'langMatch' => true,
-          'countryMatch' => false,
-          'isContentSpam' => 'nospam',
-          'numberOfSpamWords' => 1,
-          'spamWords' => [
-            'dear'
-          ]
-        ]
-      ],
-      'limits' => [
-        'limit' => 1000,
-        'remaining' => 500
-      ]
-    ];
-    
-    /*$result = [
-      'response' => false,
-      'error' => [
-        'This is a test error'
-      ]
-    ];*/
+    $data['blockTempEmail'] = (bool)OOPSpam::$plugin->settings->blockTempEmail;
+    $data['urlFriendly'] = (bool)OOPSpam::$plugin->settings->urlFriendly;
+    $data['allowedLanguages'] = (array)OOPSpam::$plugin->settings->allowedLanguages;
+    $data['allowedCountries'] = (array)OOPSpam::$plugin->settings->allowedCountries;
+    $data['blockedCountries'] = (array)OOPSpam::$plugin->settings->blockedCountries;
+    $result = $this->sendRequest($data, $endpoint);
     
     if ($result['response']){
       Craft::$app->getProjectConfig()->set('plugins.oopspam.settings.apiUsage', $result['limits']); /* UPDATE LIMITS */
