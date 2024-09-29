@@ -26,7 +26,6 @@ class Install extends Migration {
         'dateUpdated' => $this->dateTime()->notNull(),
         'uid' => $this->uid(),
       ]);
-      /*$this->createIndex(null, LogRecord::tableName(), 'siteId', false);*/
       Craft::$app->db->schema->refresh();
     }
     return true;

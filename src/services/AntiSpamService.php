@@ -46,7 +46,7 @@ class AntiSpamService extends Component {
     }
   }
   
-  public function checkSpam(array $params, string $type=''): bool {
+  public function checkSpam(array $params, string $type=''): bool {    
     $content = $params['content'] ?? '';
     $email = $params['email'] ?? '';
     $data = [
@@ -94,9 +94,16 @@ class AntiSpamService extends Component {
     /* DO SERVICE CHECK */
     $data['blockTempEmail'] = (bool)OOPSpam::$plugin->settings->blockTempEmail;
     $data['urlFriendly'] = (bool)OOPSpam::$plugin->settings->urlFriendly;
-    $data['allowedLanguages'] = (array)OOPSpam::$plugin->settings->allowedLanguages;
-    $data['allowedCountries'] = (array)OOPSpam::$plugin->settings->allowedCountries;
-    $data['blockedCountries'] = (array)OOPSpam::$plugin->settings->blockedCountries;
+    if (!empty((array)OOPSpam::$plugin->settings->allowedLanguages)){
+      $data['allowedLanguages'] = (array)OOPSpam::$plugin->settings->allowedLanguages;
+    }
+    if (!empty((array)OOPSpam::$plugin->settings->allowedCountries)){
+      $data['allowedCountries'] = (array)OOPSpam::$plugin->settings->allowedCountries;
+    }
+    if (!empty((array)OOPSpam::$plugin->settings->blockedCountries)){
+      $data['blockedCountries'] = (array)OOPSpam::$plugin->settings->blockedCountries;
+    }
+    $data['source'] = Craft::$app->request->getHostName();
     $result = $this->sendRequest($data, $endpoint);
     
     if ($result['response']){
