@@ -89,7 +89,7 @@ class OOPSpam extends Plugin {
       if (!$this->settings->apiKey || Craft::$app->getRequest()->getIsCpRequest() || Craft::$app->getRequest()->getIsConsoleRequest()){
         return;
       }
-      if ($this->settings->enableUserRegistration){
+      if ($this->settings->enableUserRegistration && Craft::$app->getEdition()){
         $this->antiSpam->initRegistration();
       }
       if (!empty($this->settings->integrations)){

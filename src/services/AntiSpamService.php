@@ -13,7 +13,6 @@ use GuzzleHttp\Exception\GuzzleException;
 class AntiSpamService extends Component {
   
   public string $apiVersion = '/v1';
-  
   private string $baseUrl = 'https://api.oopspam.com';
   private string $endpoint = '/spamdetection';
   
@@ -48,10 +47,9 @@ class AntiSpamService extends Component {
   
   public function checkSpam(array $params, string $type=''): bool {    
     $content = $params['content'] ?? '';
-    $email = $params['email'] ?? '';
     $data = [
       'senderIP' => Craft::$app->request->getUserIP(),
-      'email' => StringHelper::trim($email),
+      'email' => StringHelper::trim($params['email'] ?? ''),
       'content' => (is_array($content)) ? StringHelper::trim(implode('; ', $content)) : StringHelper::trim($content),
       'checkForLength' => (isset($params['checkForLength'])) ? (bool)$params['checkForLength'] : (bool)OOPSpam::$plugin->settings->checkForLength
     ];
@@ -80,7 +78,6 @@ class AntiSpamService extends Component {
       }
       return false;
     }
-    
     if ($data['checkForLength'] && (StringHelper::count($data['content']) < 20)){
       if (OOPSpam::$plugin->settings->enableLogs){
         OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
@@ -92,8 +89,15 @@ class AntiSpamService extends Component {
     }
     
     /* DO SERVICE CHECK */
-    $data['blockTempEmail'] = (bool)OOPSpam::$plugin->settings->blockTempEmail;
-    $data['urlFriendly'] = (bool)OOPSpam::$plugin->settings->urlFriendly;
+    if ((bool)OOPSpam::$plugin->settings->blockTempEmail){
+      $data['blockTempEmail'] = (bool)OOPSpam::$plugin->settings->blockTempEmail;
+    }
+    if ((bool)OOPSpam::$plugin->settings->logIt){
+      $data['logIt'] = (bool)OOPSpam::$plugin->settings->logIt;
+    }
+    if ((bool)OOPSpam::$plugin->settings->urlFriendly){
+      $data['urlFriendly'] = (bool)OOPSpam::$plugin->settings->urlFriendly;
+    }
     if (!empty((array)OOPSpam::$plugin->settings->allowedLanguages)){
       $data['allowedLanguages'] = (array)OOPSpam::$plugin->settings->allowedLanguages;
     }

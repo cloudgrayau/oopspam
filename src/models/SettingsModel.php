@@ -62,7 +62,7 @@ class SettingsModel extends Model {
       [['apiKey','apiService','pluginName'], 'string'],
       [['enableUserRegistration','blockTempEmail','checkForLength','logIt','urlFriendly'], 'boolean'],
       [['allowedLanguages','allowedCountries','blockedCountries','integrations','blockedEmails','blockedIPs','allowedEmails','allowedIPs'], ArrayValidator::class],
-      ['maxLogs', 'integer', 'min' => 1, 'max' => 60],
+      ['maxLogs', 'integer', 'min' => 1, 'max' => 90],
       ['spamScore', 'integer', 'min' => 1, 'max' => 6],
     ];
   }
