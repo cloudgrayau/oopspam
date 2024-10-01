@@ -28,9 +28,7 @@ class SettingsModel extends Model {
   public bool $checkForLength = true;
   public bool $logIt = false;
   public bool $urlFriendly = false;
-  public array $allowedLanguages = [
-    'en'
-  ];
+  public array $allowedLanguages = [];
   public array $allowedCountries = [];
   public array $blockedCountries = [];
   
@@ -49,9 +47,7 @@ class SettingsModel extends Model {
   public array $blockedEmails = [];
   public array $blockedIPs = [];
   public array $allowedEmails = [];
-  public array $allowedIPs = [
-    ['127.0.0.1']
-  ];
+  public array $allowedIPs = [];
   
   // Public Methods
   // =========================================================================
