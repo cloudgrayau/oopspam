@@ -43,7 +43,7 @@ class LogsService extends Component {
         $data = json_decode($logRecord->getAttribute('params'), true);
         $data['shouldBeSpam'] = (!$logRecord->getAttribute('isSpam')) ? true : false;
         $endpoint = OOPSpam::$plugin->antiSpam->apiVersion.$this->endpoint;
-        $result = OOPSpam::$plugin->antiSpam->sendRequest($data, $endpoint);
+        $result = OOPSpam::$plugin->antiSpam->reportLog($data, $endpoint);
         if ($result['response']){
           $logRecord->setAttribute('isReport', true);
           $logRecord->save();

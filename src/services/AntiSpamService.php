@@ -131,6 +131,10 @@ class AntiSpamService extends Component {
     
   }
   
+  public function reportLog(array $params, string $endpoint): array {
+    return $this->sendRequest($params, $endpoint);
+  }
+  
   public function isSpam(array $results): bool {
     if (isset($results['Score'])){
       if ((int)$results['Score'] >= (int)OOPSpam::$plugin->settings->spamScore){
