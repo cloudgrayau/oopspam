@@ -139,8 +139,11 @@ class AntiSpamService extends Component {
     }
     return false;
   }
+  
+  // Private Methods
+  // =========================================================================
 
-  public function sendRequest(array $params, string $endpoint): array {
+  private function sendRequest(array $params, string $endpoint): array {
     try {
       $client = new Client([
         'base_uri' => (OOPSpam::$plugin->settings->apiService == 'rapidapi') ? 'https://oopspam.p.rapidapi.com' : $this->baseUrl
