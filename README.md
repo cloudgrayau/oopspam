@@ -50,14 +50,14 @@ Any form or comment logic can be protected by OOPSpam via a custom plugin/module
 
 The `email` and `content` params are required. The `checkForLength` parameter is optional and can be set to override the configuration value.
 
-<?php    
-$params = [
-  'email' => '<EMAIL>',
-  'content' => '<MESSAGE>',
-  'checkForLength' => true /* optional */
-];
-if (\cloudgrayau\oopspam\OOPSpam::checkSpam($params, '<FORM LABEL>')){ /* passed */
-}
-?>
+    <?php    
+    $params = [
+      'email' => '<EMAIL>',
+      'content' => '<MESSAGE>',
+      'checkForLength' => true /* optional */
+    ];
+    if (\cloudgrayau\oopspam\OOPSpam::checkSpam($params, '<FORM LABEL>')){ /* passed */
+    }
+    ?>
 
 Brought to you by [Cloud Gray Pty Ltd](https://cloudgray.com.au/)
