@@ -71,7 +71,7 @@
   <div style="flex: 1;"></div>
 {% endif %}
 {% if (settings.apiUsage.limit > 0) %}
-{% set usage = settings.apiUsage.limit-settings.apiUsage.remaining-1 %}
+{% set usage = settings.apiUsage.limit-settings.apiUsage.remaining %}
   <div style="padding-right: 5px;">API Usage</div>
   <h3 style="padding: 10px 25px; background: #fff; display: inline-block; margin: 0;">{{ ((usage > 0) ? usage : 0)|number_format }} / {{ settings.apiUsage.limit|number_format }}</h3>
 {% endif %}
