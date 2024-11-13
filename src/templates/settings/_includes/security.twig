@@ -2,48 +2,47 @@
 {% import 'cloudgrayau-utils/_macros' as macros %}
 <div id="security" class="hidden">
     {% namespace "settings" %}
-    
-{% if (craft.app.version|number_format(2) >= 5.5) %}
-<div id="spamScore-field" class="field" data-attribute="spamScore">
-  <div class="heading"><label id="spamScore-label" for="settings-spamScore">Spam Score</label></div>
-  <div id="spamScore-instructions" class="instructions"><p>Block the overall spam score based on the parameters. The higher the score, the more likely it is to be spam.<br><span class="success">While it depends on your use case, generally a Score 3 and above can be considered spam.</span></p></div>
-  <div class="input ltr">
-    <div class="flex">
-      <div class="range-wrapper">
+  
+  <div id="spamScore-field" class="field" data-attribute="spamScore">
+    <div class="heading"><label id="spamScore-label" for="settings-spamScore">Spam Score</label></div>
+    <div id="spamScore-instructions" class="instructions"><p>Block the overall spam score based on the parameters. The higher the score, the more likely it is to be spam.<br><span class="success">While it depends on your use case, generally a Score 3 and above can be considered spam.</span></p></div>
+    <div class="input ltr">
+      <div class="flex">
+        <div class="range-wrapper" style="width: 100%;">
+            {{ tag('input', {
+              class: 'range',
+              type: 'range',
+              id: 'spamScore',
+              name: 'spamScore',
+              value: settings['spamScore'],
+              step: 1,
+              min: 1,
+              max: 6,
+              dir: craft.app.locale.getOrientation(),
+              aria: {
+                labelledby: 'spamScore-label',
+              }
+            }) }}
+        </div>
+        <div>
           {{ tag('input', {
-            class: 'range',
-            type: 'range',
-            id: 'spamScore',
-            name: 'spamScore',
+            class: 'text fullwidth',
+            type: 'number',
+            id: 'spamScore-num',
             value: settings['spamScore'],
-            step: 1,
+            inputmode: 'numeric',
             min: 1,
             max: 6,
+            step: 1,
             dir: craft.app.locale.getOrientation(),
             aria: {
               labelledby: 'spamScore-label',
             }
           }) }}
-      </div>
-      <div>
-        {{ tag('input', {
-          class: 'text fullwidth',
-          type: 'number',
-          id: 'spamScore-num',
-          value: settings['spamScore'],
-          inputmode: 'numeric',
-          min: 1,
-          max: 6,
-          step: 1,
-          dir: craft.app.locale.getOrientation(),
-          aria: {
-            labelledby: 'spamScore-label',
-          }
-        }) }}
+        </div>
       </div>
     </div>
   </div>
-</div>
 {% js %}
   (() =>{
     const $rangeInput = $('#settings-spamScore');
@@ -59,17 +58,10 @@
     });
   })();
 {% endjs %}
-{% else %}
-    {{ forms.selectField({
-      label: 'Spam Score',
-      instructions: 'Block the overall spam score based on the parameters. The higher the score, the more likely it is to be spam.<br><span class="success">While it depends on your use case, generally a Score 3 and above can be considered spam.</span>',
-      id: 'spamScore',
-      name: 'spamScore',
-      value: settings['spamScore'],
-      options: helper.scores,
-      errors: settings.getErrors('spamScore'),
-      warning: macros.configWarning('spamScore', 'oopspam')
-    }) }}
+{% if (craft.app.version|number_format(2) < 5.5) %}
+{% css %}
+.range-wrapper{max-width:200px}input.range{-webkit-appearance:none;-moz-appearance:none;appearance:none;display:block;width:100%}input.range:focus{outline:none}input.range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;background:var(--ui-control-color);border:none;border-radius:calc(var(--touch-target-size)/2);box-shadow:0 0 0 1px var(--white);cursor:pointer;height:var(--m);margin-block-start:calc(var(--m)/2*-1 + 3px);width:var(--m)}input.range::-moz-range-thumb{background:var(--ui-control-color);border:none;border-radius:calc(var(--touch-target-size)/2);box-shadow:0 0 0 1px var(--white);cursor:pointer;height:var(--m);width:var(--m)}input.range::-ms-thumb{background:var(--ui-control-color);border:none;border-radius:calc(var(--touch-target-size)/2);box-shadow:0 0 0 1px var(--white);cursor:pointer;height:var(--m);width:var(--m)}input.range::-webkit-slider-runnable-track{background:var(--white);border-radius:3px;box-shadow:inset 0 0 0 1px var(--ui-control-color);cursor:pointer;height:6px;width:100%}input.range::-moz-range-track{background:var(--white);border-radius:3px;box-shadow:inset 0 0 0 1px var(--ui-control-color);cursor:pointer;height:6px;width:100%}input.range::-ms-track{background:transparent;border-color:transparent;border-width:16px 0;color:transparent;cursor:pointer;height:6px;width:100%}input.range::-ms-fill-lower,input.range::-ms-fill-upper{background:var(--white);border:none;border-radius:3px}input.range:focus::-ms-fill-lower{background:var(--white)}
+{% endcss %}
 {% endif %}
     
     {{ forms.lightswitchField({
