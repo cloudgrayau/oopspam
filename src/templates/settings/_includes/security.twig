@@ -26,12 +26,12 @@
         {{ text({
             type: 'number',
             id: 'settings-spamScore-num',
-            'settings-spamScore-desc',
             value: settings['spamScore'],
             inputmode: 'numeric',
             min: 1,
             max: 6,
-            step: 1
+            step: 1,
+            dir: craft.app.locale.getOrientation(),
         }) }}
       </div>
     </div>
