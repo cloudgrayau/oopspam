@@ -19,7 +19,7 @@ return [
   'enableLogs' => true,
   'maxLogs' => 30, /* 1-90 */
   'pluginName' => '',
-  'spamScore' => 3, /* 0-6 */
+  'spamScore' => 3, /* 1-6 */
   'blockTempEmail' => false,
   'checkForLength' => true,
   'logIt' => false,
