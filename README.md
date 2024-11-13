@@ -2,7 +2,7 @@
 
 A privacy friendly anti-spam utility to safeguard your website and customers.
 
-![Screenshot](resources/oopspam.png)
+![Screenshot](resources/craftoopspam.jpg)
 
 ## Requirements
 
@@ -63,5 +63,3 @@ The `email` and `content` params are required. The `checkForLength` parameter is
     ?>
 
 Brought to you by [Cloud Gray Pty Ltd](https://cloudgray.com.au/)
-
-![Screenshot](resources/craftoopspam.jpg)
