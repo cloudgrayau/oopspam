@@ -20,6 +20,8 @@ OOPSpam is a modern spam filter that uses machine learning to analyse messages, 
 
 A valid API key from the [OOPSpam Service](https://oopspam.com/?ref=cloudgray) is required to use this plugin.
 
+![Screenshot](resources/craftoopspam.jpg)
+
 ## Protection
 
 The OOPSpam plugin protects the following services from spam and includes optional logging and reporting in the Craft CMS dashboard.
