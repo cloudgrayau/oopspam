@@ -4,9 +4,9 @@
     {% namespace "settings" %}
     
 {% if (craft.app.version|number_format(2) >= 5.5) %}
-<div id="settings-spamScore-field" class="field" data-attribute="spamScore">
-  <div class="heading"><label id="settings-spamScore-label" for="settings-spamScore">Spam Score</label></div>
-  <div id="settings-spamScore-instructions" class="instructions"><p>Block the overall spam score based on the parameters. The higher the score, the more likely it is to be spam.<br><span class="success">While it depends on your use case, generally a Score 3 and above can be considered spam.</span></p></div>
+<div id="spamScore-field" class="field" data-attribute="spamScore">
+  <div class="heading"><label id="spamScore-label" for="settings-spamScore">Spam Score</label></div>
+  <div id="spamScore-instructions" class="instructions"><p>Block the overall spam score based on the parameters. The higher the score, the more likely it is to be spam.<br><span class="success">While it depends on your use case, generally a Score 3 and above can be considered spam.</span></p></div>
   <div class="input ltr">
     <div class="flex">
       <div class="range-wrapper">
