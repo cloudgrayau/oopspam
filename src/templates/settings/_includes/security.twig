@@ -38,6 +38,21 @@
     </div>
   </div>
 </div>
+{% js %}
+  (() =>{
+    const $rangeInput = $('#settings-spamScore');
+    const $numInput = $('#settings-spamScore-num');
+    $rangeInput.on('input', () => {
+      $numInput.val($rangeInput.val());
+    });
+    $numInput.on('input', () => {
+      $rangeInput.val($numInput.val());
+    });
+    $numInput.on('blur', () => {
+      $numInput.val($rangeInput.val());
+    });
+  })();
+{% endjs %}
 {% else %}
     {{ forms.selectField({
       label: 'Spam Score',
