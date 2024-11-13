@@ -42,6 +42,11 @@
         </div>
       </div>
     </div>
+    {% set configArray = craft.app.config.getConfigFromFile('oopspam') %}
+    {% if cgGetValue(configArray, 'spamScore') is not null %}
+    <p id="spamScore-warning" class="warning has-icon"><span class="icon" aria-hidden="true"></span><span class="visually-hidden">Warning: </span><span>This is being overridden by the <code>spamScore</code> setting in the <code>config/oopspam.php</code> file.</span></p>
+    {% endif %}
+    
   </div>
 {% js %}
   (() =>{

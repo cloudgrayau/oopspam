@@ -2,7 +2,7 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
-## 1.0.1 - 2024-11-13
+## 1.0.2 - 2024-11-13
 ### Changed
 - `Spam Score` setting is now a `range` field
 
