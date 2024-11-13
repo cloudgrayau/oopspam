@@ -3,6 +3,7 @@
 A privacy friendly anti-spam utility to safeguard your website and customers.
 
 ![Screenshot](resources/oopspam.png)
+![Screenshot](resources/craftoopspam.jpg)
 
 ## Requirements
 
@@ -19,8 +20,6 @@ OOPSpam is a privacy friendly anti-spam utility for protecting forms, user regis
 OOPSpam is a modern spam filter that uses machine learning to analyse messages, checking each submission against an extensive database of over 500 million IPs and emails to effectively detect and block spam. The OOPSpam API protects over 3.5 million websites daily.
 
 A valid API key from the [OOPSpam Service](https://oopspam.com/?ref=cloudgray) is required to use this plugin.
-
-![Screenshot](resources/craftoopspam.jpg)
 
 ## Protection
 
