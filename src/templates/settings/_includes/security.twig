@@ -23,15 +23,16 @@
           }) }}
       </div>
       <div>
-        {{ text({
-            type: 'number',
-            id: 'settings-spamScore-num',
-            value: settings['spamScore'],
-            inputmode: 'numeric',
-            min: 1,
-            max: 6,
-            step: 1,
-            dir: craft.app.locale.getOrientation(),
+        {{ tag('input', {
+          class: 'text fullwidth',
+          type: 'number',
+          id: 'settings-spamScore-num',
+          value: settings['spamScore'],
+          inputmode: 'numeric',
+          min: 1,
+          max: 6,
+          step: 1,
+          dir: craft.app.locale.getOrientation(),
         }) }}
       </div>
     </div>
