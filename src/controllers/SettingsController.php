@@ -27,7 +27,6 @@ JS;
         'countries' => SettingsHelper::getCountries(),
         'languages' => SettingsHelper::getLanguages(),
         'services' => SettingsHelper::getServices(),
-        'scores' => SettingsHelper::getScores(),
         'integrations' => SettingsHelper::getIntegrations()
       ]
     ]);

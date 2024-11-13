@@ -371,17 +371,6 @@ class SettingsHelper {
     return self::$integrationList;
   }
   
-  public static function getScores(): array {
-    return [
-      '1' => 1,
-      '2' => 2,
-      '3' => '3 (Recommended)',
-      '4' => 4,
-      '5' => 5,
-      '6' => 6
-    ];
-  }
-  
   public static function mapSettings(array $n): string {
     return (isset($n[0])) ? $n[0] : '';
   }
