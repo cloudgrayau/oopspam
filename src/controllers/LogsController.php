@@ -74,7 +74,8 @@ JS;
     Craft::$app->getView()->registerJs($js);
     return $this->renderTemplate('oopspam/logs', [
       'settings' => $settings,
-      'logs' => OOPSpam::$plugin->logs->getLogs()
+      'logs' => OOPSpam::$plugin->logs->getLogs(),
+      'limits' => OOPSpam::$plugin->logs->getUsage()
     ]);
   }
   

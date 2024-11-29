@@ -3,7 +3,9 @@ namespace cloudgrayau\oopspam\services;
 
 use cloudgrayau\oopspam\OOPSpam;
 use cloudgrayau\oopspam\models\LogModel;
+use cloudgrayau\oopspam\models\UsageModel;
 use cloudgrayau\oopspam\records\LogRecord;
+use cloudgrayau\oopspam\records\UsageRecord;
 
 use Craft;
 use craft\events\ConfigEvent;
@@ -47,13 +49,31 @@ class LogsService extends Component {
         if ($result['response']){
           $logRecord->setAttribute('isReport', true);
           $logRecord->save();
-          Craft::$app->getProjectConfig()->set('plugins.oopspam.settings.apiUsage', $result['limits']); /* UPDATE LIMITS */
-          Craft::$app->getProjectConfig()->saveModifiedConfigData();
+          $this->updateUsage($result['limits']);
           return true;
         }
       }
     }
     return false;
+  }
+  
+  public function updateUsage(array $usage): bool {
+    $usageRecord = UsageRecord::find()->where(['id' => 1])->one();
+    if ($usageRecord){
+      $usageRecord->setAttribute('limit', (int)$usage['limit']);
+      $usageRecord->setAttribute('remaining', (int)$usage['remaining']);
+      $usageRecord->save();
+    }
+    return false;
+  }
+  
+  public function getUsage(): UsageModel {
+    $usageModel = new UsageModel();
+    $usageRecord = UsageRecord::find()->where(['id' => 1])->one();
+    if ($usageRecord){
+      $usageModel->setAttributes($usageRecord->getAttributes(), true);
+    }
+    return $usageModel;
   }
   
   public function getLog(int $id): LogModel {

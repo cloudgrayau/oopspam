@@ -111,8 +111,7 @@ class AntiSpamService extends Component {
     $result = $this->sendRequest($data, $endpoint);
     
     if ($result['response']){
-      Craft::$app->getProjectConfig()->set('plugins.oopspam.settings.apiUsage', $result['limits']); /* UPDATE LIMITS */
-      Craft::$app->getProjectConfig()->saveModifiedConfigData();
+      OOPSpam::$plugin->logs->updateUsage($result['limits']);
       if (OOPSpam::$plugin->settings->enableLogs){
         OOPSpam::$plugin->logs->recordLog($endpoint, $data, $result['results'], $type);
       }

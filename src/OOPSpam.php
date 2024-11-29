@@ -18,7 +18,7 @@ use yii\base\Event;
 class OOPSpam extends Plugin {
 
   public static $plugin;
-  public string $schemaVersion = '1.0.0';
+  public string $schemaVersion = '1.1.0';
   public bool $hasCpSettings = true;
   public bool $hasCpSection = true;
   

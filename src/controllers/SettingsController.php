@@ -28,7 +28,8 @@ JS;
         'languages' => SettingsHelper::getLanguages(),
         'services' => SettingsHelper::getServices(),
         'integrations' => SettingsHelper::getIntegrations()
-      ]
+      ],
+      'limits' => OOPSpam::$plugin->logs->getUsage()
     ]);
   }
 

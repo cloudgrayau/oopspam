@@ -9,12 +9,6 @@ class SettingsModel extends Model {
   // Editable Variables
   // =========================================================================
   
-  /* READ ONLY */
-  public array $apiUsage = [
-    'limit' => 0,
-    'remaining' => 0
-  ];
-  
   /* GENERAL */
   public string $apiKey = '';
   public string $apiService = 'oopspam';
