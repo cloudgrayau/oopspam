@@ -2,7 +2,7 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
-## 1.1.0 - 2024-11-29
+## 1.1.1 - 2024-11-30
 ### Changed
 - Updated limits to be saved in the database
 
