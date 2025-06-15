@@ -79,6 +79,24 @@
     }) }}
     
     {{ forms.lightswitchField({
+      label: 'Block VPNs',
+      instructions: 'Block VPN, Proxy, Tor IPs.',
+      name: 'blockVPN',
+      on: settings.blockVPN,
+      errors: settings.getErrors('blockVPN'),
+      warning: macros.configWarning('blockVPN', 'oopspam'),
+    }) }}
+    
+    {{ forms.lightswitchField({
+      label: 'Block Data Center IPs',
+      instructions: 'Block Data Center IPs. Filters out submissions from cloud providers.',
+      name: 'blockDC',
+      on: settings.blockDC,
+      errors: settings.getErrors('blockDC'),
+      warning: macros.configWarning('blockDC', 'oopspam'),
+    }) }}
+    
+    {{ forms.lightswitchField({
       label: 'Check Content Length',
       instructions: 'If the <code>content</code> parameter is shorter than 20 characters, it will be considered spam.',
       name: 'checkForLength',
