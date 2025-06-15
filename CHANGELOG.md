@@ -2,6 +2,10 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.1.2 - 2025-06-16
+### Changed
+- Fixed light-switch field styling
+
 ## 1.1.1 - 2024-11-30
 ### Changed
 - Updated limits to be saved in the database

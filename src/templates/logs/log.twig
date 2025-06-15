@@ -59,19 +59,13 @@
 </div>
 {% if ((log.isValid == 1) and (log.getResponse('Details'))) %}
 <div id="meta-details" class="meta">
-  <div class="field">
-      <div class="heading" style="flex:1;">
-          <label>{{ (log.isSpam) ? 'Report as not spam' : 'Report as spam' }}</label>
-      </div>
-      <div>
-          {{ forms.lightswitchField({
-              id: 'isReport',
-              name: 'isReport',
-              on: log.isReport,
-              disabled: (log.isReport) ? true : false
-          }) }}
-      </div>
-  </div>
+  {{ forms.lightswitchField({
+      id: 'isReport',
+      name: 'isReport',
+      label: (log.isSpam) ? 'Report as not spam' : 'Report as spam',
+      on: log.isReport,
+      disabled: (log.isReport) ? true : false
+  }) }}
 </div>
 {% endif %}
 <div id="meta-details" class="meta read-only">
