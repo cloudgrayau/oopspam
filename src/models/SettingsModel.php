@@ -19,6 +19,8 @@ class SettingsModel extends Model {
   /* SECURITY */
   public int $spamScore = 3;
   public bool $blockTempEmail = false;
+  public bool $blockVPN = false;
+  public bool $blockDC = false;
   public bool $checkForLength = true;
   public bool $logIt = false;
   public bool $urlFriendly = false;
@@ -50,7 +52,7 @@ class SettingsModel extends Model {
     return [
       [['apiKey','apiService'], 'required'],
       [['apiKey','apiService','pluginName'], 'string'],
-      [['enableUserRegistration','blockTempEmail','checkForLength','logIt','urlFriendly'], 'boolean'],
+      [['enableUserRegistration','blockTempEmail','blockVPN','blockDC','checkForLength','logIt','urlFriendly'], 'boolean'],
       [['allowedLanguages','allowedCountries','blockedCountries','integrations','blockedEmails','blockedIPs','allowedEmails','allowedIPs'], ArrayValidator::class],
       ['maxLogs', 'integer', 'min' => 1, 'max' => 90],
       ['spamScore', 'integer', 'min' => 1, 'max' => 6],

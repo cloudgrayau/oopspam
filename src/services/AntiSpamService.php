@@ -92,6 +92,12 @@ class AntiSpamService extends Component {
     if ((bool)OOPSpam::$plugin->settings->blockTempEmail){
       $data['blockTempEmail'] = (bool)OOPSpam::$plugin->settings->blockTempEmail;
     }
+    if ((bool)OOPSpam::$plugin->settings->blockVPN){
+      $data['blockVPN'] = (bool)OOPSpam::$plugin->settings->blockVPN;
+    }
+    if ((bool)OOPSpam::$plugin->settings->blockDC){
+      $data['blockDC'] = (bool)OOPSpam::$plugin->settings->blockDC;
+    }
     if ((bool)OOPSpam::$plugin->settings->logIt){
       $data['logIt'] = (bool)OOPSpam::$plugin->settings->logIt;
     }

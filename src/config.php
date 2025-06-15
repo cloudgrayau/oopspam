@@ -21,6 +21,8 @@ return [
   'pluginName' => '',
   'spamScore' => 3, /* 1-6 */
   'blockTempEmail' => false,
+  'blockVPN' => false,
+  'blockDC' => false,
   'checkForLength' => true,
   'logIt' => false,
   'urlFriendly' => false,

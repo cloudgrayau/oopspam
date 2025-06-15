@@ -2,7 +2,11 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
-## 1.1.2 - 2025-06-16
+## 1.2.0 - 2025-06-16
+### Added
+- Added new setting `blockVPN` for blocking VPN, Proxy and TOR IPs
+- Added new setting `blockDC` for blocking Data Center IPs
+
 ### Changed
 - Fixed light-switch field styling
 
