@@ -68,6 +68,15 @@
 .range-wrapper{max-width:200px}input.range{-webkit-appearance:none;-moz-appearance:none;appearance:none;display:block;width:100%}input.range:focus{outline:none}input.range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;background:var(--ui-control-color);border:none;border-radius:calc(var(--touch-target-size)/2);box-shadow:0 0 0 1px var(--white);cursor:pointer;height:var(--m);margin-block-start:calc(var(--m)/2*-1 + 3px);width:var(--m)}input.range::-moz-range-thumb{background:var(--ui-control-color);border:none;border-radius:calc(var(--touch-target-size)/2);box-shadow:0 0 0 1px var(--white);cursor:pointer;height:var(--m);width:var(--m)}input.range::-ms-thumb{background:var(--ui-control-color);border:none;border-radius:calc(var(--touch-target-size)/2);box-shadow:0 0 0 1px var(--white);cursor:pointer;height:var(--m);width:var(--m)}input.range::-webkit-slider-runnable-track{background:var(--white);border-radius:3px;box-shadow:inset 0 0 0 1px var(--ui-control-color);cursor:pointer;height:6px;width:100%}input.range::-moz-range-track{background:var(--white);border-radius:3px;box-shadow:inset 0 0 0 1px var(--ui-control-color);cursor:pointer;height:6px;width:100%}input.range::-ms-track{background:transparent;border-color:transparent;border-width:16px 0;color:transparent;cursor:pointer;height:6px;width:100%}input.range::-ms-fill-lower,input.range::-ms-fill-upper{background:var(--white);border:none;border-radius:3px}input.range:focus::-ms-fill-lower{background:var(--white)}
 {% endcss %}
 {% endif %}
+
+    {{ forms.lightswitchField({
+      label: 'Block Spam Content (AI)',
+      instructions: 'Block content that is marked as spam by a machine learning algorithm.',
+      name: 'blockContentSpam',
+      on: settings.blockContentSpam,
+      errors: settings.getErrors('blockContentSpam'),
+      warning: macros.configWarning('blockContentSpam', 'oopspam'),
+    }) }}
     
     {{ forms.lightswitchField({
       label: 'Block Temporary Emails',

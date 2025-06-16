@@ -2,8 +2,9 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
-## 1.2.0 - 2025-06-16
+## 1.2.1 - 2025-06-16
 ### Added
+- Added new setting `blockContentSpam` for blocking spam content based on an AI algorithm
 - Added new setting `blockVPN` for blocking VPN, Proxy and TOR IPs
 - Added new setting `blockDC` for blocking Data Center IPs
 

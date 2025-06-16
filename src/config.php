@@ -20,6 +20,7 @@ return [
   'maxLogs' => 30, /* 1-90 */
   'pluginName' => '',
   'spamScore' => 3, /* 1-6 */
+  'blockContentSpam' => true,
   'blockTempEmail' => false,
   'blockVPN' => false,
   'blockDC' => false,

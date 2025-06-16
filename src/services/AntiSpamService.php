@@ -141,6 +141,11 @@ class AntiSpamService extends Component {
   }
   
   public function isSpam(array $results): bool {
+    if (isset($results['isContentSpam'])){
+      if ((bool)OOPSpam::$plugin->settings->blockContentSpam && (string)$results['isContentSpam'] == 'spam'){
+        return true;
+      }
+    }
     if (isset($results['Score'])){
       if ((int)$results['Score'] >= (int)OOPSpam::$plugin->settings->spamScore){
         return true;
