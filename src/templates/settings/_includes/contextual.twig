@@ -26,6 +26,7 @@
           instructions: 'Briefly describe your website\'s purpose or business (2-3 sentences maximum)',
           rows: 5,
           value: settings.contextualContent,
+          errors: settings.getErrors('contextualContent'),
           warning: macros.configWarning('contextualContent', 'oopspam'),
       }) }}
       {% set warning = macros.configWarning('contextual', 'oopspam') %}
@@ -37,7 +38,7 @@
 {% for key, obj in objs %}
 {% if craft.app.plugins.isPluginEnabled(key) %}
         <p>
-          <input type="checkbox" class="checkbox" name="contextual[]" id="{{ key }}" value="{{ key }}"{% if key in settings.contextual %} checked="checked"{% endif %}> <label for="{{ key }}">Enable <strong>{{ obj.title }}</strong> {% if obj.information is defined %}<small>{{ obj.information|raw }}</small>{% endif %}<br><small><a href="{{ obj.url }}" target="_blank">{{ obj.url }}</a></small></label>
+          <input type="checkbox" class="checkbox" name="contextual[]" id="{{ key~'-contextual' }}" value="{{ key }}"{% if key in settings.contextual %} checked="checked"{% endif %}> <label for="{{ key~'-contextual' }}">Enable <strong>{{ obj.title }}</strong> {% if obj.information is defined %}<small>{{ obj.information|raw }}</small>{% endif %}<br><small><a href="{{ obj.url }}" target="_blank">{{ obj.url }}</a></small></label>
         </p>
 {% endif %}
 {% endfor %}

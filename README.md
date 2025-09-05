@@ -61,5 +61,19 @@ The `email` and `content` params are required. The `checkForLength` parameter is
     if (\cloudgrayau\oopspam\OOPSpam::checkSpam($params, '<FORM LABEL>')){ /* passed */
     }
     ?>
+    
+### Contextual Detection
+
+If you would rather use contextual detection, the `content` and `contextual` params are required ONLY.
+
+    <?php    
+    $params = [
+      'content' => '<MESSAGE>',
+      'contextual' => true,
+      'context' => '<WEBSITE PURPOSE>' /* optional, override */
+    ];
+    if (\cloudgrayau\oopspam\OOPSpam::checkSpam($params, '<FORM LABEL>')){ /* passed */
+    }
+    ?>
 
 Brought to you by [Cloud Gray Pty Ltd](https://cloudgray.com.au/)

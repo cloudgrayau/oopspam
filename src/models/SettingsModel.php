@@ -1,6 +1,7 @@
 <?php
 namespace cloudgrayau\oopspam\models;
 
+use Craft;
 use craft\base\Model;
 use craft\validators\ArrayValidator;
 
@@ -61,27 +62,25 @@ class SettingsModel extends Model {
   // Public Methods
   // =========================================================================
 
-  public function rules(): array {
-    return [
+  public function rules(): array {    
+    if (!Craft::$app->getRequest()->getBodyParam('settings[integrations]')){
+      $this->integrations = [''];
+    }
+    if (!Craft::$app->getRequest()->getBodyParam('settings[contextual]')){
+      $this->contextual  = [''];
+    }
+    $rules = [
       [['apiKey','apiService'], 'required'],
-      [['apiKey','apiService','pluginName'], 'string'],
+      [['apiKey','apiService','contextualContent','pluginName'], 'string'],
       [['enableUserRegistration','enableContextual','blockTempEmail','blockVPN','blockDC','checkForLength','logIt','urlFriendly'], 'boolean'],
       [['allowedLanguages','allowedCountries','blockedCountries','integrations','contextual','blockedEmails','blockedIPs','allowedEmails','allowedIPs'], ArrayValidator::class],
       ['maxLogs', 'integer', 'min' => 1, 'max' => 90],
-      ['spamScore', 'integer', 'min' => 1, 'max' => 6],
-      ['contextualContent', 'validateContextual']
+      ['spamScore', 'integer', 'min' => 1, 'max' => 6]
     ];
-  }
-  
-  public function validateContextual($attribute): bool {
-    $value = trim($this->$attribute);
     if ($this->enableContextual){
-      if (empty($value)){
-        $this->addError($attribute, 'Contextual content is required for contextual analysis');
-        return false;
-      }
+      $rules[] = [['contextualContent'], 'required'];
     }
-    return true;
+    return $rules;
   }
   
 }

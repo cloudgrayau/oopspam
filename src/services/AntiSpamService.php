@@ -38,7 +38,7 @@ class AntiSpamService extends Component {
             }, $classes));
             $className = '\cloudgrayau\oopspam\integrations\\'.$class.'Integration';
             $obj = new $className();
-            $obj->parse();
+            $obj->parse($integration);
           }
         }
       }
@@ -47,12 +47,19 @@ class AntiSpamService extends Component {
   
   public function checkSpam(array $params, string $type=''): bool {    
     $content = $params['content'] ?? '';
-    $data = [
-      'senderIP' => Craft::$app->request->getUserIP(),
-      'email' => StringHelper::trim($params['email'] ?? ''),
-      'content' => (is_array($content)) ? StringHelper::trim(implode('; ', $content)) : StringHelper::trim($content),
-      'checkForLength' => (isset($params['checkForLength'])) ? (bool)$params['checkForLength'] : (bool)OOPSpam::$plugin->settings->checkForLength
-    ];
+    if ((isset($params['contextual'])) && ($params['contextual'] == true)){
+      $data = [
+        'content' => (is_array($content)) ? StringHelper::trim(implode('; ', $content)) : StringHelper::trim($content),
+        'context' => (isset($params['context'])) ? $params['context'] : OOPSpam::$plugin->settings->contextualContent
+      ];
+    } else {
+      $data = [
+        'senderIP' => Craft::$app->request->getUserIP(),
+        'email' => StringHelper::trim($params['email'] ?? ''),
+        'content' => (is_array($content)) ? StringHelper::trim(implode('; ', $content)) : StringHelper::trim($content),
+        'checkForLength' => (isset($params['checkForLength'])) ? (bool)$params['checkForLength'] : (bool)OOPSpam::$plugin->settings->checkForLength
+      ];
+    }
     $endpoint = $this->apiVersion.$this->endpoint;
     
     /* DO MANUAL CHECK */
@@ -89,29 +96,31 @@ class AntiSpamService extends Component {
     }
     
     /* DO SERVICE CHECK */
-    if ((bool)OOPSpam::$plugin->settings->blockTempEmail){
-      $data['blockTempEmail'] = (bool)OOPSpam::$plugin->settings->blockTempEmail;
-    }
-    if ((bool)OOPSpam::$plugin->settings->blockVPN){
-      $data['blockVPN'] = (bool)OOPSpam::$plugin->settings->blockVPN;
-    }
-    if ((bool)OOPSpam::$plugin->settings->blockDC){
-      $data['blockDC'] = (bool)OOPSpam::$plugin->settings->blockDC;
-    }
     if ((bool)OOPSpam::$plugin->settings->logIt){
       $data['logIt'] = (bool)OOPSpam::$plugin->settings->logIt;
     }
-    if ((bool)OOPSpam::$plugin->settings->urlFriendly){
-      $data['urlFriendly'] = (bool)OOPSpam::$plugin->settings->urlFriendly;
-    }
-    if (!empty((array)OOPSpam::$plugin->settings->allowedLanguages)){
-      $data['allowedLanguages'] = (array)OOPSpam::$plugin->settings->allowedLanguages;
-    }
-    if (!empty((array)OOPSpam::$plugin->settings->allowedCountries)){
-      $data['allowedCountries'] = (array)OOPSpam::$plugin->settings->allowedCountries;
-    }
-    if (!empty((array)OOPSpam::$plugin->settings->blockedCountries)){
-      $data['blockedCountries'] = (array)OOPSpam::$plugin->settings->blockedCountries;
+    if (!isset($data['context'])){ /* if not contextual */
+      if ((bool)OOPSpam::$plugin->settings->blockTempEmail){
+        $data['blockTempEmail'] = (bool)OOPSpam::$plugin->settings->blockTempEmail;
+      }
+      if ((bool)OOPSpam::$plugin->settings->blockVPN){
+        $data['blockVPN'] = (bool)OOPSpam::$plugin->settings->blockVPN;
+      }
+      if ((bool)OOPSpam::$plugin->settings->blockDC){
+        $data['blockDC'] = (bool)OOPSpam::$plugin->settings->blockDC;
+      }
+      if ((bool)OOPSpam::$plugin->settings->urlFriendly){
+        $data['urlFriendly'] = (bool)OOPSpam::$plugin->settings->urlFriendly;
+      }
+      if (!empty((array)OOPSpam::$plugin->settings->allowedLanguages)){
+        $data['allowedLanguages'] = (array)OOPSpam::$plugin->settings->allowedLanguages;
+      }
+      if (!empty((array)OOPSpam::$plugin->settings->allowedCountries)){
+        $data['allowedCountries'] = (array)OOPSpam::$plugin->settings->allowedCountries;
+      }
+      if (!empty((array)OOPSpam::$plugin->settings->blockedCountries)){
+        $data['blockedCountries'] = (array)OOPSpam::$plugin->settings->blockedCountries;
+      }
     }
     $data['source'] = Craft::$app->request->getHostName();
     $result = $this->sendRequest($data, $endpoint);
