@@ -40,6 +40,18 @@ class SettingsModel extends Model {
     'comments'
   ];
   
+  /* CONTEXTUAL */
+  public bool $enableContextual = false;
+  public string $contextualContent = '';
+  public array $contextual = [
+    'formie',
+    'freeform',
+    'contact-form',
+    'wheelform',
+    'express-forms',
+    'comments'
+  ];
+  
   /* MANUAL */
   public array $blockedEmails = [];
   public array $blockedIPs = [];
@@ -53,11 +65,23 @@ class SettingsModel extends Model {
     return [
       [['apiKey','apiService'], 'required'],
       [['apiKey','apiService','pluginName'], 'string'],
-      [['enableUserRegistration','blockTempEmail','blockVPN','blockDC','checkForLength','logIt','urlFriendly'], 'boolean'],
-      [['allowedLanguages','allowedCountries','blockedCountries','integrations','blockedEmails','blockedIPs','allowedEmails','allowedIPs'], ArrayValidator::class],
+      [['enableUserRegistration','enableContextual','blockTempEmail','blockVPN','blockDC','checkForLength','logIt','urlFriendly'], 'boolean'],
+      [['allowedLanguages','allowedCountries','blockedCountries','integrations','contextual','blockedEmails','blockedIPs','allowedEmails','allowedIPs'], ArrayValidator::class],
       ['maxLogs', 'integer', 'min' => 1, 'max' => 90],
       ['spamScore', 'integer', 'min' => 1, 'max' => 6],
+      ['contextualContent', validateContextual]
     ];
+  }
+  
+  public function validateContextual($attribute): bool {
+    $value = trim($this->$attribute);
+    if ($this->enableContextual){
+      if (empty($value)){
+        $this->addError($attribute, 'Contextual content is required for contextual analysis');
+        return false;
+      }
+    }
+    return true;
   }
   
 }

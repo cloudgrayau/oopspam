@@ -15,6 +15,7 @@ class CommentsIntegration {
   public function parse(): void {
     Event::on(\verbb\comments\elements\Comment::class, \verbb\comments\elements\Comment::EVENT_BEFORE_SAVE, function(ModelEvent $e){
       $comment = $e->sender;
+      $contentId = $comment->ownerId;
       $params = [
         'email' => ($comment->userId) ? Craft::$app->getUser()->getIdentity()->email : $comment->email,
         'content' => $comment->getComment()

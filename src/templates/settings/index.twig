@@ -23,6 +23,7 @@
   "general": {label: "Settings", url: "#general"},
   "security": {label: "Security", url: "#security"},
   "integrations": {label: "Integrations", url: "#integrations"},
+  "contextual": {label: "Contextual (Experimental)", url: "#contextual"},
   "manual": {label: "Manual", url: "#manual"}
 } %}
 
@@ -40,6 +41,9 @@
   
   {# -- Integrations settings -- #}
   {% include "oopspam/settings/_includes/integrations" %}
+  
+  {# -- Contextual settings -- #}
+  {% include "oopspam/settings/_includes/contextual" %}
   
   {# -- Integrations settings -- #}
   {% include "oopspam/settings/_includes/manual" %}

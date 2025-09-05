@@ -42,6 +42,16 @@ return [
     'express-forms',
     'comments'
   ],
+  'enableContextual' => false,
+  'contextualContent' => '',
+  'contextual' => [
+    'formie',
+    'freeform',
+    'contact-form',
+    'wheelform',
+    'express-forms',
+    'comments'
+  ],
   'blockedEmails' => [
   ],
   'blockedIPs' => [
