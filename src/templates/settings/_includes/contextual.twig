@@ -1,0 +1,50 @@
+{% import "_includes/forms" as forms %}
+{% import 'cloudgrayau-utils/_macros' as macros %}
+<div id="contextual" class="hidden">
+    {% namespace "settings" %}
+    
+    <h2>Contextual Detection (Experimental)</h2>
+    <p>Enable Contextual Detection to improve spam accuracy by analysing form submissions based on your website's purpose.</p>
+    <p><strong>Use this feature ONLY</strong> if your forms include a required textfield. It relies on message content to function properly.</p>
+    
+    {{ forms.lightswitchField({
+        label: 'Enable Contextual Detection?',
+        instructions: 'When enabled, standard spam detection is disabled. Only contextual detection will be used.',
+        name: 'enableContextual',
+        on: settings.enableContextual,
+        toggle: 'contextual-fields',
+        errors: settings.getErrors('enableContextual'),
+        warning: macros.configWarning('enableContextual', 'oopspam'),
+    }) }}
+    
+    {{ forms.textareaField({
+        label: 'Contextual Content',
+        name: 'contextualContent',
+        instructions: 'Briefly describe your website\'s purpose or business (2-3 sentences maximum)',
+        rows: 5,
+        value: settings.contextualContent,
+        warning: macros.configWarning('contextualContent', 'oopspam'),
+    }) }}
+    {% set warning = macros.configWarning('contextual', 'oopspam') %}
+    
+    <div id="contextual-fields" class="field {{ not settings.enableContextual ? 'hidden' }}">
+      
+      <h3>Contextual Integrations</h3>
+      <p>Customise which integrations contextual detection is used for.</p>
+      
+{% for objs in helper.integrations %}
+{% for key, obj in objs %}
+{% if craft.app.plugins.isPluginEnabled(key) %}
+        <p>
+          <input type="checkbox" class="checkbox" name="contextual[]" id="{{ key }}" value="{{ key }}"{% if key in settings.contextual %} checked="checked"{% endif %}> <label for="{{ key }}">Enable <strong>{{ obj.title }}</strong> {% if obj.information is defined %}<small>{{ obj.information|raw }}</small>{% endif %}<br><small><a href="{{ obj.url }}" target="_blank">{{ obj.url }}</a></small></label>
+        </p>
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% if (warning) %}
+        <p class="warning has-icon"><span class="icon" aria-hidden="true"></span><span class="visually-hidden">Warning: </span><span>{{ warning }}</span></p>
+{% endif %}
+    </div>
+
+    {% endnamespace %}
+</div>
