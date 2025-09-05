@@ -6,6 +6,7 @@
     <h2>Contextual Detection (Experimental)</h2>
     <p>Enable Contextual Detection to improve spam accuracy by analysing form submissions based on your website's purpose.</p>
     <p><strong>Use this feature ONLY</strong> if your forms include a required textfield. It relies on message content to function properly.</p>
+    <hr>
     
     {{ forms.lightswitchField({
         label: 'Enable Contextual Detection?',
@@ -17,20 +18,20 @@
         warning: macros.configWarning('enableContextual', 'oopspam'),
     }) }}
     
-    {{ forms.textareaField({
-        label: 'Contextual Content',
-        name: 'contextualContent',
-        instructions: 'Briefly describe your website\'s purpose or business (2-3 sentences maximum)',
-        rows: 5,
-        value: settings.contextualContent,
-        warning: macros.configWarning('contextualContent', 'oopspam'),
-    }) }}
-    {% set warning = macros.configWarning('contextual', 'oopspam') %}
-    
     <div id="contextual-fields" class="field {{ not settings.enableContextual ? 'hidden' }}">
       
+      {{ forms.textareaField({
+          label: 'Contextual Content',
+          name: 'contextualContent',
+          instructions: 'Briefly describe your website\'s purpose or business (2-3 sentences maximum)',
+          rows: 5,
+          value: settings.contextualContent,
+          warning: macros.configWarning('contextualContent', 'oopspam'),
+      }) }}
+      {% set warning = macros.configWarning('contextual', 'oopspam') %}
+      
       <h3>Contextual Integrations</h3>
-      <p>Customise which integrations contextual detection is used for.</p>
+      <p style="margin-top: -10px;">Customise which integrations contextual detection is enabled for.</p>
       
 {% for objs in helper.integrations %}
 {% for key, obj in objs %}
@@ -41,6 +42,9 @@
 {% endif %}
 {% endfor %}
 {% endfor %}
+        <p>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21.13 15.19" fill="currentColor" style="width: 13px; display: inline;margin-right:4px;"><path d="M19.41 0 7.55 11.86 1.72 6.02 0 7.74l7.37 7.37.08.08h.21L21.13 1.72 19.41 0z" style="stroke-width:0"></path></svg> <strong>Custom Forms</strong> - <small>requires custom programming</small>
+        </p>
 {% if (warning) %}
         <p class="warning has-icon"><span class="icon" aria-hidden="true"></span><span class="visually-hidden">Warning: </span><span>{{ warning }}</span></p>
 {% endif %}

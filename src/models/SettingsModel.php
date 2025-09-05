@@ -69,7 +69,7 @@ class SettingsModel extends Model {
       [['allowedLanguages','allowedCountries','blockedCountries','integrations','contextual','blockedEmails','blockedIPs','allowedEmails','allowedIPs'], ArrayValidator::class],
       ['maxLogs', 'integer', 'min' => 1, 'max' => 90],
       ['spamScore', 'integer', 'min' => 1, 'max' => 6],
-      ['contextualContent', validateContextual]
+      ['contextualContent', 'validateContextual']
     ];
   }
   
