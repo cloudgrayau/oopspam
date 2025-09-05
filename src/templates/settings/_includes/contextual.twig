@@ -4,13 +4,12 @@
     {% namespace "settings" %}
     
     <h2>Contextual Detection (Experimental)</h2>
-    <p>Enable Contextual Detection to improve spam accuracy by analysing form submissions based on your website's purpose.</p>
     <p><strong>Use this feature ONLY</strong> if your forms include a required textfield. It relies on message content to function properly.</p>
     <hr>
     
     {{ forms.lightswitchField({
         label: 'Enable Contextual Detection?',
-        instructions: 'When enabled, standard spam detection is disabled. Only contextual detection will be used.',
+        instructions: 'Enable Contextual Detection to improve spam accuracy by analysing form submissions based on your website\'s purpose.',
         name: 'enableContextual',
         on: settings.enableContextual,
         toggle: 'contextual-fields',

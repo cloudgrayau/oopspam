@@ -8,11 +8,13 @@ use yii\base\Event;
 
 class WheelformIntegration {
   
+  public $integration = '';
   public function getName(): string {
     return 'Wheel Form';
   }
 
-  public function parse(): void {
+  public function parse(string $integration): void {
+    $this->integration = $integration;
     $plugin = Craft::$app->plugins->getPlugin('wheelform');
     if ((int)StringHelper::replace($plugin->getVersion(), '.', '') >= 402){
       Event::on(\wheelform\controllers\MessageController::class, \wheelform\controllers\MessageController::EVENT_BEFORE_SAVE, function(\wheelform\events\MessageEvent $e){
@@ -33,6 +35,9 @@ class WheelformIntegration {
               $params['content'][] = $obj->value;
               break;
           }
+        }
+        if ((OOPSpam::$plugin->settings->enableContextual) && (!empty(OOPSpam::$plugin->settings->contextualContent)) && (in_array($this->integration, OOPSpam::$plugin->settings->contextual))){
+          $params['contextual'] = true;
         }
         if (!OOPSpam::$plugin->antiSpam->checkSpam($params, $this->getName())){
           $e->sendMessage = false;

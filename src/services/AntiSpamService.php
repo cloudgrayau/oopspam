@@ -47,6 +47,8 @@ class AntiSpamService extends Component {
   
   public function checkSpam(array $params, string $type=''): bool {    
     $content = $params['content'] ?? '';
+    $email = StringHelper::trim($params['email'] ?? '');
+    $senderIP = Craft::$app->request->getUserIP();
     if ((isset($params['contextual'])) && ($params['contextual'] == true)){
       $data = [
         'content' => (is_array($content)) ? StringHelper::trim(implode('; ', $content)) : StringHelper::trim($content),
@@ -54,8 +56,8 @@ class AntiSpamService extends Component {
       ];
     } else {
       $data = [
-        'senderIP' => Craft::$app->request->getUserIP(),
-        'email' => StringHelper::trim($params['email'] ?? ''),
+        'senderIP' => $senderIP,
+        'email' => $email,
         'content' => (is_array($content)) ? StringHelper::trim(implode('; ', $content)) : StringHelper::trim($content),
         'checkForLength' => (isset($params['checkForLength'])) ? (bool)$params['checkForLength'] : (bool)OOPSpam::$plugin->settings->checkForLength
       ];
@@ -67,7 +69,8 @@ class AntiSpamService extends Component {
     $blockedIPs = array_map(['\cloudgrayau\oopspam\helpers\SettingsHelper', 'mapSettings'], OOPSpam::$plugin->settings->blockedIPs);
     $allowedEmails = array_map(['\cloudgrayau\oopspam\helpers\SettingsHelper', 'mapSettings'], OOPSpam::$plugin->settings->allowedEmails);
     $allowedIPs = array_map(['\cloudgrayau\oopspam\helpers\SettingsHelper', 'mapSettings'], OOPSpam::$plugin->settings->allowedIPs);
-    if (in_array($data['email'], $allowedEmails) || in_array($data['senderIP'], $allowedIPs)){
+      
+    if (in_array($email, $allowedEmails) || in_array($senderIP, $allowedIPs)){
       if (OOPSpam::$plugin->settings->enableLogs){
         OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
           'Score' => 0,
@@ -76,7 +79,7 @@ class AntiSpamService extends Component {
       }
       return true;
     }  
-    if (in_array($data['email'], $blockedEmails) || in_array($data['senderIP'], $blockedIPs)){
+    if (in_array($email, $blockedEmails) || in_array($senderIP, $blockedIPs)){
       if (OOPSpam::$plugin->settings->enableLogs){
         OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
           'Score' => 6,
@@ -85,14 +88,16 @@ class AntiSpamService extends Component {
       }
       return false;
     }
-    if ($data['checkForLength'] && (StringHelper::count($data['content']) < 20)){
-      if (OOPSpam::$plugin->settings->enableLogs){
-        OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
-          'Score' => 6,
-          'Reason' => 'Blocked due to content length; checkForLength'
-        ], $type);
+    if (isset($data['checkForLength'])){
+      if ($data['checkForLength'] && (StringHelper::count($data['content']) < 20)){
+        if (OOPSpam::$plugin->settings->enableLogs){
+          OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
+            'Score' => 6,
+            'Reason' => 'Blocked due to content length; checkForLength'
+          ], $type);
+        }
+        return false;
       }
-      return false;
     }
     
     /* DO SERVICE CHECK */

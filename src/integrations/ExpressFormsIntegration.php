@@ -6,11 +6,13 @@ use yii\base\Event;
 
 class ExpressFormsIntegration {
   
+  public $integration = '';
   public function getName(): string {
     return 'Express Forms';
   }
 
-  public function parse(): void {
+  public function parse(string $integration): void {
+    $this->integration = $integration;
     Event::on(\Solspace\ExpressForms\models\Form::class, \Solspace\ExpressForms\models\Form::EVENT_VALIDATE_FORM, function(\Solspace\ExpressForms\events\forms\FormValidateEvent $e){
       if (!$e->getForm()->isValid()){
         return;
@@ -27,6 +29,9 @@ class ExpressFormsIntegration {
             $params['content'][] = $field->getValue();
             break;
         }
+      }
+      if ((OOPSpam::$plugin->settings->enableContextual) && (!empty(OOPSpam::$plugin->settings->contextualContent)) && (in_array($this->integration, OOPSpam::$plugin->settings->contextual))){
+        $params['contextual'] = true;
       }
       if (!OOPSpam::$plugin->antiSpam->checkSpam($params, $this->getName())){
         $e->getForm()->markAsSpam();
