@@ -49,6 +49,7 @@ class AntiSpamService extends Component {
     $content = $params['content'] ?? '';
     $email = StringHelper::trim($params['email'] ?? '');
     $senderIP = Craft::$app->request->getUserIP();
+    $checkForLength = (isset($params['checkForLength'])) ? (bool)$params['checkForLength'] : (bool)OOPSpam::$plugin->settings->checkForLength;
     if ((isset($params['contextual'])) && ($params['contextual'] == true)){
       $data = [
         'content' => (is_array($content)) ? StringHelper::trim(implode('; ', $content)) : StringHelper::trim($content),
@@ -59,7 +60,7 @@ class AntiSpamService extends Component {
         'senderIP' => $senderIP,
         'email' => $email,
         'content' => (is_array($content)) ? StringHelper::trim(implode('; ', $content)) : StringHelper::trim($content),
-        'checkForLength' => (isset($params['checkForLength'])) ? (bool)$params['checkForLength'] : (bool)OOPSpam::$plugin->settings->checkForLength
+        'checkForLength' => $checkForLength
       ];
     }
     $endpoint = $this->apiVersion.$this->endpoint;
@@ -88,16 +89,14 @@ class AntiSpamService extends Component {
       }
       return false;
     }
-    if (isset($data['checkForLength'])){
-      if ($data['checkForLength'] && (StringHelper::count($data['content']) < 20)){
-        if (OOPSpam::$plugin->settings->enableLogs){
-          OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
-            'Score' => 6,
-            'Reason' => 'Blocked due to content length; checkForLength'
-          ], $type);
-        }
-        return false;
+    if ($checkForLength && (StringHelper::count($data['content']) < 20)){
+      if (OOPSpam::$plugin->settings->enableLogs){
+        OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
+          'Score' => 6,
+          'Reason' => 'Blocked due to content length; checkForLength'
+        ], $type);
       }
+      return false;
     }
     
     /* DO SERVICE CHECK */

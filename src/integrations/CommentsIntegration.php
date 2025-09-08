@@ -25,7 +25,7 @@ class CommentsIntegration {
       if ((OOPSpam::$plugin->settings->enableContextual) && (!empty(OOPSpam::$plugin->settings->contextualContent)) && (in_array($this->integration, OOPSpam::$plugin->settings->contextual))){
         $entry = Entry::find()->id($comment->ownerId)->one();
         $params['contextual'] = true;
-        $params['context'] = 'Description: '.OOPSpam::$plugin->settings->contextualContent.' Title: '.$entry->title;
+        $params['context'] = 'Title: '.$entry->title.' | Description: '.OOPSpam::$plugin->settings->contextualContent;
       }
       if (!OOPSpam::$plugin->antiSpam->checkSpam($params, $this->getName())){
         $comment->status = \verbb\comments\elements\Comment::STATUS_SPAM;

@@ -22,7 +22,7 @@ A valid API key from the [OOPSpam Service](https://oopspam.com/?ref=cloudgray) i
 
 ## Protection
 
-The OOPSpam plugin protects the following services from spam and includes optional logging and reporting in the Craft CMS dashboard.
+The OOPSpam plugin protects the following services from spam and includes optional logging and reporting in the Craft CMS dashboard. The plugin supports both standard protection and contextual detection.
 
 ### User Registration Protection
 
@@ -72,6 +72,7 @@ If you would rather use contextual detection, the `content` and `contextual` par
       'content' => '<MESSAGE>',
       'contextual' => true,
       'context' => '<WEBSITE PURPOSE>' /* optional, override */
+      'checkForLength' => true /* optional */
     ];
     if (\cloudgrayau\oopspam\OOPSpam::checkSpam($params, '<FORM LABEL>')){ /* passed */
     }
