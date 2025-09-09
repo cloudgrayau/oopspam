@@ -29,6 +29,7 @@ class CommentsIntegration {
       }
       if (!OOPSpam::$plugin->antiSpam->checkSpam($params, $this->getName())){
         $comment->status = \verbb\comments\elements\Comment::STATUS_SPAM;
+        $comment->addError('comment', Craft::t('comments', 'Comment blocked due to spam.'));
       }
     });
   }

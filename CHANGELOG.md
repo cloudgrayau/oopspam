@@ -2,6 +2,10 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.3.0- 2025-09-09
+### Added
+- Added contextual spam detection
+
 ## 1.2.1 - 2025-06-16
 ### Added
 - Added new setting `blockContentSpam` for blocking spam content based on an AI algorithm
