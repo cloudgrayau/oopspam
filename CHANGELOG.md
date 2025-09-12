@@ -5,7 +5,7 @@ Release notes for the OOPSpam Craft CMS plugin.
 ## 1.3.0- 2025-09-09
 ### Added
 - Added `Craft Commerce` integration
-- Added contextual spam detection
+- Added **contextual spam detection**
 
 ### Changed
 - Improved `verbb/comments` integration
