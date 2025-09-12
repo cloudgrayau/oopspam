@@ -17,7 +17,7 @@ class UserRegistrationIntegration {
       $user = $e->sender;
       if ($user->firstSave){
         $params = [
-          'email' => $user->email ?? '',
+          'email' => $user->email,
           'checkForLength' => false
         ];
         if (!OOPSpam::$plugin->antiSpam->checkSpam($params, $this->getName())){

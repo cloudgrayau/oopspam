@@ -19,7 +19,7 @@ class CommerceIntegration {
   public function parse(): void {
     Event::on(Payments::class, Payments::EVENT_BEFORE_PROCESS_PAYMENT, function (ProcessPaymentEvent $e){
       $params = [
-        'email' => $e->order->email ?? '',
+        'email' => $e->order->email,
         'checkForLength' => false
       ];
       if (!OOPSpam::$plugin->antiSpam->checkSpam($params, $this->getName())){
@@ -29,7 +29,7 @@ class CommerceIntegration {
     Event::on(Subscriptions::class, Subscriptions::EVENT_BEFORE_CREATE_SUBSCRIPTION, function (CreateSubscriptionEvent $e){
       $user = $e->user;
       $params = [
-        'email' => $user->email ?? '',
+        'email' => $user->email,
         'checkForLength' => false
       ];
       if (!OOPSpam::$plugin->antiSpam->checkSpam($params, $this->getName())){
