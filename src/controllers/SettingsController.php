@@ -14,20 +14,22 @@ class SettingsController extends Controller {
   // =========================================================================
 
   public function actionSettings(): Response {
-    $settings = OOPSpam::$plugin->getSettings();    
+    $settings = OOPSpam::$plugin->getSettings();
     $js = <<<JS
 $('#settings-allowedLanguages, #settings-allowedCountries, #settings-blockedCountries').selectize({
     plugins: ['remove_button'],
 });
 JS;
     Craft::$app->getView()->registerJs($js);
+    $edition = (isset(Craft::$app->edition->value)) ? Craft::$app->edition->value : Craft::$app->getEdition();  
     return $this->renderTemplate('oopspam/settings', [
       'settings' => $settings,
       'helper' => [
         'countries' => SettingsHelper::getCountries(),
         'languages' => SettingsHelper::getLanguages(),
         'services' => SettingsHelper::getServices(),
-        'integrations' => SettingsHelper::getIntegrations()
+        'integrations' => SettingsHelper::getIntegrations(),
+        'edition' => $edition
       ],
       'limits' => OOPSpam::$plugin->logs->getUsage()
     ]);

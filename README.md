@@ -14,7 +14,7 @@ This plugin requires Craft CMS 4.0.0 or later.
 
 ## OOPSpam Overview
 
-OOPSpam is a privacy friendly anti-spam utility for protecting forms, user registrations and comments in Craft CMS.
+OOPSpam is a privacy friendly anti-spam utility for protecting forms, user registrations, commerce and comments in Craft CMS.
 
 OOPSpam is a modern spam filter that uses machine learning to analyse messages, checking each submission against an extensive database of over 500 million IPs and emails to effectively detect and block spam. The OOPSpam API protects over 3.5 million websites daily.
 
@@ -27,6 +27,10 @@ The OOPSpam plugin protects the following services from spam and includes option
 ### User Registration Protection
 
 Protects user registrations from spam.
+
+### Commerce Protection
+
+Protects orders and subscriptions from spam.
 
 ### Form Protection
 

@@ -2,9 +2,8 @@
 {% import 'cloudgrayau-utils/_macros' as macros %}
 <div id="integrations" class="hidden">
     {% namespace "settings" %}
-    
+{% if (helper.edition) %}
     <h2>Craft CMS</h2>
-    
     {{ forms.lightswitchField({
       label: 'Protect User Registration',
       name: 'enableUserRegistration',
@@ -12,7 +11,7 @@
       errors: settings.getErrors('enableUserRegistration'),
       warning: macros.configWarning('enableUserRegistration', 'oopspam'),
     }) }}
-    
+{% if craft.app.plugins.isPluginEnabled('commerce') %}
     {{ forms.lightswitchField({
       label: 'Protect Commerce',
       name: 'enableCommerce',
@@ -21,8 +20,9 @@
       warning: macros.configWarning('enableCommerce', 'oopspam'),
     }) }}
     {% set warning = macros.configWarning('integrations', 'oopspam') %}
-    
+{% endif %}
     <hr>
+{% endif %}
     <h2>Forms</h2>
     <p>The current form plugins/systems are protected:</p>
 {% for key, obj in helper.integrations['forms'] %}
