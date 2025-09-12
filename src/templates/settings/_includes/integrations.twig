@@ -19,12 +19,12 @@
       errors: settings.getErrors('enableCommerce'),
       warning: macros.configWarning('enableCommerce', 'oopspam'),
     }) }}
-    {% set warning = macros.configWarning('integrations', 'oopspam') %}
 {% endif %}
     <hr>
 {% endif %}
     <h2>Forms</h2>
     <p>The current form plugins/systems are protected:</p>
+{% set warning = macros.configWarning('integrations', 'oopspam') %}
 {% for key, obj in helper.integrations['forms'] %}
 {% if craft.app.plugins.isPluginEnabled(key) %}
     <p>
