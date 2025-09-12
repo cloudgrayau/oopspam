@@ -4,12 +4,21 @@
     {% namespace "settings" %}
     
     <h2>Craft CMS</h2>
+    
     {{ forms.lightswitchField({
       label: 'Protect User Registration',
       name: 'enableUserRegistration',
       on: settings.enableUserRegistration,
       errors: settings.getErrors('enableUserRegistration'),
       warning: macros.configWarning('enableUserRegistration', 'oopspam'),
+    }) }}
+    
+    {{ forms.lightswitchField({
+      label: 'Protect Commerce',
+      name: 'enableCommerce',
+      on: settings.enableCommerce,
+      errors: settings.getErrors('enableCommerce'),
+      warning: macros.configWarning('enableCommerce', 'oopspam'),
     }) }}
     {% set warning = macros.configWarning('integrations', 'oopspam') %}
     

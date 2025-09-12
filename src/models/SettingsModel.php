@@ -32,6 +32,7 @@ class SettingsModel extends Model {
   
   /* INTEGRATIONS */
   public bool $enableUserRegistration = true;
+  public bool $enableCommerce = true;
   public array $integrations = [
     'formie',
     'freeform',
@@ -72,7 +73,7 @@ class SettingsModel extends Model {
     $rules = [
       [['apiKey','apiService'], 'required'],
       [['apiKey','apiService','contextualContent','pluginName'], 'string'],
-      [['enableUserRegistration','enableContextual','blockTempEmail','blockVPN','blockDC','checkForLength','logIt','urlFriendly'], 'boolean'],
+      [['enableUserRegistration','enableCommerce','enableContextual','blockTempEmail','blockVPN','blockDC','checkForLength','logIt','urlFriendly'], 'boolean'],
       [['allowedLanguages','allowedCountries','blockedCountries','integrations','contextual','blockedEmails','blockedIPs','allowedEmails','allowedIPs'], ArrayValidator::class],
       ['maxLogs', 'integer', 'min' => 1, 'max' => 90],
       ['spamScore', 'integer', 'min' => 1, 'max' => 6]

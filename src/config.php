@@ -34,6 +34,7 @@ return [
   'blockedCountries' => [ /* Two-letter country codes */
   ],
   'enableUserRegistration' => true,
+  'enableCommerce' => true,
   'integrations' => [
     'formie',
     'freeform',

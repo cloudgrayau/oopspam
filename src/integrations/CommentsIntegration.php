@@ -4,7 +4,6 @@ use cloudgrayau\oopspam\OOPSpam;
 
 use Craft;
 use craft\elements\Entry;
-use craft\events\ModelEvent;
 use yii\base\Event;
 
 class CommentsIntegration {
@@ -16,7 +15,7 @@ class CommentsIntegration {
 
   public function parse(string $integration): void {
     $this->integration = $integration;
-    Event::on(\verbb\comments\elements\Comment::class, \verbb\comments\elements\Comment::EVENT_BEFORE_SAVE, function(ModelEvent $e){
+    Event::on(\verbb\comments\elements\Comment::class, \verbb\comments\elements\Comment::EVENT_BEFORE_VALIDATE, function(\yii\base\ModelEvent $e){
       $comment = $e->sender;
       $params = [
         'email' => ($comment->userId) ? Craft::$app->getUser()->getIdentity()->email : $comment->email,
@@ -28,8 +27,7 @@ class CommentsIntegration {
         $params['context'] = 'Title: '.$entry->title.' | Description: '.OOPSpam::$plugin->settings->contextualContent;
       }
       if (!OOPSpam::$plugin->antiSpam->checkSpam($params, $this->getName())){
-        $comment->status = \verbb\comments\elements\Comment::STATUS_SPAM;
-        $comment->addError('comment', Craft::t('comments', 'Comment blocked due to spam.'));
+        $comment->addError('comment', 'Comment blocked due to spam.');
       }
     });
   }

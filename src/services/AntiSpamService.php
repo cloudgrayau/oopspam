@@ -25,6 +25,12 @@ class AntiSpamService extends Component {
     $obj->parse();
   }
   
+  public function initCommerce(): void {
+    $className = '\cloudgrayau\oopspam\integrations\CommerceIntegration';
+    $obj = new $className();
+    $obj->parse();
+  }
+  
   public function initIntegrations(): void {
     $integrations = SettingsHelper::getIntegrations();
     foreach($integrations as $type => $object){

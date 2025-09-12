@@ -89,8 +89,12 @@ class OOPSpam extends Plugin {
       if (!$this->settings->apiKey || Craft::$app->getRequest()->getIsCpRequest() || Craft::$app->getRequest()->getIsConsoleRequest()){
         return;
       }
-      if ($this->settings->enableUserRegistration && Craft::$app->getEdition()){
+      $edition = (isset(Craft::$app->edition->value)) ? Craft::$app->edition->value : Craft::$app->getEdition();        
+      if ($this->settings->enableUserRegistration && $edition){
         $this->antiSpam->initRegistration();
+      }
+      if ($this->settings->enableCommerce && ($edition >= 2) && (Craft::$app->plugins->isPluginEnabled('commerce'))){ /* craft pro */
+        $this->antiSpam->initCommerce();
       }
       if (!empty($this->settings->integrations)){
         $this->antiSpam->initIntegrations();
