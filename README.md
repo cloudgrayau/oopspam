@@ -72,9 +72,9 @@ If you would rather use contextual detection, the `content` and `contextual` par
 
     <?php    
     $params = [
-      'email' => '<EMAIL>', /* optional */
       'content' => '<MESSAGE>',
       'contextual' => true,
+      'email' => '<EMAIL>', /* optional */
       'context' => '<WEBSITE PURPOSE>' /* optional, override */
       'checkForLength' => true /* optional */
     ];
