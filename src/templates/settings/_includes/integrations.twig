@@ -7,6 +7,7 @@
     {{ forms.lightswitchField({
       label: 'Protect User Registrations',
       name: 'enableUserRegistration',
+      instructions: 'Protect user registrations from spam.',
       on: settings.enableUserRegistration,
       errors: settings.getErrors('enableUserRegistration'),
       warning: macros.configWarning('enableUserRegistration', 'oopspam'),
@@ -15,6 +16,7 @@
     {{ forms.lightswitchField({
       label: 'Protect Commerce',
       name: 'enableCommerce',
+      instructions: 'Protect orders and subscriptions from spam.',
       on: settings.enableCommerce,
       errors: settings.getErrors('enableCommerce'),
       warning: macros.configWarning('enableCommerce', 'oopspam'),

@@ -19,6 +19,10 @@ class SettingsController extends Controller {
 $('#settings-allowedLanguages, #settings-allowedCountries, #settings-blockedCountries').selectize({
     plugins: ['remove_button'],
 });
+$('#settings-spamScore-num').change(function(e){
+  let scores = JSON.parse($(this).attr('data-scores'));
+  $('#settings-spamScore-text').html(scores[this.value-1]);
+});
 JS;
     Craft::$app->getView()->registerJs($js);
     $edition = (isset(Craft::$app->edition->value)) ? Craft::$app->edition->value : Craft::$app->getEdition();  
@@ -29,7 +33,15 @@ JS;
         'languages' => SettingsHelper::getLanguages(),
         'services' => SettingsHelper::getServices(),
         'integrations' => SettingsHelper::getIntegrations(),
-        'edition' => $edition
+        'edition' => $edition,
+        'scores' => [
+          'Extremely strict',
+          'Very strict',
+          'Moderate (recommended)',
+          'Slightly lenient',
+          'Lenient',
+          'Very lenient'
+        ]
       ],
       'limits' => OOPSpam::$plugin->logs->getUsage()
     ]);

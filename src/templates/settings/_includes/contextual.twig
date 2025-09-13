@@ -31,11 +31,11 @@
       {% set warning = macros.configWarning('contextual', 'oopspam') %}
       
       <h3>Contextual Integrations</h3>
-      <p style="margin-top: -10px;">Customise which integrations contextual detection is enabled for.</p>
+      <p style="margin-top: -10px;">Customise which enabled integrations contextual detection is enabled for.</p>
       
 {% for objs in helper.integrations %}
 {% for key, obj in objs %}
-{% if craft.app.plugins.isPluginEnabled(key) %}
+{% if craft.app.plugins.isPluginEnabled(key) and (key in settings.integrations) %}
         <p>
           <input type="checkbox" class="checkbox" name="contextual[]" id="{{ key~'-contextual' }}" value="{{ key }}"{% if key in settings.contextual %} checked="checked"{% endif %}> <label for="{{ key~'-contextual' }}">Enable <strong>{{ obj.title }}</strong> {% if obj.information is defined %}<small>{{ obj.information|raw }}</small>{% endif %}<br><small><a href="{{ obj.url }}" target="_blank">{{ obj.url }}</a></small></label>
         </p>
