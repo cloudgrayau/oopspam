@@ -81,10 +81,8 @@
 
 {% block actionButton %}
 {% if (logs|length) %}
-<div class="buttons">
-  <div class="btngroup submit">
-    <a href="{{ url('oopspam/logs/clear') }}" class="btn submit" id="clearLogs">Clear Logs</a>
-  </div>
+<div class="btngroup submit">
+  <a href="{{ url('oopspam/logs/clear') }}" class="btn submit" id="clearLogs">Clear Logs</a>
 </div>
 {% endif %}
 {% endblock %}

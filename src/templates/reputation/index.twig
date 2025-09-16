@@ -1,0 +1,44 @@
+{% extends "_layouts/cp" %}
+{% import '_includes/forms' as forms %}
+{% set title = 'Domain Reputation' %}
+
+{% do view.registerAssetBundle("cloudgrayau\\utils\\assetbundles\\CloudGrayAsset") %}
+
+{% set crumbs = [
+  { label: (settings.pluginName) ? settings.pluginName : 'OOPSpam', url: url('oopspam') },
+  { label: 'Domain Reputation', url: url('oopspam/reputation') }
+] %}
+{% set selectedSubnavItem = 'reputation' %}
+{% set fullPageForm = true %}
+
+{% block content %}
+<h2>Query Domain Reputation</h2>
+{{ forms.textField({
+    label: "Domain Name",
+    name: 'domain',
+    value: domain,
+    type: 'text',
+    required: true,
+    errors: errors
+}) }}
+<div class="btngroup submit">
+  <button type="submit" class="btn submit">Query</button>
+</div>
+{% if (results) %}
+<hr>
+<h2>Response</h2>
+<code>{{ dump(results) }}</code>
+{% endif %}
+<div id="footer" class="flex" style="padding: 20px; margin-bottom: -24px;">
+  <div style="flex: 1;"></div>
+{% if (limits.limit > 0) %}
+{% set usage = limits.limit-limits.remaining %}
+  <div style="padding-right: 5px;">API Usage</div>
+  <h3 style="padding: 10px 25px; background: #fff; display: inline-block; margin: 0;">{{ ((usage > 0) ? usage : 0)|number_format }} / {{ limits.limit|number_format }}</h3>
+{% endif %}
+</div>
+{% include 'cloudgrayau-utils/footer' %}
+{% endblock %}
+
+{% block actionButton %}
+{% endblock %}

@@ -135,6 +135,10 @@ class AntiSpamService extends Component {
     $data['source'] = Craft::$app->request->getHostName();
     $result = $this->sendRequest($data, $endpoint);
     
+    if (isset($data['context'])){
+      $data['senderIP'] = $senderIP;
+      $data['email'] = $email;
+    }
     if ($result['response']){
       OOPSpam::$plugin->logs->updateUsage($result['limits']);
       if (OOPSpam::$plugin->settings->enableLogs){
@@ -153,6 +157,18 @@ class AntiSpamService extends Component {
       return false;
     }
     
+  }
+  
+  public function checkReputation(string $domain): array {
+    $result = $this->sendRequest([
+      'domain' => $domain
+    ], $this->apiVersion.'/reputation/domain');
+    if ($result['response']){
+      OOPSpam::$plugin->logs->updateUsage($result['limits']);
+      return $result['results'];
+    } else {
+      return $result;
+    }
   }
   
   public function reportLog(array $params, string $endpoint): array {
@@ -190,7 +206,7 @@ class AntiSpamService extends Component {
       ]);
       return [
         'response' => true,
-        'results' => json_decode($response->getBody()->getContents(), true),
+        'results' => json_decode((string)$response->getBody()->getContents(), true),
         'limits' => [
           'limit' => $response->getHeader('X-RateLimit-Limit', true)[0],
           'remaining' => $response->getHeader('X-RateLimit-Remaining', true)[0]
@@ -198,9 +214,10 @@ class AntiSpamService extends Component {
       ];
       return $response;
     } catch (GuzzleException $e) {
+      $error = json_decode((string)$e->getResponse()->getBody(), true);
       return [
         'response' => false,
-        'error' => $e->getMessage()
+        'error' => $error['error']
       ];
     }
   }

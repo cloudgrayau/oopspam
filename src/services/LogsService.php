@@ -81,6 +81,12 @@ class LogsService extends Component {
     $logRecord = LogRecord::find()->where(['id' => $id])->one();
     if ($logRecord){
       $logModel->setAttributes($logRecord->getAttributes(), true);
+      if ($logModel->getParam('context')){
+        $params = $logModel->getParams();
+        unset($params['email']);
+        unset($params['senderIP']);
+        $logModel->params = json_encode($params);
+      }
     }
     return $logModel;
   }

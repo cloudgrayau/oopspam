@@ -12,22 +12,20 @@
 {% set fullPageForm = true %}
 
 {% block content %}
-    <input type="hidden" name="action" value="oopspam/logs/update">
-    <input type="hidden" name="uid" value="{{ log.uid }}">
     <h2>Parameters</h2>
-    <code>{{ dump(log.getParams()) }}</code>
+    <code>{{ dump(log.getParams(true)) }}</code>
     <hr>
     <h2>Response</h2>
     <code>{{ dump(log.getResponses()) }}</code>
+    <input type="hidden" name="action" value="oopspam/logs/update">
+    <input type="hidden" name="uid" value="{{ log.uid }}">
     {% include 'cloudgrayau-utils/footer' %}
 {% endblock %}
 
 {% block actionButton %}
 {% if (log.isValid and (log.isReport == 0) and (log.getResponse('Details'))) %}
-<div class="buttons">
-  <div class="btngroup submit">
-    <input type="submit" id="saveLog" class="btn submit disabled" value="Save">
-  </div>
+<div class="btngroup submit">
+  <input type="submit" id="saveLog" class="btn submit disabled" value="Save">
 </div>
 {% endif %}
 {% endblock %}

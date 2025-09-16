@@ -2,6 +2,14 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.3.1 - 2025-09-16
+### Added
+- Added domain reputation checker
+
+### Changed
+- Improved API error handling
+- Improved contextual logs
+
 ## 1.3.0 - 2025-09-13
 ### Added
 - Added support for Craft Commerce

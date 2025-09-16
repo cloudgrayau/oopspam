@@ -37,11 +37,15 @@ class LogModel extends Model {
     return $this->params_[$param] ?? '';
   }
   
-  public function getParams(): array {
-    if (is_null($this->params_)){
-      $this->params_ = json_decode($this->params, true) ?? [];
+  public function getParams(bool $bool=false): array {
+    if ($bool){
+      return json_decode($this->params, true);
+    } else {
+      if (is_null($this->params_)){
+        $this->params_ = json_decode($this->params, true) ?? [];
+      }
+      return $this->params_;
     }
-    return $this->params_;
   }
   
   public function getResponse($response){

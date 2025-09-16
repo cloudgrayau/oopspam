@@ -34,6 +34,12 @@ class OOPSpam extends Plugin {
       'label' => Craft::t('oopspam', 'Logs'),
       'url' => 'oopspam/logs',
     ];
+    if ($this->settings->apiKey){
+      $nav['subnav']['reputation'] = [
+        'label' => Craft::t('oopspam', 'Domain Reputation'),
+        'url' => 'oopspam/reputation',
+      ];
+    }
     if (Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
       $nav['subnav']['settings'] = [
         'label' => Craft::t('oopspam', 'Settings'),
@@ -121,6 +127,7 @@ class OOPSpam extends Plugin {
         'oopspam/logs' => 'oopspam/logs/logs',
         'oopspam/logs/<id:[0-9]+>' => 'oopspam/logs/log',
         'oopspam/logs/clear' => 'oopspam/logs/clear',
+        'oopspam/reputation' => 'oopspam/reputation/reputation',
         'oopspam/settings' => 'oopspam/settings/settings'
       ];
     });
