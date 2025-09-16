@@ -81,5 +81,11 @@ If you would rather use contextual detection, the `content` and `contextual` par
     if (\cloudgrayau\oopspam\OOPSpam::checkSpam($params, '<FORM LABEL>')){ /* passed */
     }
     ?>
+    
+## Domain Reputation
+
+The OOPSpam plugin comes with a domain reputation checker. Simply, this tool evaluates the reputation of a given domain name by cross-referencing it against multiple authoritative sources, including Google, Microsoft, Mozilla, and various other reputable security providers.
+
+Note: The list of providers may be updated periodically to ensure comprehensive coverage.
 
 Brought to you by [Cloud Gray Pty Ltd](https://cloudgray.com.au/)
