@@ -17,6 +17,7 @@ class LogsController extends Controller {
   
   public function actionIndex(): void {
     Craft::$app->response->redirect(UrlHelper::url('oopspam/logs'))->send();
+    exit();
   }
   
   public function actionUpdate(): void {
@@ -45,8 +46,10 @@ class LogsController extends Controller {
     $settings = OOPSpam::$plugin->getSettings();
     $js = <<<JS
 $('#main-form').submit(function(e){
-  if (confirm('Are you sure you wish to delete the selected logs?')){
-    return true;
+  if ($('input[name="deleteLogs[]"]:checked').length){
+    if (confirm('Are you sure you wish to delete the selected logs?')){
+      return true;
+    }
   }
   return false;
 });
@@ -126,7 +129,8 @@ CSS;
         'id' => $id
       ]);
     } else {
-      throw new NotFoundHttpException('Page not found.');
+      Craft::$app->response->redirect(UrlHelper::url('oopspam/logs'))->send();
+      exit();
     }
   }
 

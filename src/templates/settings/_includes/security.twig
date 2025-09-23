@@ -56,12 +56,14 @@
     const $numInput = $('#settings-spamScore-num');
     $rangeInput.on('input', () => {
       $numInput.val($rangeInput.val());
+      $numInput.trigger('change');
     });
     $numInput.on('input', () => {
       $rangeInput.val($numInput.val());
     });
     $numInput.on('blur', () => {
       $numInput.val($rangeInput.val());
+      $numInput.trigger('change');
     });
   })();
 {% endjs %}
