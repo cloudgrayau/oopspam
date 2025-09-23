@@ -2,6 +2,10 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.3.2 - 2025-09-23
+### Changed
+- Improved `spamScore` range field
+
 ## 1.3.1 - 2025-09-16
 ### Added
 - Added domain reputation checker
