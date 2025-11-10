@@ -112,7 +112,9 @@ class LogsService extends Component {
   }
   
   public function gcLogs(): void {
-    LogRecord::deleteAll('dateCreated <= NOW() - INTERVAL '.OOPSpam::$plugin->settings->maxLogs.' DAY');
+    $date = new \DateTime();
+    $date->modify('-' . OOPSpam::$plugin->settings->maxLogs . ' days');
+    LogRecord::deleteAll(['<=', 'dateCreated', Db::prepareDateForDb($date)]);
   }
   
 }
