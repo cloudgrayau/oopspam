@@ -6,6 +6,7 @@ use cloudgrayau\oopspam\helpers\SettingsHelper;
 
 use Craft;
 use craft\base\Component;
+use craft\helpers\App;
 use craft\helpers\StringHelper;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -201,7 +202,7 @@ class AntiSpamService extends Component {
         'json' => $params,
         'headers' => [
           'Content-Type' => 'application/json',
-          'X-Api-Key' => OOPSpam::$plugin->settings->apiKey 
+          'X-Api-Key' => App::parseEnv(OOPSpam::$plugin->settings->apiKey)
         ]
       ]);
       return [
