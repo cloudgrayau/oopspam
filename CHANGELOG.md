@@ -2,6 +2,11 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.3.3 - 2025-11-12
+### Changed
+- Fixed compatibility with both MySQL and PostgreSQL
+- Fixed the inability to use env vars for the api key
+
 ## 1.3.2 - 2025-09-23
 ### Changed
 - Improved `spamScore` range field
