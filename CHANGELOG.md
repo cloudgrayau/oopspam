@@ -3,8 +3,11 @@
 Release notes for the OOPSpam Craft CMS plugin.
 
 ## 1.4.0 - 2025-11-20
-- Refactored elements / log results
+### Added
 - Added `Test Suite` for testing API calls
+
+### Changed
+- Refactored elements / log results
 - Fixed `Formie` integration Craft 5 field namespace mapping
 
 ## 1.3.3 - 2025-11-12
