@@ -120,6 +120,11 @@ pre.sf-dump .sf-dump-expanded .sf-dump-compact {
 .sf-dump-toggle, .sf-dump-str-toggle {
     display: none;
 }
+@media screen and (max-width: 1399px) {
+.oopspam {
+  grid-template-columns: 1fr !important;  
+}
+}
 CSS;
       Craft::$app->getView()->registerCss($css);
       Craft::$app->getView()->registerJs($js);

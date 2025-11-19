@@ -30,14 +30,20 @@ class OOPSpam extends Plugin {
     if ($this->settings->pluginName){
       $nav['label'] = $this->settings->pluginName;
     }
-    $nav['subnav']['logs'] = [
-      'label' => Craft::t('oopspam', 'Logs'),
-      'url' => 'oopspam/logs',
-    ];
     if ($this->settings->apiKey){
+      if ($this->settings->enableLogs){
+        $nav['subnav']['logs'] = [
+          'label' => Craft::t('oopspam', 'Logs'),
+          'url' => 'oopspam/logs',
+        ];
+      }
       $nav['subnav']['reputation'] = [
         'label' => Craft::t('oopspam', 'Domain Reputation'),
         'url' => 'oopspam/reputation',
+      ];
+      $nav['subnav']['test'] = [
+        'label' => Craft::t('oopspam', 'Test Suite'),
+        'url' => 'oopspam/test',
       ];
     }
     if (Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
@@ -52,7 +58,7 @@ class OOPSpam extends Plugin {
   public function init(): void {
     parent::init();
     self::$plugin = $this;
-    $this->hasCpSection = $this->settings->enableLogs;
+    $this->hasCpSection = (Craft::$app->getConfig()->getGeneral()->allowAdminChanges || $this->settings->apiKey) ? true : false;
     $this->_registerComponents();
     $this->_parseSettings();
     $this->_registerConfigChanges();
@@ -81,6 +87,14 @@ class OOPSpam extends Plugin {
       return self::$plugin->antiSpam->checkSpam($params, $type);
     }
     return true;
+  }
+  
+  public static function testSpam(array $params, string $type = ''): array {
+    define('OOPSPAM_TEST', true);
+    if (self::$plugin->settings->apiKey){
+      return self::$plugin->antiSpam->checkSpam($params, $type);
+    }
+    return [];
   }
   
   // Private Methods
@@ -122,12 +136,18 @@ class OOPSpam extends Plugin {
   
   private function _registerCpUrlRules(): void {
     Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
+      if ($this->settings->apiKey){
+        $base = ($this->settings->enableLogs) ? 'oopspam/logs' : 'oopspam/reputation/reputation';
+      } else {
+        $base = 'oopspam/settings/settings';
+      }
       $event->rules += [
-        'oopspam' => 'oopspam/logs',
+        'oopspam' => $base,
         'oopspam/logs' => 'oopspam/logs/logs',
         'oopspam/logs/<id:[0-9]+>' => 'oopspam/logs/log',
         'oopspam/logs/clear' => 'oopspam/logs/clear',
         'oopspam/reputation' => 'oopspam/reputation/reputation',
+        'oopspam/test' => 'oopspam/test/test',
         'oopspam/settings' => 'oopspam/settings/settings'
       ];
     });

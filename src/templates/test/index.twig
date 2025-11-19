@@ -1,0 +1,134 @@
+{% extends "_layouts/cp" %}
+{% import '_includes/forms' as forms %}
+{% set title = 'Test Suite' %}
+
+{% do view.registerAssetBundle("cloudgrayau\\utils\\assetbundles\\CloudGrayAsset") %}
+
+{% set crumbs = [
+  { label: (settings.pluginName) ? settings.pluginName : 'OOPSpam', url: url('oopspam') },
+  { label: 'Test Suite', url: url('oopspam/test') }
+] %}
+{% set selectedSubnavItem = 'test' %}
+{% set fullPageForm = false %}
+
+{% set tabs = {
+  "general": {label: "General", url: "#general"},
+  "contextual": {label: "Contextual (Experimental)", url: "#contextual"},
+} %}
+
+{% block content %}
+<div id="general">
+  <form method="post" accept-charset="UTF-8">
+  {{ csrfInput() }}
+  <input type="hidden" name="general" value="1">
+  {{ forms.textField({
+      label: "Email Address",
+      name: 'email',
+      value: email,
+      type: 'email',
+      required: true,
+      errors: (general.email is defined) ? general.email : ''
+  }) }}
+  {{ forms.textField({
+      label: "IP Address",
+      name: 'ip',
+      value: ip,
+      type: 'text',
+      required: true,
+      errors: (general.ip is defined) ? general.ip : ''
+  }) }}
+  {{ forms.textareaField({
+      label: 'Content',
+      name: 'content',
+      rows: 5,
+      value: content
+  }) }}
+  {{ forms.lightswitchField({
+    label: 'Check Content Length',
+    instructions: 'If the <code>content</code> parameter is shorter than 20 characters, it will be considered spam.',
+    name: 'checkForLength',
+    on: checkForLength
+  }) }}
+  <div class="btngroup submit">
+    <button type="submit" class="btn submit">Run Test</button>
+  </div>
+  </form>
+  {% if (general.results is defined) %}
+  <hr>
+  {% if (general.results['Score'] is defined) %}
+  <div style="background: #e4edf5; padding: 15px 25px; margin: 25px 0 10px 0;"><strong>Status</strong> &nbsp;&nbsp;&nbsp; <span class="status {{ general.status ? 'green' : 'blue' }}"></span> {{ general.status ? 'Pass' : 'Spam' }}</div>
+  {% else %}
+  <div style="background: #e4edf5; padding: 15px 25px; margin: 25px 0 10px 0;"><strong>Status</strong> &nbsp;&nbsp;&nbsp; <span class="status red"></span> Failed</div>
+  {% endif %}
+  <div class="oopspam" style="display: grid; gap: 10px; grid-template-columns: 1fr 1fr;">
+  <div style="background: #eee; padding: 25px;">
+  <h2>Parameters</h2>
+  <code>{{ dump(general.data) }}</code>
+  </div>
+  <div style="background: #eee; padding: 25px;">
+  <h2>Response</h2>
+  <code>{{ dump(general.results) }}</code>
+  </div>
+  </div>
+  {% endif %}
+</div>
+<div id="contextual" class="hidden">
+  <form method="post" accept-charset="UTF-8">
+  {{ csrfInput() }}
+  <input type="hidden" name="contextual" value="1">
+  {{ forms.textareaField({
+      label: "Contextual Analysis",
+      name: 'context',
+      rows: 3,
+      value: context,
+      instructions: 'Briefly describe your website\'s purpose or business (2-3 sentences maximum)',
+      required: true,
+      errors: (contextual.context is defined) ? contextual.context: ''
+  }) }}
+  {{ forms.textareaField({
+      label: 'Content',
+      name: 'content',
+      rows: 5,
+      value: content,
+      required: true,
+      errors: (contextual.content is defined) ? contextual.content: ''
+  }) }}
+  {{ forms.lightswitchField({
+    label: 'Check Content Length',
+    instructions: 'If the <code>content</code> parameter is shorter than 20 characters, it will be considered spam.',
+    name: 'checkForLength',
+    on: checkForLength
+  }) }}
+  <div class="btngroup submit">
+    <button type="submit" class="btn submit">Run Test</button>
+  </div>
+  </form>
+  {% if (contextual.results is defined) %}
+  <hr>
+  {% if (contextual.results['Score'] is defined) %}
+  <div style="background: #e4edf5; padding: 15px 25px; margin: 25px 0 10px 0;"><strong>Status</strong> &nbsp;&nbsp;&nbsp; <span class="status {{ contextual.status ? 'green' : 'blue' }}"></span> {{ contextual.status ? 'Pass' : 'Spam' }}</div>
+  {% else %}
+  <div style="background: #e4edf5; padding: 15px 25px; margin: 25px 0 10px 0;"><strong>Status</strong> &nbsp;&nbsp;&nbsp; <span class="status red"></span> Failed</div>
+  {% endif %}
+  <div class="oopspam" style="display: grid; gap: 10px; grid-template-columns: 1fr 1fr;">
+  <div style="background: #eee; padding: 25px;">
+  <h2>Parameters</h2>
+  <code>{{ dump(contextual.data) }}</code>
+  </div>
+  <div style="background: #eee; padding: 15px 25px;">
+  <h2>Response</h2>
+  <code>{{ dump(contextual.results) }}</code>
+  </div>
+  </div>
+  {% endif %}
+</div>
+<div id="footer" class="flex" style="padding: 20px; margin-bottom: -24px; position: static;">
+  <div style="flex: 1;"></div>
+{% if (limits.limit > 0) %}
+{% set usage = limits.limit-limits.remaining %}
+  <div style="padding-right: 5px;">API Usage</div>
+  <h3 style="padding: 10px 25px; background: #fff; display: inline-block; margin: 0;">{{ ((usage > 0) ? usage : 0)|number_format }} / {{ limits.limit|number_format }}</h3>
+{% endif %}
+</div>
+{% include 'cloudgrayau-utils/footer' %}
+{% endblock %}

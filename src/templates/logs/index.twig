@@ -63,7 +63,7 @@
 {% else %}
 <p>No logs found.</p>
 {% endif %}
-<div id="footer" class="flex" style="padding: 20px; margin-bottom: -24px;">
+<div id="footer" class="flex" style="padding: 20px; margin-bottom: -24px;position: static;">
 {% if logs|length %}
   <button type="submit" class="btn secondary" data-icon="trash">Delete</button>
   <div style="flex: 1; padding-left: 5px;"><span id="selected">0</span> / <span id="total">{{ logs|length }}</span> logs selected</div>

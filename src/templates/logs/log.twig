@@ -12,11 +12,16 @@
 {% set fullPageForm = true %}
 
 {% block content %}
-    <h2>Parameters</h2>
-    <code>{{ dump(log.getParams(true)) }}</code>
-    <hr>
-    <h2>Response</h2>
-    <code>{{ dump(log.getResponses()) }}</code>
+    <div class="oopspam" style="display: grid; gap: 10px; grid-template-columns: 1fr 1fr;">
+    <div style="background: #eee; padding: 25px;">
+      <h2>Parameters</h2>
+      <code>{{ dump(log.getParams(true)) }}</code>
+    </div>
+    <div style="background: #eee; padding: 25px;">
+      <h2>Response</h2>
+      <code>{{ dump(log.getResponses()) }}</code>
+    </div>
+    </div>
     <input type="hidden" name="action" value="oopspam/logs/update">
     <input type="hidden" name="uid" value="{{ log.uid }}">
     {% include 'cloudgrayau-utils/footer' %}

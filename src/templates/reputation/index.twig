@@ -26,10 +26,19 @@
 </div>
 {% if (results) %}
 <hr>
+{% if (results['Blocked'] is defined) %}
+<div style="background: #e4edf5; padding: 15px 25px; margin: 25px 0 10px 0;"><strong>Status</strong> &nbsp;&nbsp;&nbsp; <span class="status {{ results['Blocked'] ? 'blue' : 'green' }}"></span> {{ results['Blocked'] ? 'Spam' : 'Pass' }}</div>
+{% else %}
+<div style="background: #e4edf5; padding: 15px 25px; margin: 25px 0 10px 0;"><strong>Status</strong> &nbsp;&nbsp;&nbsp; <span class="status red"></span> Failed</div>
+{% endif %}
+<div class="oopspam" style="display: grid; gap: 10px;">
+<div style="background: #eee; padding: 25px;">
 <h2>Response</h2>
 <code>{{ dump(results) }}</code>
+</div>
+</div>
 {% endif %}
-<div id="footer" class="flex" style="padding: 20px; margin-bottom: -24px;">
+<div id="footer" class="flex" style="padding: 20px; margin-bottom: -24px;position: static;">
   <div style="flex: 1;"></div>
 {% if (limits.limit > 0) %}
 {% set usage = limits.limit-limits.remaining %}

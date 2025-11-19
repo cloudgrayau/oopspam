@@ -52,15 +52,16 @@ class AntiSpamService extends Component {
     }
   }
   
-  public function checkSpam(array $params, string $type=''): bool {    
+  public function checkSpam(array $params, string $type=''): array|bool {    
     $content = $params['content'] ?? '';
     $email = StringHelper::trim($params['email'] ?? '');
-    $senderIP = Craft::$app->request->getUserIP();
+    $senderIP = $params['ip'] ?? Craft::$app->request->getUserIP();
     $checkForLength = (isset($params['checkForLength'])) ? (bool)$params['checkForLength'] : (bool)OOPSpam::$plugin->settings->checkForLength;
     if ((isset($params['contextual'])) && ($params['contextual'] == true)){
       $data = [
         'content' => (is_array($content)) ? StringHelper::trim(implode('; ', $content)) : StringHelper::trim($content),
-        'context' => (isset($params['context'])) ? $params['context'] : OOPSpam::$plugin->settings->contextualContent
+        'context' => (isset($params['context'])) ? $params['context'] : OOPSpam::$plugin->settings->contextualContent,
+        'checkForLength' => $checkForLength
       ];
     } else {
       $data = [
@@ -85,6 +86,15 @@ class AntiSpamService extends Component {
           'Reason' => 'Allowed due to manual rules'
         ], $type);
       }
+      if (defined('OOPSPAM_TEST')){
+        return [
+          'data' => $data,
+          'results' => [
+            'Score' => 0,
+            'Reason' => 'Allowed due to manual rules'
+          ]
+        ];
+      }
       return true;
     }  
     if (in_array($email, $blockedEmails) || in_array($senderIP, $blockedIPs)){
@@ -94,6 +104,15 @@ class AntiSpamService extends Component {
           'Reason' => 'Blocked due to manual rules'
         ], $type);
       }
+      if (defined('OOPSPAM_TEST')){
+        return [
+          'data' => $data,
+          'results' => [
+            'Score' => 6,
+            'Reason' => 'Blocked due to manual rules'
+          ]
+        ];
+      }
       return false;
     }
     if ($checkForLength && (StringHelper::count($data['content']) < 20)){
@@ -102,6 +121,15 @@ class AntiSpamService extends Component {
           'Score' => 6,
           'Reason' => 'Blocked due to content length; checkForLength'
         ], $type);
+      }
+      if (defined('OOPSPAM_TEST')){
+        return [
+          'data' => $data,
+          'results' => [
+            'Score' => 6,
+            'Reason' => 'Blocked due to content length; checkForLength'
+          ]
+        ];
       }
       return false;
     }
@@ -136,7 +164,7 @@ class AntiSpamService extends Component {
     $data['source'] = Craft::$app->request->getHostName();
     $result = $this->sendRequest($data, $endpoint);
     
-    if (isset($data['context'])){
+    if (isset($data['context'])){ /* Contextual - Store Email and IP for logs ONLY */
       $data['senderIP'] = $senderIP;
       $data['email'] = $email;
     }
@@ -144,6 +172,12 @@ class AntiSpamService extends Component {
       OOPSpam::$plugin->logs->updateUsage($result['limits']);
       if (OOPSpam::$plugin->settings->enableLogs){
         OOPSpam::$plugin->logs->recordLog($endpoint, $data, $result['results'], $type);
+      }
+      if (defined('OOPSPAM_TEST')){
+        return [
+          'data' => $data,
+          'results' => $result['results']
+        ];
       }
       if (!$this->isSpam($result['results'])){
         return true;
@@ -154,6 +188,12 @@ class AntiSpamService extends Component {
         OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
           'Error' => $result['error']
         ], $type);
+      }
+      if (defined('OOPSPAM_TEST')){
+        return [
+          'data' => $data,
+          'results' => $result['error']
+        ];
       }
       return false;
     }
