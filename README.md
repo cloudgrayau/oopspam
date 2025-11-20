@@ -86,4 +86,10 @@ The OOPSpam plugin comes with a domain reputation checker. Simply, this tool eva
 
 Note: The list of providers may be updated periodically to ensure comprehensive coverage.
 
+## Test Suite
+
+The OOPSpam plugin now also includes a testing suite, where you can test the results of API calls for both general requests and contextual requests.
+
+Please note, that an active API key is required for this and each request is included in your monthly tally.
+
 Brought to you by [Cloud Gray Pty Ltd](https://cloudgray.com.au/)
