@@ -2,6 +2,10 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.4.1 - 2025-11-21
+### Changed
+- Fixed compatibility with the `Contact Form Extensions` plugin
+
 ## 1.4.0 - 2025-11-20
 ### Added
 - Added `Test Suite` for testing API calls
