@@ -82,14 +82,12 @@ If you would rather use **contextual detection**, the `content` and `contextual`
     
 ## Domain Reputation
 
-The OOPSpam plugin comes with a domain reputation checker. Simply, this tool evaluates the reputation of a given domain name by cross-referencing it against multiple authoritative sources, including Google, Microsoft, Mozilla, and various other reputable security providers.
+The OOPSpam plugin comes with a domain reputation checker. Simply, this tool evaluates the reputation of a given domain name by cross-referencing it against multiple authoritative sources, including Google, Microsoft, Mozilla, and various other reputable security providers. An active API key is required for this and each request counts towards your monthly tally.
 
 Note: The list of providers may be updated periodically to ensure comprehensive coverage.
 
 ## Test Suite
 
-The OOPSpam plugin now also includes a testing suite, where you can test the results of API calls for both general requests and contextual requests.
-
-Please note, that an active API key is required for this and each request is included in your monthly tally.
+The OOPSpam plugin also includes a testing suite, where you can test the results of API calls for both general requests and contextual requests. Am active API key is required for this and each request counts towards your monthly tally.
 
 Brought to you by [Cloud Gray Pty Ltd](https://cloudgray.com.au/)
