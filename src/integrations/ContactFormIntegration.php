@@ -25,7 +25,7 @@ class ContactFormIntegration {
       if (!OOPSpam::$plugin->antiSpam->checkSpam($params, $this->getName())){
         $e->isSpam = true; 
       }
-    });
+    }, append: false);
   }
   
 }
