@@ -66,7 +66,7 @@ The `email` and `content` params are required. The `checkForLength` parameter is
     }
     ?>
 
-If you would rather use **contextual detection**, the `content` and `contextual` params are required. The `email` param is optional and is used for checking against any manual rules. The `context`, and `checkForLength` parameters are also optional and can be set to override the configuration value.
+If you would rather use **contextual detection**, the `content` and `contextual` params are required. The `email` param is optional and is used for checking against any manual rules. The `context` and `checkForLength` parameters are also optional and can be set to override the configuration value.
 
     <?php    
     $params = [
