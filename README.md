@@ -88,6 +88,6 @@ Note: The list of providers may be updated periodically to ensure comprehensive 
 
 ## Test Suite
 
-The OOPSpam plugin also includes a testing suite, where you can test the results of API calls for both general requests and contextual requests. Am active API key is required for this and each request counts towards your monthly tally.
+The OOPSpam plugin also includes a testing suite, where you can test the results of API calls for both general requests and contextual requests. An active API key is required for this and each request counts towards your monthly tally.
 
 Brought to you by [Cloud Gray Pty Ltd](https://cloudgray.com.au/)
