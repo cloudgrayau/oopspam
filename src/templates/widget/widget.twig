@@ -10,7 +10,7 @@
     <span class="status {{ (log.isReport) ? 'yellow' : 'green' }}" title="Pass"></span> 
 {% endif %}
     <a href="{{ url('oopspam/logs/'~log.id) }}">{{ log.dateCreated|datetime('j F Y - H:i') }}</a>
-    <span class="light nowrap" style="float: right;">{{ (log.getResponse('Score') >= 0) ? log.getResponse('Score') : '-' }}</span>
+    <small class="light" style="float: right;line-height:20px;">{{ (log.getResponse('Score') >= 0) ? log.getResponse('Score') : '-' }}</small>
   </li>
 {% endfor %}
 </ol>
