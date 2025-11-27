@@ -91,10 +91,10 @@ class LogsService extends Component {
     return $logModel;
   }
   
-  public function getLogs(): array {
+  public function getLogs(int $limit=0): array {    
     $this->gcLogs(); /* Garbage Collect */
     $logModels = [];
-    $logRecords = LogRecord::find()->orderBy('dateCreated desc')->all();
+    $logRecords = LogRecord::find()->orderBy('dateCreated desc')->limit(($limit > 0) ? $limit : '')->all();
     foreach($logRecords as $logRecord){
       $logModel = new LogModel();
       $logModel->setAttributes($logRecord->getAttributes(), true);

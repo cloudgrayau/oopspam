@@ -6,8 +6,6 @@ use cloudgrayau\oopspam\OOPSpam;
 use Craft;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
-
-use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 class ReputationController extends Controller {

@@ -54,16 +54,17 @@
           errors: settings.getErrors('maxLogs'),
           warning: macros.configWarning('maxLogs', 'oopspam')
       }) }}
-      {{ forms.textField({
-          label: "Plugin Name",
-          instructions: "Override the plugin name (optional).",
-          name: 'pluginName',
-          value: settings['pluginName'],
-          type: 'text',
-          errors: settings.getErrors('pluginName'),
-          warning: macros.configWarning('pluginName', 'oopspam')
-      }) }}
     </div>
+    
+    {{ forms.textField({
+        label: "Plugin Name",
+        instructions: "Override the plugin name (optional).",
+        name: 'pluginName',
+        value: settings['pluginName'],
+        type: 'text',
+        errors: settings.getErrors('pluginName'),
+        warning: macros.configWarning('pluginName', 'oopspam')
+    }) }}
 
     {% endnamespace %}
 </div>

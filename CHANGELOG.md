@@ -2,6 +2,10 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.4.2 - 2025-11-27
+### Added
+- Added dashboard widget to show recent logs
+
 ## 1.4.1 - 2025-11-21
 ### Changed
 - Fixed compatibility with the `Contact Form Extensions` plugin

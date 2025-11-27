@@ -4,12 +4,15 @@ use cloudgrayau\oopspam\models\SettingsModel;
 use cloudgrayau\oopspam\controllers\SettingsController;
 use cloudgrayau\oopspam\services\AntiSpamService;
 use cloudgrayau\oopspam\services\LogsService;
+use cloudgrayau\oopspam\widgets\OOPSpamWidget;
 use cloudgrayau\utils\UtilityHelper;
 
 use Craft;
 use craft\base\Plugin;
 use craft\events\RegisterUrlRulesEvent;
+use craft\events\RegisterComponentTypesEvent;
 use craft\helpers\UrlHelper;
+use craft\services\Dashboard;
 use craft\services\Gc;
 use craft\web\UrlManager;
 use craft\web\Application;
@@ -66,6 +69,9 @@ class OOPSpam extends Plugin {
     $this->_registerInit();
     if (Craft::$app->getRequest()->getIsCpRequest()){
       $this->_registerCpUrlRules();
+      if ($this->settings->apiKey && $this->settings->enableLogs){
+        $this->_registerWidgets();
+      }
     }
   }
   
@@ -151,6 +157,14 @@ class OOPSpam extends Plugin {
         'oopspam/settings' => 'oopspam/settings/settings'
       ];
     });
+  }
+  
+  private function _registerWidgets(): void {
+    Event::on(Dashboard::class, Dashboard::EVENT_REGISTER_WIDGET_TYPES,
+      function(RegisterComponentTypesEvent $event) {
+        $event->types[] = OOPSpamWidget::class;
+      }
+    );
   }
   
   private function _parseSettings(): void { /* Fix table-based settings from config file */

@@ -78,7 +78,7 @@
   </div>
   <div class="data">
     <div class="heading">Email</div>
-    <div class="value">{{ log.getParam('email') }}</div>
+    <div class="value">{{ (log.getParam('email') is not empty) ? log.getParam('email') : '-' }}</div>
   </div>
   <div class="data">
     <div class="heading">Integration</div>

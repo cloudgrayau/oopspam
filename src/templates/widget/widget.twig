@@ -1,0 +1,19 @@
+{% if logs %}
+<ol class="widget__list" role="list" dir="ltr">
+{% for log in logs %}
+  <li class="widget__list-item">
+{% if (log.isValid == 0) %}
+    <span class="status red" title="Failed"></span>
+{% elseif (log.isSpam) %}
+    <span class="status {{ (log.isReport) ? 'yellow' : 'blue' }}" title="Spam"></span>
+{% else %}
+    <span class="status {{ (log.isReport) ? 'yellow' : 'green' }}" title="Pass"></span> 
+{% endif %}
+    <a href="{{ url('oopspam/logs/'~log.id) }}">{{ log.dateCreated|datetime('j F Y - H:i') }}</a>
+    <span class="light nowrap" style="float: right;">{{ (log.getResponse('Score') >= 0) ? log.getResponse('Score') : '-' }}</span>
+  </li>
+{% endfor %}
+</ol>
+{% else %}
+  <p>No logs found.</p>
+{% endif %}

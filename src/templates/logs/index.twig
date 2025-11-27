@@ -41,7 +41,7 @@
 {% else %}
             <span class="status {{ (log.isReport) ? 'yellow' : 'green' }}"></span> 
 {% endif %}
-            <a href="{{ url('oopspam/logs/'~log.id) }}">{{ log.dateCreated|datetime('j F Y - H:i:s') }}</a>
+            <a href="{{ url('oopspam/logs/'~log.id) }}">{{ log.dateCreated|datetime('j F Y - H:i') }}</a>
           </td>
           <td>{{ log.type }}</td>
           <td>{{ (log.getResponse('Score') >= 0) ? log.getResponse('Score') : '-' }}</td>
