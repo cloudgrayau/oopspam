@@ -1,0 +1,32 @@
+{% import "_includes/forms" as forms %}
+{% import 'cloudgrayau-utils/_macros' as macros %}
+<div id="rates" class="hidden">
+    {% namespace "settings" %}
+    
+    {{ forms.lightswitchField({
+        label: 'Enable Rate Limiting',
+        instructions: 'Configure rate limits to control the number of allowed submissions per IP, effectively preventing spam and abuse.',
+        name: 'enableLimiting',
+        on: settings.enableLimiting,
+        toggle: 'rate-fields',
+        errors: settings.getErrors('enableLimiting'),
+        warning: macros.configWarning('enableLimiting', 'oopspam'),
+    }) }}
+    
+    <div id="rate-fields" class="field {{ not settings.enableContextual ? 'hidden' }}">
+      
+      {{ forms.textField({
+          label: 'Max Submissions',
+          name: 'maxSubmissions',
+          instructions: 'Maximum submissions allowed per IP address per hour.',
+          value: settings.maxSubmissions,
+          type: 'number',
+          min: 1,
+          errors: settings.getErrors('maxSubmissions'),
+          warning: macros.configWarning('maxSubmissions', 'oopspam'),
+      }) }}
+
+    </div>
+
+    {% endnamespace %}
+</div>

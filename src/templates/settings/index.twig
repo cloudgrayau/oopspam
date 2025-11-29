@@ -22,6 +22,7 @@
 {% set tabs = {
   "general": {label: "General", url: "#general"},
   "security": {label: "Security", url: "#security"},
+  "rates": {label: "Rate Limiting", url: "#rates"},
   "integrations": {label: "Integrations", url: "#integrations"},
   "contextual": {label: "Contextual (Experimental)", url: "#contextual"},
   "manual": {label: "Manual", url: "#manual"}
@@ -38,6 +39,9 @@
   
   {# -- Security settings -- #}
   {% include "oopspam/settings/_includes/security" %}
+  
+  {# -- Rate settings -- #}
+  {% include "oopspam/settings/_includes/rates" %}
   
   {# -- Integrations settings -- #}
   {% include "oopspam/settings/_includes/integrations" %}

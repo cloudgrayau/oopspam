@@ -4,6 +4,7 @@ use cloudgrayau\oopspam\models\SettingsModel;
 use cloudgrayau\oopspam\controllers\SettingsController;
 use cloudgrayau\oopspam\services\AntiSpamService;
 use cloudgrayau\oopspam\services\LogsService;
+use cloudgrayau\oopspam\services\SubmissionService;
 use cloudgrayau\oopspam\widgets\OOPSpamWidget;
 use cloudgrayau\utils\UtilityHelper;
 
@@ -21,7 +22,7 @@ use yii\base\Event;
 class OOPSpam extends Plugin {
 
   public static $plugin;
-  public string $schemaVersion = '1.1.0';
+  public string $schemaVersion = '1.5.0';
   public bool $hasCpSettings = true;
   public bool $hasCpSection = true;
   
@@ -64,14 +65,14 @@ class OOPSpam extends Plugin {
     $this->hasCpSection = (Craft::$app->getConfig()->getGeneral()->allowAdminChanges || $this->settings->apiKey) ? true : false;
     $this->_registerComponents();
     $this->_parseSettings();
-    $this->_registerConfigChanges();
     $this->_registerGc();
     $this->_registerInit();
     if (Craft::$app->getRequest()->getIsCpRequest()){
+      $this->_registerConfigChanges();
       $this->_registerCpUrlRules();
       if ($this->settings->apiKey && $this->settings->enableLogs){
         $this->_registerWidgets();
-      }
+      }      
     }
   }
   
@@ -83,7 +84,8 @@ class OOPSpam extends Plugin {
     return [
       'components' => [
         'antiSpam' => ['class' => AntiSpamService::class],
-        'logs' => ['class' => LogsService::class]
+        'logs' => ['class' => LogsService::class],
+        'submissions' => ['class' => SubmissionService::class]
       ]
     ];
   }
@@ -129,14 +131,14 @@ class OOPSpam extends Plugin {
   }
   
   private function _registerConfigChanges(): void {
-    if (Craft::$app->getRequest()->getIsCpRequest()){
-      Craft::$app->getProjectConfig()->onUpdate('plugins.oopspam.settings', [$this->logs, 'handleChangedProductConfig']);
-    }
+    Craft::$app->getProjectConfig()->onUpdate('plugins.oopspam.settings', [$this->logs, 'handleChangedProductConfig']);
+    Craft::$app->getProjectConfig()->onUpdate('plugins.oopspam.settings', [$this->submissions, 'handleChangedProductConfig']);
   }
   
   private function _registerGc(): void {
     Event::on(Gc::class, Gc::EVENT_RUN, function() {
       $this->logs->gcLogs();
+      $this->submissions->gcSubmissions();
     });
   }
   

@@ -30,6 +30,10 @@ class SettingsModel extends Model {
   public array $allowedCountries = [];
   public array $blockedCountries = [];
   
+  /* RATES */
+  public bool $enableLimiting = false;
+  public int $maxSubmissions = 3;
+  
   /* INTEGRATIONS */
   public bool $enableUserRegistration = true;
   public bool $enableCommerce = true;
@@ -73,9 +77,10 @@ class SettingsModel extends Model {
     $rules = [
       [['apiKey','apiService'], 'required'],
       [['apiKey','apiService','contextualContent','pluginName'], 'string'],
-      [['enableUserRegistration','enableCommerce','enableContextual','blockTempEmail','blockVPN','blockDC','checkForLength','logIt','urlFriendly'], 'boolean'],
+      [['enableUserRegistration','enableCommerce','enableContextual','blockTempEmail','blockVPN','blockDC','checkForLength','logIt','urlFriendly','enableLimiting'], 'boolean'],
       [['allowedLanguages','allowedCountries','blockedCountries','integrations','contextual','blockedEmails','blockedIPs','allowedEmails','allowedIPs'], ArrayValidator::class],
       ['maxLogs', 'integer', 'min' => 1, 'max' => 90],
+      ['maxSubmissions', 'integer', 'min' => 1],
       ['spamScore', 'integer', 'min' => 1, 'max' => 6]
     ];
     if ($this->enableContextual){

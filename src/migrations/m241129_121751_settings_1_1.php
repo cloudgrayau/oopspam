@@ -17,7 +17,7 @@ class m241129_121751_settings_1_1 extends Migration {
       Craft::$app->getProjectConfig()->remove('plugins.oopspam.settings.apiUsage');
     }
     if (!$this->db->tableExists(UsageRecord::tableName())){
-      $result = $this->createTable(UsageRecord::tableName(), [
+      $this->createTable(UsageRecord::tableName(), [
         'id' => $this->primaryKey(),
         'limit' => $this->integer(),
         'remaining' => $this->integer(),

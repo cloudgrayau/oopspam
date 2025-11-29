@@ -78,7 +78,6 @@ class AntiSpamService extends Component {
     $blockedIPs = array_map(['\cloudgrayau\oopspam\helpers\SettingsHelper', 'mapSettings'], OOPSpam::$plugin->settings->blockedIPs);
     $allowedEmails = array_map(['\cloudgrayau\oopspam\helpers\SettingsHelper', 'mapSettings'], OOPSpam::$plugin->settings->allowedEmails);
     $allowedIPs = array_map(['\cloudgrayau\oopspam\helpers\SettingsHelper', 'mapSettings'], OOPSpam::$plugin->settings->allowedIPs);
-      
     if (in_array($email, $allowedEmails) || in_array($senderIP, $allowedIPs)){
       if (OOPSpam::$plugin->settings->enableLogs){
         OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
@@ -96,7 +95,7 @@ class AntiSpamService extends Component {
         ];
       }
       return true;
-    }  
+    }
     if (in_array($email, $blockedEmails) || in_array($senderIP, $blockedIPs)){
       if (OOPSpam::$plugin->settings->enableLogs){
         OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
@@ -115,6 +114,22 @@ class AntiSpamService extends Component {
       }
       return false;
     }
+    
+    /* RATE LIMITS - check after manual checks */
+    if ((!defined('OOPSPAM_TEST')) && (OOPSpam::$plugin->settings->enableLimiting)){
+      $ipaddress = Craft::$app->request->getUserIP();
+      if (OOPSpam::$plugin->submissions->checkSubmission($ipaddress)){
+        OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
+          'Score' => 6,
+          'Reason' => 'Blocked due to too many submissions; rateLimit'
+        ], $type);
+        OOPSpam::$plugin->submissions->recordSubmission($ipaddress);
+        return false;
+      }
+      OOPSpam::$plugin->submissions->recordSubmission($ipaddress);
+    }
+    
+    /* CHECK LENGTH */
     if ($checkForLength && (StringHelper::count($data['content']) < 20)){
       if (OOPSpam::$plugin->settings->enableLogs){
         OOPSpam::$plugin->logs->recordLog($endpoint, $data, [

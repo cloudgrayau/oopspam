@@ -6,6 +6,7 @@ use Craft;
 use craft\db\Migration;
 use cloudgrayau\oopspam\records\LogRecord;
 use cloudgrayau\oopspam\records\UsageRecord;
+use cloudgrayau\oopspam\records\SubmissionRecord;
 
 /**
  * Install migration.
@@ -29,7 +30,7 @@ class Install extends Migration {
       ]);
     }
     if (!$this->db->tableExists(UsageRecord::tableName())){
-      $result = $this->createTable(UsageRecord::tableName(), [
+      $this->createTable(UsageRecord::tableName(), [
         'id' => $this->primaryKey(),
         'limit' => $this->integer(),
         'remaining' => $this->integer(),
@@ -44,6 +45,14 @@ class Install extends Migration {
       ], false); 
       $usageRecord->save();
     }
+    if (!$this->db->tableExists(SubmissionRecord::tableName())){
+      $this->createTable(SubmissionRecord::tableName(), [
+        'ipaddress' => $this->integer()->unsigned(),
+        'dateCreated' => $this->dateTime()->notNull(),
+        'dateUpdated' => $this->dateTime()->notNull(),
+        'uid' => $this->uid(),
+      ]);
+    }
     Craft::$app->db->schema->refresh();
     return true;
   }
@@ -51,6 +60,7 @@ class Install extends Migration {
   public function safeDown(): bool {
     $this->dropTableIfExists(LogRecord::tableName());
     $this->dropTableIfExists(UsageRecord::tableName());
+    $this->dropTableIfExists(SubmissionRecord::tableName());
     return true;
   }
   

@@ -35,6 +35,8 @@ return [
   ],
   'enableUserRegistration' => true,
   'enableCommerce' => true,
+  'enableLimiting' => false,
+  'maxSubmissions' => 3,
   'integrations' => [
     'formie',
     'freeform',

@@ -2,6 +2,13 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.5.0 - 2025-11-29
+### Added
+- Added optional submission rate limiting (to reduce excessive spam calls)
+
+### Changed
+- Fixed `FreeForm` integration (will now correctly mark as spam)
+
 ## 1.4.2 - 2025-11-27
 ### Added
 - Added dashboard widget to show recent logs
