@@ -8,28 +8,28 @@ use cloudgrayau\oopspam\OOPSpam;
 
 class OOPSpamWidget extends Widget {
   
+  public ?string $title = null;
   public ?int $limit = 5;
   
   public function __construct($config = []) {
+    if ($this->title === null){
+      $this->title = self::displayName();
+    }
     if (($config['limit'] ?? null) === '') {
-        unset($config['limit']);
+      unset($config['limit']);
     }
     parent::__construct($config);
   }
   
   protected function defineRules(): array {
     $rules = parent::defineRules();
+    $rules[] = [['title'], 'required'];
     $rules[] = [['limit'], 'integer', 'min' => 1];
     return $rules;
   }
 
   public static function displayName(): string {
-    $plugin = OOPSpam::$plugin;
-    if ($plugin->settings->pluginName){
-      return $plugin->settings->pluginName;
-    } else {
-      return Craft::t('oopspam', 'OOPSpam');
-    }
+    return (OOPSpam::$plugin->settings->pluginName) ? OOPSpam::$plugin->settings->pluginName : Craft::t('oopspam', 'OOPSpam');
   }
   
   protected static function allowMultipleInstances(): bool {
@@ -38,6 +38,10 @@ class OOPSpamWidget extends Widget {
   
   public static function icon(): string {
     return Craft::getAlias('@cloudgrayau/oopspam/icon-mask.svg');
+  }
+  
+  public function getTitle(): ?string {
+    return $this->title;
   }
   
   public function getBodyHtml(): ?string {
