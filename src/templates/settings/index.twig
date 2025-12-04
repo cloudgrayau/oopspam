@@ -1,10 +1,9 @@
 {% extends "_layouts/cp" %}
 {% set title = (settings.pluginName) ? settings.pluginName : 'OOPSpam' %}
-{% requireAdmin %}
 
 {% do view.registerAssetBundle("cloudgrayau\\utils\\assetbundles\\CloudGrayAsset") %}
 
-{% if settings.enableLogs %}
+{% if (craft.app.request.pathInfo == 'oopspam/settings') %}
 {% set crumbs = [
   { label: (settings.pluginName) ? settings.pluginName : 'OOPSpam', url: url('oopspam') },
   { label: 'Settings', url: url('oopspam/settings') }
@@ -18,7 +17,12 @@
 
 {% set selectedSubnavItem = 'settings' %}
 
-{% set fullPageForm = true %}
+{% set readOnly = admin.readOnly ?? false %}
+{% set fullPageForm = not readOnly %}
+
+{% if readOnly %}{% set contentNotice = admin.notice %}{% endif %}
+{% if (admin.disableAdmin >= 1) %}{% requireAdmin %}{% endif %}
+
 {% set tabs = {
   "general": {label: "General", url: "#general"},
   "security": {label: "Security", url: "#security"},
@@ -28,11 +32,19 @@
   "manual": {label: "Manual", url: "#manual"}
 } %}
 
+{% block actionButton %}
+    {% if not readOnly %}
+        <input type="submit" class="btn submit" value="{{ 'Save'|t('app') }}">
+    {% endif %}
+{% endblock %}
+
 {% block content %}
 
+  {% if not readOnly %}
   <input type="hidden" name="action" value="plugins/save-plugin-settings">
   <input type="hidden" name="pluginHandle" value="oopspam">
-  {{ redirectInput("oopspam/settings") }}
+  {{ redirectInput(craft.app.request.pathInfo) }}
+  {% endif %}
   
   {# -- General settings -- #}
   {% include "oopspam/settings/_includes/general" %}

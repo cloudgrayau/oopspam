@@ -11,6 +11,7 @@
         toggle: 'rate-fields',
         errors: settings.getErrors('enableLimiting'),
         warning: macros.configWarning('enableLimiting', 'oopspam'),
+        disabled: readOnly
     }) }}
     
     <div id="rate-fields" class="field {{ not settings.enableContextual ? 'hidden' }}">
@@ -24,6 +25,7 @@
           min: 1,
           errors: settings.getErrors('maxSubmissions'),
           warning: macros.configWarning('maxSubmissions', 'oopspam'),
+          disabled: readOnly
       }) }}
 
     </div>

@@ -2,6 +2,11 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.5.1 - 2025-12-02
+### Changed
+- Fixed possible error that can occur on the dashboard widget
+- Updated settings to be able to be viewed in environments where `allowAdminChanges` is disabled
+
 ## 1.5.0 - 2025-12-01
 ### Added
 - Added optional submission rate limiting (to reduce excessive spam calls)

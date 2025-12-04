@@ -24,6 +24,7 @@ class OOPSpam extends Plugin {
   public static $plugin;
   public string $schemaVersion = '1.5.0';
   public bool $hasCpSettings = true;
+  public bool $hasReadOnlyCpSettings = true;
   public bool $hasCpSection = true;
   
   // Public Methods
@@ -49,8 +50,8 @@ class OOPSpam extends Plugin {
         'label' => Craft::t('oopspam', 'Test Suite'),
         'url' => 'oopspam/test',
       ];
-    }
-    if (Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+    }    
+    if ((Craft::$app->getConfig()->getGeneral()->allowAdminChanges) || (version_compare(Craft::$app->getVersion(), '5.6.0') >= 0)){
       $nav['subnav']['settings'] = [
         'label' => Craft::t('oopspam', 'Settings'),
         'url' => 'oopspam/settings',
@@ -76,9 +77,9 @@ class OOPSpam extends Plugin {
     }
   }
   
-  public function getSettingsResponse(): mixed {
+  /*public function getSettingsResponse(): mixed {
     return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('oopspam/settings'));
-  }
+  }*/
   
   public static function config(): array {
     return [
@@ -149,15 +150,16 @@ class OOPSpam extends Plugin {
       } else {
         $base = 'oopspam/settings/settings';
       }
-      $event->rules += [
+      $event->rules = array_merge([
         'oopspam' => $base,
         'oopspam/logs' => 'oopspam/logs/logs',
         'oopspam/logs/<id:[0-9]+>' => 'oopspam/logs/log',
         'oopspam/logs/clear' => 'oopspam/logs/clear',
         'oopspam/reputation' => 'oopspam/reputation/reputation',
         'oopspam/test' => 'oopspam/test/test',
-        'oopspam/settings' => 'oopspam/settings/settings'
-      ];
+        'oopspam/settings' => 'oopspam/settings/settings',
+        'settings/plugins/oopspam' => 'oopspam/settings/settings'
+      ], $event->rules);
     });
   }
   

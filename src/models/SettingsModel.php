@@ -20,7 +20,7 @@ class SettingsModel extends Model {
   /* SECURITY */
   public int $spamScore = 3;
   public bool $blockContentSpam = true;
-  public bool $blockTempEmail = false;
+  public bool $blockTempEmail = true;
   public bool $blockVPN = false;
   public bool $blockDC = false;
   public bool $checkForLength = true;

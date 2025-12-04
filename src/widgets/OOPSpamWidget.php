@@ -23,7 +23,7 @@ class OOPSpamWidget extends Widget {
   
   protected function defineRules(): array {
     $rules = parent::defineRules();
-    $rules[] = [['title'], 'required'];
+    $rules[] = [['title','limit'], 'required'];
     $rules[] = [['limit'], 'integer', 'min' => 1];
     return $rules;
   }

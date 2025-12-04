@@ -3,7 +3,6 @@ namespace cloudgrayau\oopspam\integrations;
 use cloudgrayau\oopspam\OOPSpam;
 
 use Craft;
-use craft\helpers\StringHelper;
 use yii\base\Event;
 
 class WheelformIntegration {
@@ -16,7 +15,7 @@ class WheelformIntegration {
   public function parse(string $integration): void {
     $this->integration = $integration;
     $plugin = Craft::$app->plugins->getPlugin('wheelform');
-    if ((int)StringHelper::replace($plugin->getVersion(), '.', '') >= 402){
+    if (version_compare($plugin->getVersion(), '4.0.2') >= 0){
       Event::on(\wheelform\controllers\MessageController::class, \wheelform\controllers\MessageController::EVENT_BEFORE_SAVE, function(\wheelform\events\MessageEvent $e){
         $params = [
           'content' => []

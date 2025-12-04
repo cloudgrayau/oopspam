@@ -15,6 +15,7 @@
         toggle: 'contextual-fields',
         errors: settings.getErrors('enableContextual'),
         warning: macros.configWarning('enableContextual', 'oopspam'),
+        disabled: readOnly
     }) }}
     
     <div id="contextual-fields" class="field {{ not settings.enableContextual ? 'hidden' }}">
@@ -27,6 +28,7 @@
           value: settings.contextualContent,
           errors: settings.getErrors('contextualContent'),
           warning: macros.configWarning('contextualContent', 'oopspam'),
+          disabled: readOnly
       }) }}
       {% set warning = macros.configWarning('contextual', 'oopspam') %}
       
@@ -37,7 +39,7 @@
 {% for key, obj in objs %}
 {% if craft.app.plugins.isPluginEnabled(key) and (key in settings.integrations) %}
         <p>
-          <input type="checkbox" class="checkbox" name="contextual[]" id="{{ key~'-contextual' }}" value="{{ key }}"{% if key in settings.contextual %} checked="checked"{% endif %}> <label for="{{ key~'-contextual' }}">Enable <strong>{{ obj.title }}</strong> {% if obj.information is defined %}<small>{{ obj.information|raw }}</small>{% endif %}<br><small><a href="{{ obj.url }}" target="_blank">{{ obj.url }}</a></small></label>
+          <input type="checkbox" class="checkbox" name="contextual[]" id="{{ key~'-contextual' }}" value="{{ key }}"{% if key in settings.contextual %} checked="checked"{% endif %}{% if (readOnly) %} disabled="disabled"{% endif %}> <label for="{{ key~'-contextual' }}">Enable <strong>{{ obj.title }}</strong> {% if obj.information is defined %}<small>{{ obj.information|raw }}</small>{% endif %}<br><small><a href="{{ obj.url }}" target="_blank">{{ obj.url }}</a></small></label>
         </p>
 {% endif %}
 {% endfor %}

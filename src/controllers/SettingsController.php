@@ -6,6 +6,7 @@ use cloudgrayau\oopspam\helpers\SettingsHelper;
 
 use Craft;
 use craft\web\Controller;
+use craft\helpers\Cp;
 use yii\web\Response;
 
 class SettingsController extends Controller {
@@ -43,7 +44,12 @@ JS;
           'Very lenient'
         ]
       ],
-      'limits' => OOPSpam::$plugin->logs->getUsage()
+      'limits' => OOPSpam::$plugin->logs->getUsage(),
+      'admin' => [
+        'disableAdmin' => version_compare('5.6.0', Craft::$app->getVersion()),
+        'readOnly' => !Craft::$app->getConfig()->getGeneral()->allowAdminChanges,
+        'notice' => (method_exists('\craft\helpers\Cp', 'readOnlyNoticeHtml')) ? Cp::readOnlyNoticeHtml() : ''
+      ]
     ]);
   }
 

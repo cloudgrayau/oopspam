@@ -8,8 +8,8 @@
         instructions: 'Block specific email addresses.',
         name: 'blockedEmails',
         addRowLabel: 'Add an email',
-        allowAdd: true,
-        allowDelete: true,
+        allowAdd: (not readOnly),
+        allowDelete: (not readOnly),
         allowReorder: false,
         cols: [
             {
@@ -19,7 +19,8 @@
             },
         ],
         rows: settings['blockedEmails'],
-        warning: macros.configWarning('blockedEmails', 'oopspam')
+        warning: macros.configWarning('blockedEmails', 'oopspam'),
+        disabled: readOnly
     }) }}
     
     {{ forms.editableTableField({
@@ -27,8 +28,8 @@
         instructions: 'Block specific IP addresses.',
         name: 'blockedIPs',
         addRowLabel: 'Add an IP',
-        allowAdd: true,
-        allowDelete: true,
+        allowAdd: (not readOnly),
+        allowDelete: (not readOnly),
         allowReorder: false,
         cols: [
             {
@@ -38,7 +39,8 @@
             },
         ],
         rows: settings['blockedIPs'],
-        warning: macros.configWarning('blockedIPs', 'oopspam')
+        warning: macros.configWarning('blockedIPs', 'oopspam'),
+        disabled: readOnly
     }) }}
     
     {{ forms.editableTableField({
@@ -46,8 +48,8 @@
         instructions: 'Allow specific email addresses.',
         name: 'allowedEmails',
         addRowLabel: 'Add an email',
-        allowAdd: true,
-        allowDelete: true,
+        allowAdd: (not readOnly),
+        allowDelete: (not readOnly),
         allowReorder: false,
         cols: [
             {
@@ -57,7 +59,8 @@
             },
         ],
         rows: settings['allowedEmails'],
-        warning: macros.configWarning('allowedEmails', 'oopspam')
+        warning: macros.configWarning('allowedEmails', 'oopspam'),
+        disabled: readOnly
     }) }}
     
     {{ forms.editableTableField({
@@ -65,9 +68,9 @@
         instructions: 'Allow specific IP addresses.',
         name: 'allowedIPs',
         addRowLabel: 'Add an IP',
-        allowAdd: true,
-        allowDelete: true,
-        allowReorder: true,
+        allowAdd: (not readOnly),
+        allowDelete: (not readOnly),
+        allowReorder: false,
         cols: [
             {
                 type: "singleline",
@@ -76,7 +79,8 @@
             },
         ],
         rows: settings['allowedIPs'],
-        warning: macros.configWarning('allowedIPs', 'oopspam')
+        warning: macros.configWarning('allowedIPs', 'oopspam'),
+        disabled: readOnly
     }) }}
 
     {% endnamespace %}

@@ -18,7 +18,8 @@
         suggestEnvVars: true,
         required: true,
         errors: settings.getErrors('apiKey'),
-        warning: macros.configWarning('apiKey', 'oopspam')
+        warning: macros.configWarning('apiKey', 'oopspam'),
+        disabled: readOnly
     }) }}
     
     {{ forms.selectField({
@@ -29,7 +30,8 @@
         value: settings['apiService'],
         required: true,
         errors: settings.getErrors('apiService'),
-        warning: macros.configWarning('apiService', 'oopspam')
+        warning: macros.configWarning('apiService', 'oopspam'),
+        disabled: readOnly
     }) }}
     
     {{ forms.lightswitchField({
@@ -40,6 +42,7 @@
         toggle: 'logs-fields',
         errors: settings.getErrors('enableLogs'),
         warning: macros.configWarning('enableLogs', 'oopspam'),
+        disabled: readOnly
     }) }}
     
     <div id="logs-fields" class="field {{ not settings.enableLogs ? 'hidden' }}">
@@ -52,7 +55,8 @@
           min: 1,
           max: 30,
           errors: settings.getErrors('maxLogs'),
-          warning: macros.configWarning('maxLogs', 'oopspam')
+          warning: macros.configWarning('maxLogs', 'oopspam'),
+          disabled: readOnly
       }) }}
     </div>
     
@@ -63,7 +67,8 @@
         value: settings['pluginName'],
         type: 'text',
         errors: settings.getErrors('pluginName'),
-        warning: macros.configWarning('pluginName', 'oopspam')
+        warning: macros.configWarning('pluginName', 'oopspam'),
+        disabled: readOnly
     }) }}
 
     {% endnamespace %}

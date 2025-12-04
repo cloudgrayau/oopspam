@@ -21,7 +21,7 @@ return [
   'pluginName' => '',
   'spamScore' => 3, /* 1-6 */
   'blockContentSpam' => true,
-  'blockTempEmail' => false,
+  'blockTempEmail' => true,
   'blockVPN' => false,
   'blockDC' => false,
   'checkForLength' => true,
