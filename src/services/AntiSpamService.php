@@ -36,16 +36,19 @@ class AntiSpamService extends Component {
     $integrations = SettingsHelper::getIntegrations();
     foreach($integrations as $type => $object){
       $objects = array_keys($object);
-      foreach($objects as $integration){
+      foreach($objects as $integration){        
         if (in_array($integration, OOPSpam::$plugin->settings->integrations)){
           if (Craft::$app->plugins->isPluginEnabled($integration)){
-            $classes = explode('-',$integration);
-            $class = implode('', array_map(function($n){
-              return ucfirst($n);
-            }, $classes));
-            $className = '\cloudgrayau\oopspam\integrations\\'.$class.'Integration';
-            $obj = new $className();
-            $obj->parse($integration);
+            $plugin = Craft::$app->plugins->getPlugin($integration);
+            if ((!isset($object[$integration]['minimum'])) || (version_compare($plugin->getVersion(), $object[$integration]['minimum'], '>='))){
+              $classes = explode('-',$integration);
+              $class = implode('', array_map(function($n){
+                return ucfirst($n);
+              }, $classes));
+              $className = '\cloudgrayau\oopspam\integrations\\'.$class.'Integration';
+              $obj = new $className();
+              $obj->parse($integration);
+            }
           }
         }
       }

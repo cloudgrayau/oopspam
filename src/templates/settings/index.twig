@@ -19,9 +19,8 @@
 
 {% set readOnly = admin.readOnly ?? false %}
 {% set fullPageForm = not readOnly %}
-
-{% if readOnly %}{% set contentNotice = admin.notice %}{% endif %}
-{% if (admin.disableAdmin >= 1) %}{% requireAdmin %}{% endif %}
+{% if readOnly %}{% set contentNotice = admin.cpNotice %}{% endif %}
+{% if (admin.disableAdmin) %}{% requireAdmin %}{% endif %}
 
 {% set tabs = {
   "general": {label: "General", url: "#general"},

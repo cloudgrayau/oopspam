@@ -46,9 +46,9 @@ JS;
       ],
       'limits' => OOPSpam::$plugin->logs->getUsage(),
       'admin' => [
-        'disableAdmin' => version_compare('5.6.0', Craft::$app->getVersion()),
+        'disableAdmin' => version_compare(Craft::$app->getVersion(), '5.6.0', '<'),
         'readOnly' => !Craft::$app->getConfig()->getGeneral()->allowAdminChanges,
-        'notice' => (method_exists('\craft\helpers\Cp', 'readOnlyNoticeHtml')) ? Cp::readOnlyNoticeHtml() : ''
+        'cpNotice' => (method_exists('\craft\helpers\Cp', 'readOnlyNoticeHtml')) ? Cp::readOnlyNoticeHtml() : ''
       ]
     ]);
   }

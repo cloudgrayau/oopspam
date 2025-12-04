@@ -49,7 +49,7 @@
 {% for key, obj in helper.integrations['comments'] %}
 {% if craft.app.plugins.isPluginEnabled(key) %}
     <p>
-      <input type="checkbox" class="checkbox" name="integrations[]" id="{{ key }}" value="{{ key }}"{% if key in settings.integrations %} checked="checked"{% endif %}{% if (readOnly) %} disabled="disabled"{% endif %}> <label for="{{ key }}">Enable <strong>{{ obj.title|raw }}</strong><br><small><a href="{{ obj.url }}" target="_blank">{{ obj.url }}</a></small></label>
+      <input type="checkbox" class="checkbox" name="integrations[]" id="{{ key }}" value="{{ key }}"{% if key in settings.integrations %} checked="checked"{% endif %}{% if (readOnly) %} disabled="disabled"{% endif %}> <label for="{{ key }}">Enable <strong>{{ obj.title|raw }}</strong> {% if obj.information is defined %}<small>{{ obj.information|raw }}</small>{% endif %}<br><small><a href="{{ obj.url }}" target="_blank">{{ obj.url }}</a></small></label>
     </p>
 {% endif %}
 {% endfor %}

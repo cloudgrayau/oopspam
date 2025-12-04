@@ -2,10 +2,11 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
-## 1.5.1 - 2025-12-02
+## 1.5.1 - 2025-12-04
 ### Changed
 - Fixed possible error that can occur on the dashboard widget
-- Updated settings to be able to be viewed in environments where `allowAdminChanges` is disabled
+- Settings are now able to be viewed (read-only) when `allowAdminChanges` is disabled
+- All integrations now have a minimum version requirement
 
 ## 1.5.0 - 2025-12-01
 ### Added

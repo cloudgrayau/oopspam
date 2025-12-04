@@ -323,31 +323,41 @@ class SettingsHelper {
     'forms' => [
       'formie' => [
         'title' => 'Formie',
-        'url' => 'https://plugins.craftcms.com/formie'
+        'information' => '(&gt;= 2.0.0)',
+        'url' => 'https://plugins.craftcms.com/formie',
+        'minimum' => '2.0.0'
       ],
       'freeform' => [
         'title' => 'Freeform',
-        'url' => 'https://plugins.craftcms.com/freeform'
+        'information' => '(&gt;= 5.0.0)',
+        'url' => 'https://plugins.craftcms.com/freeform',
+        'minimum' => '5.0.0'
       ],
       'contact-form' => [
         'title' => 'Contact Form',
-        'url' => 'https://plugins.craftcms.com/contact-form'
+        'information' => '(&gt;= 3.0.0)',
+        'url' => 'https://plugins.craftcms.com/contact-form',
+        'minimum' => '3.0.0'
       ],
       'wheelform' => [
         'title' => 'Wheel Form',
         'information' => '(&gt;= 4.0.2)',
-        'url' => 'https://plugins.craftcms.com/wheelform'
+        'url' => 'https://plugins.craftcms.com/wheelform',
+        'minimum' => '4.0.2'
       ],
       'express-forms' => [
         'title' => 'Express Forms',
-        'information' => '(no longer maintained)',
-        'url' => 'https://plugins.craftcms.com/express-forms'
+        'information' => '(&gt;= 2.0.0; no longer maintained)',
+        'url' => 'https://plugins.craftcms.com/express-forms',
+        'minimum' => '2.0.0'
       ]
     ],
     'comments' => [
       'comments' => [
         'title' => 'Comments',
-        'url' => 'https://plugins.craftcms.com/comments'
+        'information' => '(&gt;= 2.0.0)',
+        'url' => 'https://plugins.craftcms.com/comments',
+        'minimum' => '2.0.0'
       ],
     ]
   ];
