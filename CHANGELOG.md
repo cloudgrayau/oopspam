@@ -2,6 +2,10 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.5.2 - 2025-12-09
+### Changed
+- Overrides `checkForLength` on integrations where no content element/s are found.
+
 ## 1.5.1 - 2025-12-04
 ### Changed
 - Fixed possible error that can occur on the dashboard widget

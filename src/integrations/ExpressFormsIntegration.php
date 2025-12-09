@@ -30,6 +30,9 @@ class ExpressFormsIntegration {
             break;
         }
       }
+      if (empty($params['content'])){ /* override checkForLength when no content fields */
+        $params['checkForLength'] = false;
+      }
       if ((OOPSpam::$plugin->settings->enableContextual) && (!empty(OOPSpam::$plugin->settings->contextualContent)) && (in_array($this->integration, OOPSpam::$plugin->settings->contextual))){
         $params['contextual'] = true;
       }
