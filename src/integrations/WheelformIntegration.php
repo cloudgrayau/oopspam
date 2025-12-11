@@ -7,7 +7,7 @@ use yii\base\Event;
 
 class WheelformIntegration {
   
-  public $integration = '';
+  public string $integration = '';
   public function getName(): string {
     return 'Wheel Form';
   }

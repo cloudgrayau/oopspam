@@ -6,7 +6,7 @@ use yii\base\Event;
 
 class ExpressFormsIntegration {
   
-  public $integration = '';
+  public string $integration = '';
   public function getName(): string {
     return 'Express Forms';
   }

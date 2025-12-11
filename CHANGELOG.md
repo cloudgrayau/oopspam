@@ -2,6 +2,10 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.5.3 - 2025-12-09
+### Changed
+- Add support for Formie nested fields (thanks @gijsstegehuis)
+
 ## 1.5.2 - 2025-12-09
 ### Changed
 - Overrides `checkForLength` on integrations where no content element/s are found.

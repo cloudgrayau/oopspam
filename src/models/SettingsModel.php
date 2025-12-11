@@ -64,6 +64,9 @@ class SettingsModel extends Model {
   public array $allowedEmails = [];
   public array $allowedIPs = [];
   
+  /* OVERRIDES */
+  public array $forms = [];
+  
   // Public Methods
   // =========================================================================
 
@@ -78,7 +81,7 @@ class SettingsModel extends Model {
       [['apiKey','apiService'], 'required'],
       [['apiKey','apiService','contextualContent','pluginName'], 'string'],
       [['enableUserRegistration','enableCommerce','enableContextual','blockTempEmail','blockVPN','blockDC','checkForLength','logIt','urlFriendly','enableLimiting'], 'boolean'],
-      [['allowedLanguages','allowedCountries','blockedCountries','integrations','contextual','blockedEmails','blockedIPs','allowedEmails','allowedIPs'], ArrayValidator::class],
+      [['allowedLanguages','allowedCountries','blockedCountries','integrations','contextual','blockedEmails','blockedIPs','allowedEmails','allowedIPs','forms'], ArrayValidator::class],
       ['maxLogs', 'integer', 'min' => 1, 'max' => 90],
       ['maxSubmissions', 'integer', 'min' => 1],
       ['spamScore', 'integer', 'min' => 1, 'max' => 6]

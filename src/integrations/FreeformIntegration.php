@@ -6,7 +6,7 @@ use yii\base\Event;
 
 class FreeformIntegration {
   
-  public $integration = '';
+  public string $integration = '';
   public function getName(): string {
     return 'Freeform';
   }

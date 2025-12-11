@@ -8,7 +8,7 @@ use yii\base\Event;
 
 class CommentsIntegration {
   
-  public $integration = '';
+  public string $integration = '';
   public function getName(): string {
     return 'Comments';
   }
