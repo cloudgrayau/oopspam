@@ -2,7 +2,6 @@
 namespace cloudgrayau\oopspam\integrations;
 use cloudgrayau\oopspam\OOPSpam;
 
-use Craft;
 use yii\base\Event;
 
 class WheelformIntegration {
