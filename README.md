@@ -82,6 +82,20 @@ If you would rather use **contextual detection**, the `content` and `contextual`
     }
     ?>
     
+## Overriding Settings
+
+For OOPSPam 1.5.3, you can now override settings on a per-form basis for the `Formie`, `FreeForm`, `Express Forms` and `WheelForm` integrations. This can only be done via config file.
+
+Each array of values, will need to use the form handle as the array key. As `WheelForm` doesn't support handles, the form ID should be used instead.
+  
+    'forms' => [
+      'contact' => [ /* Form handle */
+        'disabled' => false, /* Optional setting to disable spam check for specific form */
+        'spamScore' => 3,
+        // extra settings
+      ]
+    ]
+    
 ## Domain Reputation
 
 The OOPSpam plugin comes with a domain reputation checker. Simply, this tool evaluates the reputation of a given domain name by cross-referencing it against multiple authoritative sources, including Google, Microsoft, Mozilla, and various other reputable security providers. An active API key is required for this and each request counts towards your monthly tally.

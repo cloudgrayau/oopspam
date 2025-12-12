@@ -15,6 +15,14 @@ class WheelformIntegration {
   public function parse(string $integration): void {
     $this->integration = $integration;
     Event::on(\wheelform\controllers\MessageController::class, \wheelform\controllers\MessageController::EVENT_BEFORE_SAVE, function(\wheelform\events\MessageEvent $e){
+      $handle = $e->form_id;
+      if (isset(OOPSpam::$plugin->settings->forms[$handle])){
+        $settings = OOPSpam::$plugin->settings->forms[$handle];
+        if ((isset($settings['disabled'])) && ($settings['disabled'])){
+          return;
+        }
+        OOPSpam::overrideSettings($settings);
+      }
       $params = [
         'content' => []
       ];

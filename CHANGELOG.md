@@ -4,7 +4,9 @@ Release notes for the OOPSpam Craft CMS plugin.
 
 ## 1.5.3 - 2025-12-09
 ### Changed
-- Add support for Formie nested fields (thanks @gijsstegehuis)
+- Add support for `Formie` nested fields (thanks @gijsstegehuis)
+- Settings can now be overridden on a per-form basis via the config file. Please refer to the README for more information.
+- Fixed `FreeForm` integration
 
 ## 1.5.2 - 2025-12-09
 ### Changed

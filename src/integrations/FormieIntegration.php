@@ -15,6 +15,14 @@ class FormieIntegration {
   public function parse(string $integration): void {
     $this->integration = $integration;
     Event::on(\verbb\formie\services\Submissions::class, \verbb\formie\services\Submissions::EVENT_AFTER_SPAM_CHECK, function(\verbb\formie\events\SubmissionSpamCheckEvent $e){
+      $handle = $e->submission->form->handle;
+      if (isset(OOPSpam::$plugin->settings->forms[$handle])){
+        $settings = OOPSpam::$plugin->settings->forms[$handle];
+        if ((isset($settings['disabled'])) && ($settings['disabled'])){
+          return;
+        }
+        OOPSpam::overrideSettings($settings);
+      }
       $params = [
         'content' => []
       ];

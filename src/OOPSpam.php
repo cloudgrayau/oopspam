@@ -106,6 +106,50 @@ class OOPSpam extends Plugin {
     return [];
   }
   
+  public static function overrideSettings(array $settings): void {
+    foreach($settings as $key => $value){
+      switch($key){
+        case 'spamScore':
+        case 'maxSubmissions':
+          self::$plugin->settings[$key] = (int)$value;
+          break;
+        case 'enableLogs':
+        case 'blockContentSpam':
+        case 'blockTempEmail':
+        case 'blockVPN':
+        case 'blockDC':
+        case 'checkForLength':
+        case 'logIt':
+        case 'urlFriendly':
+        case 'enableLimiting':
+        case 'enableContextual':
+          self::$plugin->settings[$key] = (bool)$value;
+          break;
+        case 'allowedLanguages':
+        case 'allowedCountries':
+        case 'blockedCountries':
+          self::$plugin->settings[$key] = (array)$value;
+          break;
+        case 'contextualContent':
+          self::$plugin->settings[$key] = (string)$value;
+          break;
+        case 'blockedEmails':
+        case 'blockedIPs':
+        case 'allowedEmails':
+        case 'allowedIPs':
+          $data = [];
+          foreach((array)$settings[$key] as $row){
+            $row = (array)$row;
+            if (isset($row[0]) && !empty(trim($row[0]))){
+              $data[] = array(trim($row[0]));
+            }
+          }
+          self::$plugin->settings[$key] = $data;
+          break;
+      }
+    }
+  }
+  
   // Private Methods
   // =========================================================================
   

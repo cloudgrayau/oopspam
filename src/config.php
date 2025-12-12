@@ -62,5 +62,12 @@ return [
   'allowedEmails' => [
   ],
   'allowedIPs' => [
+  ],
+  'forms' => [
+    /*'contact' => [
+      'disabled' => false,
+      'spamScore' => 3,
+      // extra settings
+    ]*/
   ]
 ];
