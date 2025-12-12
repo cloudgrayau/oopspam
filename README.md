@@ -84,9 +84,9 @@ If you would rather use **contextual detection**, the `content` and `contextual`
     
 ## Overriding Settings
 
-For OOPSPam 1.5.3, you can now override settings on a per-form basis for the `Formie`, `FreeForm`, `Express Forms` and `WheelForm` integrations. This can only be done via config file.
+You can now override settings on a per-form basis for the `Formie`, `FreeForm`, `Express Forms` and `WheelForm` integrations. This can only be done via config file.
 
-Each array of values, will need to use the form handle as the array key. As `WheelForm` doesn't support handles, the form ID should be used instead.
+Each override will need to use the form handle as the array key. As `WheelForm` doesn't support handles, the form ID should be used instead.
   
     'forms' => [
       'contact' => [ /* Form handle */
