@@ -2,6 +2,10 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.5.4 - 2026-01-27
+### Changed
+- Fixed `Comments` integration triggering spam query on delete action
+
 ## 1.5.3 - 2025-12-12
 ### Added
 - Add support for `Formie` nested fields (thanks @gijsstegehuis)
