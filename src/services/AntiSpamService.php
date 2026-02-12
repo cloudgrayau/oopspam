@@ -8,6 +8,7 @@ use Craft;
 use craft\base\Component;
 use craft\helpers\App;
 use craft\helpers\StringHelper;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 
@@ -252,6 +253,12 @@ class AntiSpamService extends Component {
   // =========================================================================
 
   private function sendRequest(array $params, string $endpoint): array {
+    $apiKey = App::parseEnv(OOPSpam::$plugin->settings->apiKey);
+
+    if (empty($apiKey)){
+      throw new Exception('API Key is not set. Please set your API key in the plugin settings.');
+    }
+
     try {
       $client = new Client([
         'base_uri' => (OOPSpam::$plugin->settings->apiService == 'rapidapi') ? 'https://oopspam.p.rapidapi.com' : $this->baseUrl
@@ -260,7 +267,7 @@ class AntiSpamService extends Component {
         'json' => $params,
         'headers' => [
           'Content-Type' => 'application/json',
-          'X-Api-Key' => App::parseEnv(OOPSpam::$plugin->settings->apiKey)
+          'X-Api-Key' => $apiKey,
         ]
       ]);
       return [
