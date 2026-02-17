@@ -43,10 +43,10 @@ class TestController extends Controller {
           'content' => $content,
           'checkForLength' => $checkForLength
         ];
-        $results = OOPSpam::testSpam($params, 'Test Suite');
+        $results = OOPSpam::testSpam($params, 'Test Suite');        
         $general->data = $results['data'];
         $general->results = $results['results'];
-        $general->status = !OOPSpam::$plugin->antiSpam->isSpam($results['results']);
+        $general->status = is_array($results['results']) ? !OOPSpam::$plugin->antiSpam->isSpam($results['results']) : true;
       }
     }
     if (isset($_POST['contextual'])){
@@ -68,7 +68,7 @@ class TestController extends Controller {
         unset($results['data']['email']);
         $contextual->data = $results['data'];
         $contextual->results = $results['results'];
-        $contextual->status = !OOPSpam::$plugin->antiSpam->isSpam($results['results']);
+        $contextual->status = is_array($results['results']) ? !OOPSpam::$plugin->antiSpam->isSpam($results['results']) : true;
       }
     }
     $css = <<<CSS

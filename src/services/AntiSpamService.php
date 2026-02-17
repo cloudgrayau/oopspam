@@ -213,7 +213,7 @@ class AntiSpamService extends Component {
           'results' => $result['error']
         ];
       }
-      return false;
+      return true;
     }
     
   }
@@ -252,7 +252,11 @@ class AntiSpamService extends Component {
   // =========================================================================
 
   private function sendRequest(array $params, string $endpoint): array {
+    $apiKey = App::parseEnv(OOPSpam::$plugin->settings->apiKey);
     try {
+      if (empty($apiKey)){
+        throw new \Exception('API Key is not set. Please set your API key in the plugin settings.');
+      }
       $client = new Client([
         'base_uri' => (OOPSpam::$plugin->settings->apiService == 'rapidapi') ? 'https://oopspam.p.rapidapi.com' : $this->baseUrl
       ]);
@@ -260,7 +264,7 @@ class AntiSpamService extends Component {
         'json' => $params,
         'headers' => [
           'Content-Type' => 'application/json',
-          'X-Api-Key' => App::parseEnv(OOPSpam::$plugin->settings->apiKey)
+          'X-Api-Key' => $apiKey
         ]
       ]);
       return [
@@ -277,6 +281,11 @@ class AntiSpamService extends Component {
       return [
         'response' => false,
         'error' => $error['error']
+      ];
+    } catch (\Exception $e) {
+      return [
+        'response' => false,
+        'error' => $e->getMessage()
       ];
     }
   }

@@ -2,6 +2,11 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.5.5 - 2026-02-17
+### Changed
+- Added additional checks to ensure an API key is set
+- No longer triggers as spam on failed requests
+
 ## 1.5.4 - 2026-01-27
 ### Changed
 - Fixed `Comments` integration triggering spam query on delete action

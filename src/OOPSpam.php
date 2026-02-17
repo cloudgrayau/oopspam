@@ -100,10 +100,7 @@ class OOPSpam extends Plugin {
   
   public static function testSpam(array $params, string $type = ''): array {
     define('OOPSPAM_TEST', true);
-    if (self::$plugin->settings->apiKey){
-      return self::$plugin->antiSpam->checkSpam($params, $type);
-    }
-    return [];
+    return self::$plugin->antiSpam->checkSpam($params, $type);
   }
   
   public static function overrideSettings(array $settings): void {
