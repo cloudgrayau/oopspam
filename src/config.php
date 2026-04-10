@@ -35,6 +35,7 @@ return [
   ],
   'enableUserRegistration' => true,
   'enableCommerce' => true,
+  'enableSubscriptions' => false,
   'enableLimiting' => false,
   'maxSubmissions' => 3,
   'integrations' => [

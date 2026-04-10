@@ -32,11 +32,12 @@ class SettingsModel extends Model {
   
   /* RATES */
   public bool $enableLimiting = false;
-  public int $maxSubmissions = 3;
+  public int $maxSubmissions = 5;
   
   /* INTEGRATIONS */
   public bool $enableUserRegistration = true;
   public bool $enableCommerce = true;
+  public bool $enableSubscriptions = false;
   public array $integrations = [
     'formie',
     'freeform',
@@ -80,7 +81,7 @@ class SettingsModel extends Model {
     $rules = [
       [['apiKey','apiService'], 'required'],
       [['apiKey','apiService','contextualContent','pluginName'], 'string'],
-      [['enableUserRegistration','enableCommerce','enableContextual','blockTempEmail','blockVPN','blockDC','checkForLength','logIt','urlFriendly','enableLimiting'], 'boolean'],
+      [['enableUserRegistration','enableCommerce','enableSubscriptions','enableContextual','blockTempEmail','blockVPN','blockDC','checkForLength','logIt','urlFriendly','enableLimiting'], 'boolean'],
       [['allowedLanguages','allowedCountries','blockedCountries','integrations','contextual','blockedEmails','blockedIPs','allowedEmails','allowedIPs','forms'], ArrayValidator::class],
       ['maxLogs', 'integer', 'min' => 1, 'max' => 90],
       ['maxSubmissions', 'integer', 'min' => 1],

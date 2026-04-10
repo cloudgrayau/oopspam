@@ -17,25 +17,30 @@ class CommerceIntegration {
   }
 
   public function parse(): void {
-    Event::on(Payments::class, Payments::EVENT_BEFORE_PROCESS_PAYMENT, function (ProcessPaymentEvent $e){
-      $params = [
-        'email' => $e->order->email,
-        'checkForLength' => false
-      ];
-      if (!OOPSpam::$plugin->antiSpam->checkSpam($params, $this->getName())){
-        $e->isValid = false;
-      }
-    });
-    Event::on(Subscriptions::class, Subscriptions::EVENT_BEFORE_CREATE_SUBSCRIPTION, function (CreateSubscriptionEvent $e){
-      $user = $e->user;
-      $params = [
-        'email' => $user->email,
-        'checkForLength' => false
-      ];
-      if (!OOPSpam::$plugin->antiSpam->checkSpam($params, $this->getName())){
-        $e->isValid = false;
-      }
-    });
+    $settings = OOPSpam::$plugin->settings;
+    if ($settings->enableCommerce){
+      Event::on(Payments::class, Payments::EVENT_BEFORE_PROCESS_PAYMENT, function (ProcessPaymentEvent $e){
+        $params = [
+          'email' => $e->order->email,
+          'checkForLength' => false
+        ];
+        if (!OOPSpam::$plugin->antiSpam->checkSpam($params, $this->getName())){
+          $e->isValid = false;
+        }
+      });
+    }
+    if ($settings->enableSubscriptions){
+      Event::on(Subscriptions::class, Subscriptions::EVENT_BEFORE_CREATE_SUBSCRIPTION, function (CreateSubscriptionEvent $e){
+        $user = $e->user;
+        $params = [
+          'email' => $user->email,
+          'checkForLength' => false
+        ];
+        if (!OOPSpam::$plugin->antiSpam->checkSpam($params, $this->getName())){
+          $e->isValid = false;
+        }
+      });
+    }
   }
   
 }

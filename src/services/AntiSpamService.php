@@ -215,7 +215,6 @@ class AntiSpamService extends Component {
       }
       return true;
     }
-    
   }
   
   public function checkReputation(string $domain): array {

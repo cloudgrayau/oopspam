@@ -163,7 +163,7 @@ class OOPSpam extends Plugin {
       if ($this->settings->enableUserRegistration && $edition){
         $this->antiSpam->initRegistration();
       }
-      if ($this->settings->enableCommerce && ($edition >= 2) && (Craft::$app->plugins->isPluginEnabled('commerce'))){ /* craft pro */
+      if (($this->settings->enableCommerce || $this->settings->enableSubscriptions) && ($edition >= 2) && (Craft::$app->plugins->isPluginEnabled('commerce'))){ /* craft pro */
         $this->antiSpam->initCommerce();
       }
       if (!empty($this->settings->integrations)){

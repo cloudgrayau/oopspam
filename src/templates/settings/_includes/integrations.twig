@@ -17,10 +17,19 @@
     {{ forms.lightswitchField({
       label: 'Protect Commerce',
       name: 'enableCommerce',
-      instructions: 'Protect orders and subscriptions from spam.',
+      instructions: 'Protect commerce orders from spam.',
       on: settings.enableCommerce,
       errors: settings.getErrors('enableCommerce'),
       warning: macros.configWarning('enableCommerce', 'oopspam'),
+      disabled: readOnly
+    }) }}
+    {{ forms.lightswitchField({
+      label: 'Protect Subscriptions',
+      name: 'enableSubscriptions',
+      instructions: 'Protect commerce subscriptions from spam.',
+      on: settings.enableSubscriptions,
+      errors: settings.getErrors('enableSubscriptions'),
+      warning: macros.configWarning('enableSubscriptions', 'oopspam'),
       disabled: readOnly
     }) }}
 {% endif %}
