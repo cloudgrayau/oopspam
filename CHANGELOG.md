@@ -2,7 +2,7 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
-## 1.5.6 - 2026-02-17
+## 1.5.6 - 2026-04-10
 ### Added
 - Added individual config value for `enableSubscriptions` (Craft Commerce Subscriptions)
 
