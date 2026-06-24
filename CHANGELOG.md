@@ -2,6 +2,10 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.5.7 - 2026-06-25
+### Changed
+- Change submission IP address column to BIGINT (thanks @joostwaaijer)
+
 ## 1.5.6 - 2026-04-10
 ### Added
 - Added individual config value for `enableSubscriptions` (Craft Commerce Subscriptions)
