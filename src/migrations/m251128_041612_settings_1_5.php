@@ -14,7 +14,7 @@ class m251128_041612_settings_1_5 extends Migration {
     public function safeUp(): bool {
       if (!$this->db->tableExists(SubmissionRecord::tableName())){
         $this->createTable(SubmissionRecord::tableName(), [
-          'ipaddress' => $this->integer()->unsigned(),
+          'ipaddress' => $this->bigInteger()->unsigned(),
           'dateCreated' => $this->dateTime()->notNull(),
           'dateUpdated' => $this->dateTime()->notNull(),
           'uid' => $this->uid(),
