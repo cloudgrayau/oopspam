@@ -7,13 +7,14 @@ use craft\db\Migration;
 use cloudgrayau\oopspam\records\SubmissionRecord;
 
 /**
- * m260624_083639_submissions_ipaddress_bigint migration.
+ * m260625_104310_submissions_ipaddress_binary migration.
  */
-class m260624_083639_submissions_ipaddress_bigint extends Migration {
+class m260625_104310_submissions_ipaddress_binary extends Migration {
 
   public function safeUp(): bool {
     if ($this->db->tableExists(SubmissionRecord::tableName())){
-      $this->alterColumn(SubmissionRecord::tableName(), 'ipaddress', $this->bigInteger()->unsigned());
+      $this->truncateTable(SubmissionRecord::tableName());
+      $this->alterColumn(SubmissionRecord::tableName(), 'ipaddress', $this->db->getIsPgsql() ? 'bytea NOT NULL' : 'varbinary(16) NOT NULL');
       Craft::$app->db->schema->refresh();
     }
     return true;
@@ -21,6 +22,7 @@ class m260624_083639_submissions_ipaddress_bigint extends Migration {
 
   public function safeDown(): bool {
     if ($this->db->tableExists(SubmissionRecord::tableName())){
+      $this->truncateTable(SubmissionRecord::tableName());
       $this->alterColumn(SubmissionRecord::tableName(), 'ipaddress', $this->integer()->unsigned());
       Craft::$app->db->schema->refresh();
     }

@@ -7,15 +7,14 @@ use DateTime;
 
 class SubmissionModel extends Model {
   
-  public int $ipaddress = 0;
+  public string $ipaddress = '';
   public ?DateTime $dateCreated = null;
   public ?DateTime $dateUpdated = null;
   public ?string $uid = null;
   
   public function rules(): array {
     $rules = parent::rules();
-    $rules[] = [['ipaddress'], 'integer'];
-    $rules[] = [['uid'], 'string'];
+    $rules[] = [['uid','ipaddress'], 'string'];
     $rules[] = [['dateCreated', 'dateUpdated'], DateTimeValidator::class];
     return $rules;
   }

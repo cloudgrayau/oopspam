@@ -47,7 +47,7 @@ class Install extends Migration {
     }
     if (!$this->db->tableExists(SubmissionRecord::tableName())){
       $this->createTable(SubmissionRecord::tableName(), [
-        'ipaddress' => $this->bigInteger()->unsigned(),
+        'ipaddress' => $this->db->getIsPgsql() ? 'bytea NOT NULL' : 'varbinary(16) NOT NULL',
         'dateCreated' => $this->dateTime()->notNull(),
         'dateUpdated' => $this->dateTime()->notNull(),
         'uid' => $this->uid(),

@@ -19,8 +19,15 @@ class SubmissionService extends Component {
   }
   
   public function recordSubmission(string $ipaddress): void {
+    if ($ipaddress === ''){
+      return;
+    }
+    $binary = inet_pton($ipaddress);
+    if ($binary === false){
+      return;
+    }
     $data = [
-      'ipaddress' => ip2long($ipaddress)
+      'ipaddress' => $binary
     ];
     $submissionRecord = new SubmissionRecord;
     $submissionRecord->setAttributes($data, false);    
@@ -28,12 +35,19 @@ class SubmissionService extends Component {
   }
   
   public function checkSubmission(string $ipaddress): bool {
+    if ($ipaddress === ''){
+      return false;
+    }
+    $binary = inet_pton($ipaddress);
+    if ($binary === false){
+      return false;
+    }
     $maxSubmissions = OOPSpam::$plugin->settings->maxSubmissions;
     $date = new \DateTime();
     $date->modify('-1 hour');
     $count = SubmissionRecord::find()->where([
       '>=', 'dateCreated', Db::prepareDateForDb($date)
-    ])->andWhere(['ipaddress' => ip2long($ipaddress)])->count();    
+    ])->andWhere(['ipaddress' => $binary])->count();    
     if ($count >= $maxSubmissions){
       return true;
     }

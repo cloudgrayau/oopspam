@@ -38,6 +38,7 @@ class LogsController extends Controller {
   
   public function actionClear(): void {
     OOPSpam::$plugin->logs->clearLogs();
+    OOPSpam::$plugin->submissions->clearSubmissions();
     Craft::$app->response->redirect(UrlHelper::url('oopspam/logs'))->send();
     $this->setSuccessFlash('Logs cleared.');
   }

@@ -120,7 +120,7 @@ class AntiSpamService extends Component {
     
     /* RATE LIMITS - check after manual checks */
     if ((!defined('OOPSPAM_TEST')) && (OOPSpam::$plugin->settings->enableLimiting)){
-      $ipaddress = Craft::$app->request->getUserIP();
+      $ipaddress = Craft::$app->request->getUserIP() ?? ''; /* Request REAL user IP again */
       if (OOPSpam::$plugin->submissions->checkSubmission($ipaddress)){
         OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
           'Score' => 6,
