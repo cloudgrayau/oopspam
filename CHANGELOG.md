@@ -4,8 +4,8 @@ Release notes for the OOPSpam Craft CMS plugin.
 
 ## 1.5.7 - 2026-06-25
 ### Changed
-- Change submission IP address column to VARBINARY/BYTEA to support both IPv4 and IPv6 addresses
-- Rate limit will auto-pass if unable to resolve an IP address
+- Changed `ipaddress` address column on submission to VARBINARY(16)/BYTEA to support both IPv4 and IPv6 addresses
+- Rate limiting will auto-pass if Craft is unable to resolve an IP address
 
 ## 1.5.6 - 2026-04-10
 ### Added
