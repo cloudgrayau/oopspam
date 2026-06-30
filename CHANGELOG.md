@@ -2,6 +2,10 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.5.8 - 2026-06-30
+### Changed
+- Fixed PostgresQL migration issue (thanks @joostwaaijer)
+
 ## 1.5.7 - 2026-06-25
 ### Changed
 - Changed `ipaddress` address column on submission to VARBINARY(16)/BYTEA to support both IPv4 and IPv6 addresses
