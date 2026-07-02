@@ -9,6 +9,7 @@ use Craft;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\base\Component;
+use yii\db\Expression;
 
 class SubmissionService extends Component {
   
@@ -45,9 +46,12 @@ class SubmissionService extends Component {
     $maxSubmissions = OOPSpam::$plugin->settings->maxSubmissions;
     $date = new \DateTime();
     $date->modify('-1 hour');
+    $ipaddressCondition = Craft::$app->db->getIsPgsql()
+      ? new Expression("decode(:ipaddress, 'hex')", [':ipaddress' => bin2hex($binary)])
+      : $binary;
     $count = SubmissionRecord::find()->where([
       '>=', 'dateCreated', Db::prepareDateForDb($date)
-    ])->andWhere(['ipaddress' => $binary])->count();    
+    ])->andWhere(['ipaddress' => $ipaddressCondition])->count();    
     if ($count >= $maxSubmissions){
       return true;
     }
