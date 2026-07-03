@@ -9,6 +9,7 @@ use Craft;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\base\Component;
+use yii\db\Expression;
 
 class SubmissionService extends Component {
   
@@ -27,7 +28,7 @@ class SubmissionService extends Component {
       return;
     }
     $data = [
-      'ipaddress' => $binary
+      'ipaddress' => self::binaryCondition($binary)
     ];
     $submissionRecord = new SubmissionRecord;
     $submissionRecord->setAttributes($data, false);    
@@ -47,7 +48,7 @@ class SubmissionService extends Component {
     $date->modify('-1 hour');
     $count = SubmissionRecord::find()->where([
       '>=', 'dateCreated', Db::prepareDateForDb($date)
-    ])->andWhere(['ipaddress' => $binary])->count();    
+    ])->andWhere(['ipaddress' => self::binaryCondition($binary)])->count();
     if ($count >= $maxSubmissions){
       return true;
     }
@@ -62,6 +63,10 @@ class SubmissionService extends Component {
     $date = new \DateTime();
     $date->modify('-1 hour');
     SubmissionRecord::deleteAll(['<', 'dateCreated', Db::prepareDateForDb($date)]);
+  }
+  
+  private static function binaryCondition(string $binary): string|Expression {
+    return Craft::$app->db->getIsPgsql() ? new Expression("decode(:value, 'hex')", [':value' => bin2hex($binary)]) : $binary;
   }
   
 }

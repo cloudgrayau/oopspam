@@ -2,7 +2,7 @@
     "name": "cloudgrayau/oopspam",
     "description": "OOPSpam Anti-Spam for Craft CMS",
     "type": "craft-plugin",
-    "version": "1.5.8",
+    "version": "1.5.9",
     "keywords": [
         "craft",
         "cms",

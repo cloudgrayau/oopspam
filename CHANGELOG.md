@@ -2,6 +2,10 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.5.9 - 2026-07-03
+### Changed
+- Fixed PostgresQL submission SQLSTATE query issue (thanks @Sanderth)
+
 ## 1.5.8 - 2026-06-30
 ### Changed
 - Fixed PostgresQL migration issue (thanks @joostwaaijer)
