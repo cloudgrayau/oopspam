@@ -17,7 +17,7 @@ class ContactFormIntegration {
       $submission = $e->submission;
       $params = [
         'email' => $submission['fromEmail'] ?? '',
-        'content' => $submission['message'] ?? ''
+        'content' => array_merge([$submission['fromName'] ?? ''], (array)($submission['message'] ?? ''))
       ];
       if ((OOPSpam::$plugin->settings->enableContextual) && (!empty(OOPSpam::$plugin->settings->contextualContent)) && (in_array($this->integration, OOPSpam::$plugin->settings->contextual))){
         $params['contextual'] = true;
