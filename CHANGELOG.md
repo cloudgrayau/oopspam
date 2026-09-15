@@ -2,6 +2,10 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.5.10 - 2026-09-15
+### Changed
+- Includes contact form sender name in spam checks within the `Contact Form Integration`
+
 ## 1.5.9 - 2026-07-03
 ### Changed
 - Fixed PostgresQL submission SQLSTATE query issue (thanks @Sanderth)
