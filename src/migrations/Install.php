@@ -28,6 +28,7 @@ class Install extends Migration {
         'dateUpdated' => $this->dateTime()->notNull(),
         'uid' => $this->uid(),
       ]);
+      $this->createIndexIfMissing(LogRecord::tableName(), ['dateCreated', 'id']);
     }
     if (!$this->db->tableExists(UsageRecord::tableName())){
       $this->createTable(UsageRecord::tableName(), [

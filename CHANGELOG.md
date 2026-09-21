@@ -2,6 +2,13 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.6.0 - 2026-09-21
+### Added
+- Added pagination to the OOPSpam log index
+
+### Changed
+- Improved log query and retention cleanup performance for large log volumes
+
 ## 1.5.10 - 2026-09-15
 ### Changed
 - Includes contact form sender name in spam checks within the `Contact Form Integration`

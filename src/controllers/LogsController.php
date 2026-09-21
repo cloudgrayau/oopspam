@@ -6,6 +6,7 @@ use cloudgrayau\oopspam\OOPSpam;
 use Craft;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
+use craft\web\twig\variables\Paginate;
 
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -45,6 +46,10 @@ class LogsController extends Controller {
 
   public function actionLogs(): Response {
     $settings = OOPSpam::$plugin->getSettings();
+    $paginator = OOPSpam::$plugin->logs->getLogsPaginator(
+      100,
+      Craft::$app->getRequest()->getPageNum()
+    );
     $js = <<<JS
 $('#main-form').submit(function(e){
   if ($('input[name="deleteLogs[]"]:checked').length){
@@ -78,7 +83,8 @@ JS;
     Craft::$app->getView()->registerJs($js);
     return $this->renderTemplate('oopspam/logs', [
       'settings' => $settings,
-      'logs' => OOPSpam::$plugin->logs->getLogs(),
+      'logs' => $paginator->getPageResults(),
+      'pageInfo' => Paginate::create($paginator),
       'limits' => OOPSpam::$plugin->logs->getUsage()
     ]);
   }

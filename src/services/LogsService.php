@@ -8,9 +8,11 @@ use cloudgrayau\oopspam\records\LogRecord;
 use cloudgrayau\oopspam\records\UsageRecord;
 
 use Craft;
+use craft\db\Paginator;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\base\Component;
+use yii\db\ActiveQuery;
 
 class LogsService extends Component {
   
@@ -91,16 +93,17 @@ class LogsService extends Component {
     return $logModel;
   }
   
-  public function getLogs(int $limit=0): array {    
-    $this->gcLogs(); /* Garbage Collect */
-    $logModels = [];
-    $logRecords = LogRecord::find()->orderBy('dateCreated desc')->limit(($limit > 0) ? $limit : '')->all();
-    foreach($logRecords as $logRecord){
-      $logModel = new LogModel();
-      $logModel->setAttributes($logRecord->getAttributes(), true);
-      $logModels[] = $logModel;
-    }
-    return $logModels;
+  public function getLogs(int $limit): array {
+    return $this->createLogModels($this->getLogsQuery()->limit($limit)->all());
+  }
+
+  public function getLogsPaginator(int $pageSize, int $currentPage): Paginator {
+    $paginator = new Paginator($this->getLogsQuery(), [
+      'pageSize' => $pageSize,
+      'currentPage' => $currentPage
+    ]);
+    $paginator->setPageResults($this->createLogModels($paginator->getPageResults()));
+    return $paginator;
   }
   
   public function deleteLogs(array $ids): void {
@@ -115,6 +118,41 @@ class LogsService extends Component {
     $date = new \DateTime();
     $date->modify('-' . OOPSpam::$plugin->settings->maxLogs . ' days');
     LogRecord::deleteAll(['<=', 'dateCreated', Db::prepareDateForDb($date)]);
+  }
+
+  private function getLogsQuery(): ActiveQuery {
+    return LogRecord::find()
+      ->select([
+        'id',
+        'type',
+        'response',
+        'isValid',
+        'isSpam',
+        'isReport',
+        'dateCreated'
+      ])
+      ->orderBy([
+        'dateCreated' => SORT_DESC,
+        'id' => SORT_DESC
+      ]);
+  }
+
+  private function createLogModels(array $logRecords): array {
+    $logModels = [];
+    foreach($logRecords as $logRecord){
+      $logModel = new LogModel();
+      $logModel->setAttributes($logRecord->getAttributes([
+        'id',
+        'type',
+        'response',
+        'isValid',
+        'isSpam',
+        'isReport',
+        'dateCreated'
+      ]), true);
+      $logModels[] = $logModel;
+    }
+    return $logModels;
   }
   
 }
