@@ -15,6 +15,7 @@ class SettingsModel extends Model {
   public string $apiService = 'oopspam';
   public bool $enableLogs = true;
   public int $maxLogs = 30;
+  public int $logsPerPage = 100;
   public string $pluginName = '';
   
   /* SECURITY */
@@ -84,6 +85,7 @@ class SettingsModel extends Model {
       [['enableUserRegistration','enableCommerce','enableSubscriptions','enableContextual','blockTempEmail','blockVPN','blockDC','checkForLength','logIt','urlFriendly','enableLimiting'], 'boolean'],
       [['allowedLanguages','allowedCountries','blockedCountries','integrations','contextual','blockedEmails','blockedIPs','allowedEmails','allowedIPs','forms'], ArrayValidator::class],
       ['maxLogs', 'integer', 'min' => 1, 'max' => 90],
+      ['logsPerPage', 'integer', 'min' => 10],
       ['maxSubmissions', 'integer', 'min' => 1],
       ['spamScore', 'integer', 'min' => 1, 'max' => 6]
     ];

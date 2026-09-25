@@ -18,6 +18,7 @@ return [
   'apiService' => 'oopspam', /* oopspam|rapidapi*/
   'enableLogs' => true,
   'maxLogs' => 30, /* 1-90 */
+  'logsPerPage' => 100,
   'pluginName' => '',
   'spamScore' => 3, /* 1-6 */
   'blockContentSpam' => true,

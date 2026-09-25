@@ -35,7 +35,7 @@
     }) }}
     
     {{ forms.lightswitchField({
-        label: 'Enable Logs?',
+        label: 'Enable Logs',
         instructions: 'Store spam submission calls and responses in Craft CMS.',
         name: 'enableLogs',
         on: settings.enableLogs,
@@ -56,6 +56,17 @@
           max: 30,
           errors: settings.getErrors('maxLogs'),
           warning: macros.configWarning('maxLogs', 'oopspam'),
+          disabled: readOnly
+      }) }}
+      {{ forms.textField({
+          label: "Logs Per Page",
+          instructions: "Maximum logs to display per page.",
+          name: 'logsPerPage',
+          value: settings['logsPerPage'],
+          type: 'number',
+          min: 10,
+          errors: settings.getErrors('logsPerPage'),
+          warning: macros.configWarning('logsPerPage', 'oopspam'),
           disabled: readOnly
       }) }}
     </div>

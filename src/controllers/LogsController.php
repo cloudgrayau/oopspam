@@ -47,7 +47,7 @@ class LogsController extends Controller {
   public function actionLogs(): Response {
     $settings = OOPSpam::$plugin->getSettings();
     $paginator = OOPSpam::$plugin->logs->getLogsPaginator(
-      100,
+      ((int)$settings->logsPerPage > 0) ? (int)$settings->logsPerPage : 10,
       Craft::$app->getRequest()->getPageNum()
     );
     $js = <<<JS

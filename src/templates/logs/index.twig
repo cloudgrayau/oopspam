@@ -12,7 +12,7 @@
 {% set fullPageForm = true %}
 
 {% block content %}
-{% if logs|length %}
+{% if pageInfo.total %}
 <input type="hidden" name="action" value="oopspam/logs/delete">
 <div class="main element-index">
   <div class="tableview tablepane">
@@ -59,25 +59,23 @@
       </tbody>
     </table>
   </div>
-  {% include '_includes/pagination' with {
-    pageInfo: pageInfo,
-    itemLabel: 'log',
-    itemsLabel: 'logs'
-  } only %}
+</div>
+<div class="flex" style="margin: 40px calc(var(--xl)*-1 + 2px) calc(var(--xl)*-1 + 2px); background:rgba(0,0,0,0.04); padding:10px 24px;">
+  <button type="submit" class="btn secondary" data-icon="trash">Delete</button>
+  <div style="flex: 1; padding-left: 5px;"><span id="selected">0</span> / <span id="total">{{ logs|length }}</span> visible logs selected</div>
 </div>
 {% else %}
 <p>No logs found.</p>
 {% endif %}
-<div id="footer" class="flex" style="padding: 20px; margin-bottom: -24px;position: static;">
-{% if logs|length %}
-  <button type="submit" class="btn secondary" data-icon="trash">Delete</button>
-  <div style="flex: 1; padding-left: 5px;"><span id="selected">0</span> / <span id="total">{{ logs|length }}</span> logs on this page selected</div>
-{% else %}
-  <div style="flex: 1;"></div>
-{% endif %}
+<div id="footer" class="flex" style="margin-bottom: -24px;position: static;">
+{% include '_includes/pagination' with {
+  pageInfo: pageInfo,
+  itemLabel: 'log',
+  itemsLabel: 'total logs'
+} only %}
 {% if (limits.limit > 0) %}
 {% set usage = limits.limit-limits.remaining %}
-  <div style="padding-right: 5px;">API Usage</div>
+  <div style="padding-right: 5px; margin-left:auto;">API Usage</div>
   <h3 style="padding: 10px 25px; background: #fff; display: inline-block; margin: 0;">{{ ((usage > 0) ? usage : 0)|number_format }} / {{ limits.limit|number_format }}</h3>
 {% endif %}
 </div>

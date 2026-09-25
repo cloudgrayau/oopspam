@@ -4,7 +4,8 @@ Release notes for the OOPSpam Craft CMS plugin.
 
 ## 1.6.0 - 2026-09-21
 ### Added
-- Added pagination to the OOPSpam log index
+- Added pagination to the OOPSpam logs
+- Added `logsPerPage` config setting
 
 ### Changed
 - Improved log query and retention cleanup performance for large log volumes
