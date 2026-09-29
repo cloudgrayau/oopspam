@@ -19,6 +19,13 @@ class ContactFormIntegration {
         'email' => $submission['fromEmail'] ?? '',
         'content' => array_merge([$submission['fromName'] ?? ''], (array)($submission['message'] ?? ''))
       ];
+      $fields = OOPSpam::$plugin->settings->contactFormContentFields;
+      if ($fields && is_array($submission['message'] ?? null)){
+        $selected = array_intersect_key($submission['message'], array_flip($fields));
+        if (array_filter($selected)){
+          $params['content'] = array_merge([$submission['fromName'] ?? ''], array_values($selected));
+        }
+      }
       if ((OOPSpam::$plugin->settings->enableContextual) && (!empty(OOPSpam::$plugin->settings->contextualContent)) && (in_array($this->integration, OOPSpam::$plugin->settings->contextual))){
         $params['contextual'] = true;
       }

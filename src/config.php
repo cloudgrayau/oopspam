@@ -47,6 +47,7 @@ return [
     'express-forms',
     'comments'
   ],
+  'contactFormContentFields' => [], /* Message keys to analyse when present; empty keeps all message fields */
   'enableContextual' => false,
   'contextualContent' => '',
   'contextual' => [

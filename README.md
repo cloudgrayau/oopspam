@@ -45,6 +45,12 @@ Protects form submissions from spam. The current form integrations are protected
 **✓ Express Forms** (>= 2.0.0; no longer maintained) - [https://plugins.craftcms.com/express-forms](https://plugins.craftcms.com/express-forms)  
 **✓ Custom Forms** - requires custom programming
 
+For Contact Form, you can limit content analysis to specific `message` fields in `config/oopspam.php`:
+
+    'contactFormContentFields' => ['body'],
+
+The sender name is always included in content analysis. The sender email and IP are checked separately. If a submission has none of the configured fields (for example, an application form without `message[body]`), or all selected fields are empty, all its message fields are checked as before. This setting does not alter the submission or the email sent by Contact Form.
+
 ### Comment Protection
 
 Protects comment submissions from spam. The current comment integrations are protected:
