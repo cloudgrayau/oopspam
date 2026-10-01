@@ -47,7 +47,6 @@ return [
     'express-forms',
     'comments'
   ],
-  'contactFormContentFields' => [], /* Message keys to analyse when present; empty keeps all message fields */
   'enableContextual' => false,
   'contextualContent' => '',
   'contextual' => [
@@ -70,6 +69,7 @@ return [
     /*'contact' => [
       'disabled' => false,
       'spamScore' => 3,
+      'fields' => ['message'], // Optional fields for content analysis
       // extra settings
     ]*/
   ]

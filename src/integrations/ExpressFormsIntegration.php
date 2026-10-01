@@ -29,7 +29,15 @@ class ExpressFormsIntegration {
       $params = [
         'content' => []
       ];
+      $fields = OOPSpam::$plugin->settings->forms[$handle]['fields'] ?? [];
+      $selectedContent = [];
       foreach($form->getFields() as $field){
+        if ($fields && in_array($field->getHandle(), $fields, true)){
+          $selectedValue = $field->getValue();
+          if (is_scalar($selectedValue)){
+            $selectedContent[] = (string)$selectedValue;
+          }
+        }
         switch(get_class($field)){
           case 'Solspace\ExpressForms\fields\Email':
             $params['email'] = $field->getValue();
@@ -38,6 +46,9 @@ class ExpressFormsIntegration {
             $params['content'][] = $field->getValue();
             break;
         }
+      }
+      if (trim(implode('', $selectedContent)) !== ''){
+        $params['content'] = $selectedContent;
       }
       if (empty($params['content'])){ /* override checkForLength when no content fields */
         $params['checkForLength'] = false;

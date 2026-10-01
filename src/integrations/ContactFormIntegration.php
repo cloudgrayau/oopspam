@@ -14,15 +14,20 @@ class ContactFormIntegration {
   public function parse(string $integration): void {
     $this->integration = $integration;
     Event::on(\craft\contactform\Mailer::class, \craft\contactform\Mailer::EVENT_BEFORE_SEND, function(\craft\contactform\events\SendEvent $e){
+      $settings = OOPSpam::$plugin->settings->forms[$this->integration] ?? [];
+      if ((isset($settings['disabled'])) && ($settings['disabled'])){
+        return;
+      }
+      OOPSpam::overrideSettings($settings);
       $submission = $e->submission;
       $params = [
         'email' => $submission['fromEmail'] ?? '',
         'content' => array_merge([$submission['fromName'] ?? ''], (array)($submission['message'] ?? ''))
       ];
-      $fields = OOPSpam::$plugin->settings->contactFormContentFields;
+      $fields = $settings['fields'] ?? [];
       if ($fields && is_array($submission['message'] ?? null)){
-        $selected = array_intersect_key($submission['message'], array_flip($fields));
-        if (array_filter($selected)){
+        $selected = array_filter(array_intersect_key($submission['message'], array_flip($fields)), 'is_scalar');
+        if (trim(implode('', $selected)) !== ''){
           $params['content'] = array_merge([$submission['fromName'] ?? ''], array_values($selected));
         }
       }

@@ -4,7 +4,7 @@ Release notes for the OOPSpam Craft CMS plugin.
 
 ## Unreleased
 ### Added
-- Allow Contact Form content analysis to use selected message fields.
+- Allow form integrations to select fields for content analysis.
 
 ## 1.6.0 - 2026-09-21
 ### Added

@@ -25,7 +25,12 @@ class WheelformIntegration {
       $params = [
         'content' => []
       ];
+      $fields = OOPSpam::$plugin->settings->forms[$handle]['fields'] ?? [];
+      $selectedContent = [];
       foreach($e->message as $obj) {
+        if ($fields && in_array($obj->field->name, $fields, true) && is_scalar($obj->value)){
+          $selectedContent[] = (string)$obj->value;
+        }
         switch($obj->field->type){
           case 'text':
             if (stristr($obj->field->name, 'message')){
@@ -39,6 +44,9 @@ class WheelformIntegration {
             $params['content'][] = $obj->value;
             break;
         }
+      }
+      if (trim(implode('', $selectedContent)) !== ''){
+        $params['content'] = $selectedContent;
       }
       if (empty($params['content'])){ /* override checkForLength when no content fields */
         $params['checkForLength'] = false;

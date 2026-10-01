@@ -26,6 +26,8 @@ class FormieIntegration {
       $params = [
         'content' => []
       ];
+      $fields = OOPSpam::$plugin->settings->forms[$handle]['fields'] ?? [];
+      $selectedContent = [];
       if (class_exists('\verbb\formie\elements\db\NestedFieldRowQuery')){ /* Formie 2 */
         foreach($e->submission->form->getCustomFields() as $field){
           $value = $e->submission->getFieldValue($field->handle);
@@ -33,6 +35,12 @@ class FormieIntegration {
             foreach($value->all() as $fieldrow) {
               $rows = $fieldrow->getCustomFields();
               foreach($rows as $row){
+                if ($fields && in_array($row->handle, $fields, true)){
+                  $selectedValue = $fieldrow->getFieldValue($row->handle);
+                  if (is_scalar($selectedValue)){
+                    $selectedContent[] = (string)$selectedValue;
+                  }
+                }
                 switch(get_class($row)){
                   case 'verbb\formie\fields\formfields\Email':
                     $params['email'] = (string)$fieldrow->getFieldValue($row->handle);
@@ -44,6 +52,9 @@ class FormieIntegration {
               }
             }
           } else {
+            if ($fields && in_array($field->handle, $fields, true) && is_scalar($value)){
+              $selectedContent[] = (string)$value;
+            }
             switch(get_class($field)){
               case 'verbb\formie\fields\formfields\Email':
                 $params['email'] = (string)$value;
@@ -58,6 +69,12 @@ class FormieIntegration {
         $this->fields = [];
         $this->extractFields($e->submission->form->getFields());
         foreach($this->fields as $field){
+          if ($fields && in_array($field->handle, $fields, true)){
+            $selectedValue = $e->submission->getFieldValue($field->getFieldKey());
+            if (is_scalar($selectedValue)){
+              $selectedContent[] = (string)$selectedValue;
+            }
+          }
           switch(get_class($field)){
             case 'verbb\formie\fields\Email':
               $params['email'] = (string)$e->submission->getFieldValue($field->getFieldKey());
@@ -67,6 +84,9 @@ class FormieIntegration {
               break;
           }
         }
+      }
+      if (trim(implode('', $selectedContent)) !== ''){
+        $params['content'] = $selectedContent;
       }
       if (empty($params['content'])){ /* override checkForLength when no content fields */
         $params['checkForLength'] = false;

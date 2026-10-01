@@ -45,12 +45,6 @@ Protects form submissions from spam. The current form integrations are protected
 **✓ Express Forms** (>= 2.0.0; no longer maintained) - [https://plugins.craftcms.com/express-forms](https://plugins.craftcms.com/express-forms)  
 **✓ Custom Forms** - requires custom programming
 
-For Contact Form, you can limit content analysis to specific `message` fields in `config/oopspam.php`:
-
-    'contactFormContentFields' => ['body'],
-
-The sender name is always included in content analysis. The sender email and IP are checked separately. If a submission has none of the configured fields (for example, an application form without `message[body]`), or all selected fields are empty, all its message fields are checked as before. This setting does not alter the submission or the email sent by Contact Form.
-
 ### Comment Protection
 
 Protects comment submissions from spam. The current comment integrations are protected:
@@ -90,17 +84,23 @@ If you would rather use **contextual detection**, the `content` and `contextual`
     
 ## Overriding Settings
 
-You can now override settings on a per-form basis for the `Formie`, `FreeForm`, `Express Forms` and `WheelForm` integrations. This can only be done via config file.
+You can override settings on a per-form basis for the `Formie`, `FreeForm`, `Express Forms` and `WheelForm` integrations. This can only be done via config file.
 
-Each override will need to use the form handle as the array key. As `WheelForm` doesn't support handles, the form ID should be used instead.
+Each override will need to use the form handle as the array key. As `WheelForm` doesn't support handles, the form ID should be used instead. Contact Form has no form handle; use `contact-form` as its key to apply an override to all Contact Form submissions.
   
     'forms' => [
       'contact' => [ /* Form handle */
         'disabled' => false, /* Optional setting to disable spam check for specific form */
         'spamScore' => 3,
+        'fields' => ['name', 'message'], /* Optional fields for content analysis */
         // extra settings
+      ],
+      'contact-form' => [
+        'fields' => ['body'], /* Contact Form message keys */
       ]
     ]
+
+The optional `fields` setting selects text fields for content analysis. Use field handles for Formie, Freeform and Express Forms, field names for WheelForm, and `message` keys for Contact Form. Sender email and IP checks remain separate, and Contact Form's sender name remains in content analysis. If none of the selected fields have a value, the integration checks its usual content fields. The submitted data and delivered email are unchanged.
     
 ## Domain Reputation
 

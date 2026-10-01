@@ -47,7 +47,6 @@ class SettingsModel extends Model {
     'express-forms',
     'comments'
   ];
-  public array $contactFormContentFields = [];
   
   /* CONTEXTUAL */
   public bool $enableContextual = false;
@@ -84,7 +83,7 @@ class SettingsModel extends Model {
       [['apiKey','apiService'], 'required'],
       [['apiKey','apiService','contextualContent','pluginName'], 'string'],
       [['enableUserRegistration','enableCommerce','enableSubscriptions','enableContextual','blockTempEmail','blockVPN','blockDC','checkForLength','logIt','urlFriendly','enableLimiting'], 'boolean'],
-      [['allowedLanguages','allowedCountries','blockedCountries','integrations','contactFormContentFields','contextual','blockedEmails','blockedIPs','allowedEmails','allowedIPs','forms'], ArrayValidator::class],
+      [['allowedLanguages','allowedCountries','blockedCountries','integrations','contextual','blockedEmails','blockedIPs','allowedEmails','allowedIPs','forms'], ArrayValidator::class],
       ['maxLogs', 'integer', 'min' => 1, 'max' => 90],
       ['logsPerPage', 'integer', 'min' => 10],
       ['maxSubmissions', 'integer', 'min' => 1],
