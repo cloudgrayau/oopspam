@@ -5,9 +5,6 @@ Release notes for the OOPSpam Craft CMS plugin.
 ## 1.7.1 - 2026-10-06
 ### Added
 - Added `Easy Form` integration - [https://plugins.craftcms.com/easy-form](https://plugins.craftcms.com/easy-form)
-
-## 1.7.0 - 2026-10-06
-### Added
 - Added `Formable` integration - [https://plugins.craftcms.com/formable](https://plugins.craftcms.com/formable)
 - Added a per-form `fields` override to choose which fields are used for content analysis, falling back to the default fields when none are set. See the README for details
 
