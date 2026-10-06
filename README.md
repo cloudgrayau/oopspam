@@ -56,7 +56,7 @@ Protects comment submissions from spam. The current comment integrations are pro
     
 ## Overriding Settings
 
-You can now override settings on a per-form basis for the `Formie`, `FreeForm`, `Formable`, `Express Forms`, `WheelForm` and `Contact Form` integrations. This can only be done via the config file.
+You can now override settings on a per-form basis for all form integrations. This can only be done via the config file.
 
 Each override will need to use the form handle as the array key. As `WheelForm` doesn't support handles, the form ID should be used instead. For the `Contact Form` plugin, the handle of 'contact-form' should be used.
   
