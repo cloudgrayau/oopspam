@@ -39,8 +39,8 @@ The OOPSpam plugin also comes with optional rate limiting, which can be enabled 
 Protects form submissions from spam. The current form integrations are protected:
 
 **✓ Formie** (>= 2.0.0) - [https://plugins.craftcms.com/formie](https://plugins.craftcms.com/formie)  
-**✓ Freeform** (>= 5.0.0) - [https://plugins.craftcms.com/freeform](https://plugins.craftcms.com/freeform)
-**✓ Formable** (>= 1.0.0) - [https://plugins.craftcms.com/formable](https://plugins.craftcms.com/formable)
+**✓ Freeform** (>= 5.0.0) - [https://plugins.craftcms.com/freeform](https://plugins.craftcms.com/freeform)  
+**✓ Formable** (>= 1.0.0) - [https://plugins.craftcms.com/formable](https://plugins.craftcms.com/formable)  
 **✓ Contact Form** (>= 3.0.0) - [https://plugins.craftcms.com/contact-form](https://plugins.craftcms.com/contact-form)  
 **✓ Wheel Form** (>= 4.0.2) - [https://plugins.craftcms.com/wheelform](https://plugins.craftcms.com/wheelform)  
 **✓ Express Forms** (>= 2.0.0; no longer maintained) - [https://plugins.craftcms.com/express-forms](https://plugins.craftcms.com/express-forms)  
