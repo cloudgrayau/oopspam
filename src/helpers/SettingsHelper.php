@@ -333,6 +333,12 @@ class SettingsHelper {
         'url' => 'https://plugins.craftcms.com/freeform',
         'minimum' => '5.0.0'
       ],
+      'formable' => [
+        'title' => 'Formable',
+        'information' => '(&gt;= 1.0.0)',
+        'url' => 'https://plugins.craftcms.com/formable',
+        'minimum' => '1.0.0'
+      ],
       'contact-form' => [
         'title' => 'Contact Form',
         'information' => '(&gt;= 3.0.0)',

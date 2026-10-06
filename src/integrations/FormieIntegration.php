@@ -15,18 +15,43 @@ class FormieIntegration {
   public function parse(string $integration): void {
     $this->integration = $integration;
     Event::on(\verbb\formie\services\Submissions::class, \verbb\formie\services\Submissions::EVENT_AFTER_SPAM_CHECK, function(\verbb\formie\events\SubmissionSpamCheckEvent $e){
+      $fields = [];
       $handle = $e->submission->form->handle;
       if (isset(OOPSpam::$plugin->settings->forms[$handle])){
         $settings = OOPSpam::$plugin->settings->forms[$handle];
         if ((isset($settings['disabled'])) && ($settings['disabled'])){
           return;
         }
+        if ((isset($settings['fields'])) && (!empty($settings['fields']))){
+          $fields = (array)$settings['fields'];
+        }
         OOPSpam::overrideSettings($settings);
       }
       $params = [
+        'email' =>  '',
         'content' => []
       ];
       if (class_exists('\verbb\formie\elements\db\NestedFieldRowQuery')){ /* Formie 2 */
+        if (!empty($fields)){
+          foreach($e->submission->form->getCustomFields() as $field){
+            $value = $e->submission->getFieldValue($field->handle);
+            if ($value instanceof \verbb\formie\elements\db\NestedFieldRowQuery){
+              foreach($value->all() as $fieldrow) {
+                $rows = $fieldrow->getCustomFields();
+                foreach($rows as $row){
+                  if (in_array($row->handle, $fields)){
+                    OOPSpam::addContent($params['content'], $fieldrow->getFieldValue($row->handle));
+                  }
+                }
+              }
+            } else {
+              if (in_array($field->handle, $fields)){
+                OOPSpam::addContent($params['content'], $value);
+              }
+            }
+          }
+        }
+        $empty = empty($params['content']);
         foreach($e->submission->form->getCustomFields() as $field){
           $value = $e->submission->getFieldValue($field->handle);
           if ($value instanceof \verbb\formie\elements\db\NestedFieldRowQuery){
@@ -38,7 +63,9 @@ class FormieIntegration {
                     $params['email'] = (string)$fieldrow->getFieldValue($row->handle);
                     break;
                   case 'verbb\formie\fields\formfields\MultiLineText':
-                    $params['content'][] = (string)$fieldrow->getFieldValue($row->handle);
+                    if ($empty){
+                      $params['content'][] = (string)$fieldrow->getFieldValue($row->handle);
+                    }
                     break;
                 }
               }
@@ -49,7 +76,9 @@ class FormieIntegration {
                 $params['email'] = (string)$value;
                 break;
               case 'verbb\formie\fields\formfields\MultiLineText':
-                $params['content'][] = (string)$value;
+                if ($empty){
+                  $params['content'][] = (string)$value;
+                }
                 break;
             }
           }
@@ -57,13 +86,23 @@ class FormieIntegration {
       } else { /* Formie 3 */
         $this->fields = [];
         $this->extractFields($e->submission->form->getFields());
+        if (!empty($fields)){
+          foreach($this->fields as $field){
+            if (in_array($field->getFieldKey(), $fields)){
+              OOPSpam::addContent($params['content'], $e->submission->getFieldValue($field->getFieldKey()));
+            }
+          }
+        }
+        $empty = empty($params['content']);
         foreach($this->fields as $field){
           switch(get_class($field)){
             case 'verbb\formie\fields\Email':
               $params['email'] = (string)$e->submission->getFieldValue($field->getFieldKey());
               break;
             case 'verbb\formie\fields\MultiLineText':
-              $params['content'][] = (string)$e->submission->getFieldValue($field->getFieldKey());
+              if ($empty){
+                $params['content'][] = (string)$e->submission->getFieldValue($field->getFieldKey());
+              }
               break;
           }
         }

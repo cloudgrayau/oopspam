@@ -14,21 +14,34 @@ class WheelformIntegration {
   public function parse(string $integration): void {
     $this->integration = $integration;
     Event::on(\wheelform\controllers\MessageController::class, \wheelform\controllers\MessageController::EVENT_BEFORE_SAVE, function(\wheelform\events\MessageEvent $e){
+      $fields = [];
       $handle = $e->form_id;
       if (isset(OOPSpam::$plugin->settings->forms[$handle])){
         $settings = OOPSpam::$plugin->settings->forms[$handle];
         if ((isset($settings['disabled'])) && ($settings['disabled'])){
           return;
         }
+        if ((isset($settings['fields'])) && (!empty($settings['fields']))){
+          $fields = (array)$settings['fields'];
+        }
         OOPSpam::overrideSettings($settings);
       }
       $params = [
+        'email' => '',
         'content' => []
       ];
+      if (!empty($fields)){
+        foreach($e->message as $obj) {
+          if (in_array($obj->field->name, $fields)){
+            OOPSpam::addContent($params['content'], $obj->value);
+          }
+        }
+      }
+      $empty = empty($params['content']);
       foreach($e->message as $obj) {
         switch($obj->field->type){
           case 'text':
-            if (stristr($obj->field->name, 'message')){
+            if ($empty && (stristr($obj->field->name, 'message'))){
               $params['content'][] = $obj->value;
             }
             break;
@@ -36,7 +49,9 @@ class WheelformIntegration {
             $params['email'] = $obj->value;
             break;
           case 'textarea':
-            $params['content'][] = $obj->value;
+            if ($empty){
+              $params['content'][] = $obj->value;
+            }
             break;
         }
       }

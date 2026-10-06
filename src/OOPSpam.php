@@ -147,6 +147,18 @@ class OOPSpam extends Plugin {
     }
   }
   
+  public static function addContent(array &$content, mixed $value): void {
+    $toString = static fn(mixed $v): string => (is_scalar($v) || $v instanceof \Stringable) ? trim((string)$v) : '';
+    if (is_array($value)) {
+      $value = implode(' ', array_filter(array_map($toString, $value), 'strlen'));
+    } else {
+      $value = $toString($value);
+    }
+    if ($value !== '') {
+      $content[] = $value;
+    }
+  }
+  
   // Private Methods
   // =========================================================================
   

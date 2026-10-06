@@ -4,19 +4,19 @@ use cloudgrayau\oopspam\OOPSpam;
 
 use yii\base\Event;
 
-class FreeformIntegration {
+class FormableIntegration {
   
   public string $integration = '';
   public function getName(): string {
-    return 'Freeform';
+    return 'Formable';
   }
 
   public function parse(string $integration): void {
     $this->integration = $integration;
-    Event::on(\Solspace\Freeform\Form\Form::class, \Solspace\Freeform\Form\Form::EVENT_AFTER_VALIDATE, function (\Solspace\Freeform\Events\Forms\ValidationEvent $e){
-      $form = $e->getForm();
+    Event::on(\bytesof\formable\services\Submissions::class, \bytesof\formable\services\Submissions::EVENT_BEFORE_SUBMIT, function (\bytesof\formable\events\SubmissionEvent $event) {
+      $submission = $event->submission;
       $fields = [];
-      $handle = $form->handle;
+      $handle = $submission->getForm()->handle;
       if (isset(OOPSpam::$plugin->settings->forms[$handle])){
         $settings = OOPSpam::$plugin->settings->forms[$handle];
         if ((isset($settings['disabled'])) && ($settings['disabled'])){
@@ -31,22 +31,18 @@ class FreeformIntegration {
         'email' => '',
         'content' => []
       ];
-      if (!empty($fields)){
-        foreach($form->getFields() as $field){
-          if (in_array($field->handle, $fields)){
-            OOPSpam::addContent($params['content'], $field->getValue());
-          }
-        }
+      foreach($fields as $field){
+        OOPSpam::addContent($params['content'], $submission->getValue($field));
       }
       $empty = empty($params['content']);
-      foreach($form->getFields() as $field){
+      foreach($submission->getFormFields() as $field){
         switch(get_class($field)){
-          case 'Solspace\Freeform\Fields\Implementations\EmailField':
-            $params['email'] = $field->getValue();
+          case 'bytesof\formable\fields\Email':
+            $params['email'] = $submission->getValue($field->handle);
             break;
-          case 'Solspace\Freeform\Fields\Implementations\TextareaField':
+          case 'bytesof\formable\fields\Textarea':
             if ($empty){
-              $params['content'][] = $field->getValue();
+              $params['content'][] = $submission->getValue($field->handle);
             }
             break;
         }
@@ -58,7 +54,8 @@ class FreeformIntegration {
         $params['contextual'] = true;
       }
       if (!OOPSpam::$plugin->antiSpam->checkSpam($params, $this->getName())){
-        $form->markAsSpam('OOPSpam', 'Blocked by OOPSpam');
+        $submission->isSpam = true;
+        $submission->spamReason = 'Blocked by OOPSpam';
       }
     });
   }

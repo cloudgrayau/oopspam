@@ -18,24 +18,39 @@ class ExpressFormsIntegration {
       if (!$form->isValid()){
         return;
       }
+      $fields = [];
       $handle = $form->handle;
       if (isset(OOPSpam::$plugin->settings->forms[$handle])){
         $settings = OOPSpam::$plugin->settings->forms[$handle];
         if ((isset($settings['disabled'])) && ($settings['disabled'])){
           return;
         }
+        if ((isset($settings['fields'])) && (!empty($settings['fields']))){
+          $fields = (array)$settings['fields'];
+        }
         OOPSpam::overrideSettings($settings);
       }
       $params = [
+        'email' => '',
         'content' => []
       ];
+      if (!empty($fields)){
+        foreach($form->getFields() as $field){
+          if (in_array($field->handle, $fields)){
+            OOPSpam::addContent($params['content'], $field->getValue());
+          }
+        }
+      }
+      $empty = empty($params['content']);
       foreach($form->getFields() as $field){
         switch(get_class($field)){
           case 'Solspace\ExpressForms\fields\Email':
             $params['email'] = $field->getValue();
             break;
           case 'Solspace\ExpressForms\fields\Textarea':
-            $params['content'][] = $field->getValue();
+            if ($empty){
+              $params['content'][] = $field->getValue();
+            }
             break;
         }
       }

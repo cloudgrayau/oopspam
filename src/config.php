@@ -42,6 +42,7 @@ return [
   'integrations' => [
     'formie',
     'freeform',
+    'formable',
     'contact-form',
     'wheelform',
     'express-forms',
@@ -52,6 +53,7 @@ return [
   'contextual' => [
     'formie',
     'freeform',
+    'formable',
     'contact-form',
     'wheelform',
     'express-forms',
@@ -66,10 +68,14 @@ return [
   'allowedIPs' => [
   ],
   'forms' => [
-    /*'contact' => [
+    'contact-form' => [
       'disabled' => false,
+      'fields' => [
+        'fromName',
+        'message'
+      ],
       'spamScore' => 3,
       // extra settings
-    ]*/
+    ]
   ]
 ];

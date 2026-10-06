@@ -2,6 +2,14 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 1.7.0 - 2026-10-06
+### Added
+- Added `Formable` integration - [https://plugins.craftcms.com/formable](https://plugins.craftcms.com/formable)
+- Added a per-form `fields` override to choose which fields are used for content analysis, falling back to the default fields when none are set. See the README for details
+
+### Changed
+- Per-form settings overrides are now supported for the `Contact Form` integration (use the handle `contact-form`)
+
 ## 1.6.0 - 2026-09-21
 ### Added
 - Added pagination to the OOPSpam logs

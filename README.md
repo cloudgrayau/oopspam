@@ -28,18 +28,19 @@ The OOPSpam plugin also comes with optional rate limiting, which can be enabled 
 
 ### User Registration Protection
 
-Protects user registrations from spam.
+✓ Protects user registrations from spam.
 
 ### Commerce Protection
 
-Protects orders and subscriptions from spam.
+✓ Protects orders and subscriptions from spam.
 
 ### Form Protection
 
 Protects form submissions from spam. The current form integrations are protected:
 
 **✓ Formie** (>= 2.0.0) - [https://plugins.craftcms.com/formie](https://plugins.craftcms.com/formie)  
-**✓ Freeform** (>= 5.0.0) - [https://plugins.craftcms.com/freeform](https://plugins.craftcms.com/freeform)  
+**✓ Freeform** (>= 5.0.0) - [https://plugins.craftcms.com/freeform](https://plugins.craftcms.com/freeform)
+**✓ Formable** (>= 1.0.0) - [https://plugins.craftcms.com/formable](https://plugins.craftcms.com/formable)
 **✓ Contact Form** (>= 3.0.0) - [https://plugins.craftcms.com/contact-form](https://plugins.craftcms.com/contact-form)  
 **✓ Wheel Form** (>= 4.0.2) - [https://plugins.craftcms.com/wheelform](https://plugins.craftcms.com/wheelform)  
 **✓ Express Forms** (>= 2.0.0; no longer maintained) - [https://plugins.craftcms.com/express-forms](https://plugins.craftcms.com/express-forms)  
@@ -51,6 +52,40 @@ Protects comment submissions from spam. The current comment integrations are pro
 
 **✓ Comments** (>= 2.0.0) - [https://plugins.craftcms.com/comments](https://plugins.craftcms.com/comments)  
 **✓ Custom Comments** - requires custom programming
+    
+## Overriding Settings
+
+You can now override settings on a per-form basis for the `Formie`, `FreeForm`, `Formable`, `Express Forms`, `WheelForm` and `Contact Form` integrations. This can only be done via the config file.
+
+Each override will need to use the form handle as the array key. As `WheelForm` doesn't support handles, the form ID should be used instead. For the `Contact Form` plugin, the handle of 'contact-form' should be used.
+  
+    'forms' => [
+      'contact-form' => [ /* Form handle */
+        'disabled' => false, /* Optional setting to disable spam check for specific form */
+        'fields' => [], /* Optional analysis fields (see below) */
+        'spamScore' => 3,
+        // extra settings
+      ]
+    ]
+    
+### Defining Content Analysis Fields
+
+By default, OOPSpam picks up any multi-line text (Textarea) fields and includes them in the spam analysis. For the `Contact Form` integration, the From Name is also included.
+
+You can choose which fields are analysed by setting `fields` in the form's overrides, using an array of field handles (for `Wheel Form`, use the field names):
+
+    'forms' => [
+      'contact-form' => [ /* Form handle */
+        'fields' => [ /* Select which field handles */
+          'fromName',
+          'message'
+        ]
+      ]
+    ]
+    
+When `fields` is set, only the listed fields are analysed. The defaults above are no longer included unless you list them. If `fields` is empty, or none of the listed fields have a value, OOPSpam falls back to the default fields.
+    
+There's no need to include the email field, as it is always part of the spam analysis.
 
 ## Custom Protection
 
@@ -81,20 +116,6 @@ If you would rather use **contextual detection**, the `content` and `contextual`
     if (\cloudgrayau\oopspam\OOPSpam::checkSpam($params, '<FORM LABEL>')){ /* passed */
     }
     ?>
-    
-## Overriding Settings
-
-You can now override settings on a per-form basis for the `Formie`, `FreeForm`, `Express Forms` and `WheelForm` integrations. This can only be done via config file.
-
-Each override will need to use the form handle as the array key. As `WheelForm` doesn't support handles, the form ID should be used instead.
-  
-    'forms' => [
-      'contact' => [ /* Form handle */
-        'disabled' => false, /* Optional setting to disable spam check for specific form */
-        'spamScore' => 3,
-        // extra settings
-      ]
-    ]
     
 ## Domain Reputation
 
