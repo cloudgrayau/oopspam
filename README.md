@@ -45,7 +45,6 @@ Protects form submissions from spam. The current form integrations are protected
 **✓ Formie** (>= 2.0.0) - [https://plugins.craftcms.com/formie](https://plugins.craftcms.com/formie)  
 **✓ Freeform** (>= 5.0.0) - [https://plugins.craftcms.com/freeform](https://plugins.craftcms.com/freeform)  
 **✓ Wheel Form** (>= 4.0.2) - [https://plugins.craftcms.com/wheelform](https://plugins.craftcms.com/wheelform)  
-
 **✓ Custom Forms** - requires custom programming
 
 ### Comment Protection
