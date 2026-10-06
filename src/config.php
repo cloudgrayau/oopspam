@@ -40,23 +40,25 @@ return [
   'enableLimiting' => false,
   'maxSubmissions' => 3,
   'integrations' => [
+    'easy-form',
+    'express-forms',
+    'contact-form',
+    'formable',
     'formie',
     'freeform',
-    'formable',
-    'contact-form',
     'wheelform',
-    'express-forms',
     'comments'
   ],
   'enableContextual' => false,
   'contextualContent' => '',
   'contextual' => [
+    'easy-form',
+    'express-forms',
+    'contact-form',
+    'formable',
     'formie',
     'freeform',
-    'formable',
-    'contact-form',
     'wheelform',
-    'express-forms',
     'comments'
   ],
   'blockedEmails' => [
@@ -68,7 +70,7 @@ return [
   'allowedIPs' => [
   ],
   'forms' => [
-    'contact-form' => [
+    'form-handle' => [
       'disabled' => false,
       'fields' => [
         'fromName',

@@ -321,6 +321,30 @@ class SettingsHelper {
   
   private static $integrationList = [
     'forms' => [
+      'contact-form' => [
+        'title' => 'Contact Form',
+        'information' => '(&gt;= 3.0.0)',
+        'url' => 'https://plugins.craftcms.com/contact-form',
+        'minimum' => '3.0.0'
+      ],
+      'easy-form' => [
+        'title' => 'Easy Form',
+        'information' => '(&gt;= 1.0.0)',
+        'url' => 'https://plugins.craftcms.com/easy-form',
+        'minimum' => '1.0.0'
+      ],
+      'express-forms' => [
+        'title' => 'Express Forms',
+        'information' => '(&gt;= 2.0.0; no longer maintained)',
+        'url' => 'https://plugins.craftcms.com/express-forms',
+        'minimum' => '2.0.0'
+      ],
+      'formable' => [
+        'title' => 'Formable',
+        'information' => '(&gt;= 1.0.0)',
+        'url' => 'https://plugins.craftcms.com/formable',
+        'minimum' => '1.0.0'
+      ],
       'formie' => [
         'title' => 'Formie',
         'information' => '(&gt;= 2.0.0)',
@@ -333,29 +357,11 @@ class SettingsHelper {
         'url' => 'https://plugins.craftcms.com/freeform',
         'minimum' => '5.0.0'
       ],
-      'formable' => [
-        'title' => 'Formable',
-        'information' => '(&gt;= 1.0.0)',
-        'url' => 'https://plugins.craftcms.com/formable',
-        'minimum' => '1.0.0'
-      ],
-      'contact-form' => [
-        'title' => 'Contact Form',
-        'information' => '(&gt;= 3.0.0)',
-        'url' => 'https://plugins.craftcms.com/contact-form',
-        'minimum' => '3.0.0'
-      ],
       'wheelform' => [
         'title' => 'Wheel Form',
         'information' => '(&gt;= 4.0.2)',
         'url' => 'https://plugins.craftcms.com/wheelform',
         'minimum' => '4.0.2'
-      ],
-      'express-forms' => [
-        'title' => 'Express Forms',
-        'information' => '(&gt;= 2.0.0; no longer maintained)',
-        'url' => 'https://plugins.craftcms.com/express-forms',
-        'minimum' => '2.0.0'
       ]
     ],
     'comments' => [

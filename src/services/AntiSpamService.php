@@ -62,7 +62,7 @@ class AntiSpamService extends Component {
     $checkForLength = (isset($params['checkForLength'])) ? (bool)$params['checkForLength'] : (bool)OOPSpam::$plugin->settings->checkForLength;
     if ((isset($params['contextual'])) && ($params['contextual'] == true)){
       $data = [
-        'content' => (is_array($content)) ? StringHelper::trim(implode('; ', $content)) : StringHelper::trim($content),
+        'content' => (is_array($content)) ? StringHelper::trim(implode('; ', array_filter($content))) : StringHelper::trim($content),
         'context' => (isset($params['context'])) ? $params['context'] : OOPSpam::$plugin->settings->contextualContent,
         'checkForLength' => $checkForLength
       ];
@@ -70,7 +70,7 @@ class AntiSpamService extends Component {
       $data = [
         'senderIP' => $senderIP,
         'email' => $email,
-        'content' => (is_array($content)) ? StringHelper::trim(implode('; ', $content)) : StringHelper::trim($content),
+        'content' => (is_array($content)) ? StringHelper::trim(implode('; ', array_filter($content))) : StringHelper::trim($content),
         'checkForLength' => $checkForLength
       ];
     }
