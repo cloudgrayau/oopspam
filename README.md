@@ -56,7 +56,7 @@ Protects comment submissions from spam. The current comment integrations are pro
     
 ## Overriding Settings
 
-You can now override settings on a per-form basis for all form integrations. This can only be done via the config file.
+You can now override settings on a per-form basis for all form integrations via the config file.
 
 Each override will need to use the form handle as the array key. As `WheelForm` doesn't support handles, the form ID should be used instead. For the `Contact Form` plugin, the handle of 'contact-form' should be used.
   
@@ -73,7 +73,7 @@ Each override will need to use the form handle as the array key. As `WheelForm` 
 
 By default, OOPSpam picks up any multi-line text (Textarea) fields and includes them in the spam analysis. For the `Contact Form` integration, the From Name is also included.
 
-You can choose which fields are analysed by setting `fields` in the form's overrides, using an array of field handles (for `Wheel Form`, use the field names):
+You can choose which fields are analysed by setting `fields` in the form's overrides, using an array of field handles.
 
     'forms' => [
       'contact-form' => [ /* Form handle */
