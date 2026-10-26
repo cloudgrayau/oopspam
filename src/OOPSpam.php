@@ -51,7 +51,7 @@ class OOPSpam extends Plugin {
         'url' => 'oopspam/test',
       ];
     }    
-    if ((Craft::$app->getConfig()->getGeneral()->allowAdminChanges) || (version_compare(Craft::$app->getVersion(), '5.6.0') >= 0)){
+    if (Craft::$app->getUser()->getIsAdmin() && (Craft::$app->getConfig()->getGeneral()->allowAdminChanges) || (version_compare(Craft::$app->getVersion(), '5.6.0') >= 0)){
       $nav['subnav']['settings'] = [
         'label' => Craft::t('oopspam', 'Settings'),
         'url' => 'oopspam/settings',

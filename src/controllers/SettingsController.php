@@ -23,6 +23,7 @@ class SettingsController extends Controller {
   }
 
   public function actionSettings(): Response {
+    $this->requireAdmin(false);
     $settings = OOPSpam::$plugin->getSettings();
     $js = <<<JS
 $('#settings-allowedLanguages, #settings-allowedCountries, #settings-blockedCountries').selectize({
