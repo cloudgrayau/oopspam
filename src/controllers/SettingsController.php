@@ -23,7 +23,8 @@ class SettingsController extends Controller {
   }
 
   public function actionSettings(): Response {
-    $this->requireAdmin(false);
+    $disableAdmin = version_compare(Craft::$app->getVersion(), '5.6.0', '<');
+    $this->requireAdmin($disableAdmin);
     $settings = OOPSpam::$plugin->getSettings();
     $js = <<<JS
 $('#settings-allowedLanguages, #settings-allowedCountries, #settings-blockedCountries').selectize({
@@ -55,7 +56,7 @@ JS;
       ],
       'limits' => OOPSpam::$plugin->logs->getUsage(),
       'admin' => [
-        'disableAdmin' => version_compare(Craft::$app->getVersion(), '5.6.0', '<'),
+        'disableAdmin' => $disableAdmin,
         'readOnly' => !Craft::$app->getConfig()->getGeneral()->allowAdminChanges,
         'cpNotice' => (method_exists('\craft\helpers\Cp', 'readOnlyNoticeHtml')) ? Cp::readOnlyNoticeHtml() : ''
       ]
