@@ -106,8 +106,12 @@ class LogsService extends Component {
     return $paginator;
   }
   
-  public function deleteLogs(array $ids): void {
-    LogRecord::deleteAll('id IN ('.implode(',',$ids).')');
+  public function deleteLogs(array $ids): int {
+    $ids = array_values(array_filter($ids, fn($id) => is_int($id) || (is_string($id) && ctype_digit($id))));
+    if (empty($ids)) {
+      return 0;
+    }
+    return LogRecord::deleteAll(['id' => array_map('intval', $ids)]);
   }
   
   public function clearLogs(): void {

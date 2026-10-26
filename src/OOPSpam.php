@@ -199,18 +199,25 @@ class OOPSpam extends Plugin {
   private function _registerCpUrlRules(): void {
     Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
       if ($this->settings->apiKey){
-        $base = ($this->settings->enableLogs) ? 'oopspam/logs' : 'oopspam/reputation/reputation';
+        $base = ($this->settings->enableLogs) ? 'oopspam/logs' : 'oopspam/reputation';
       } else {
         $base = 'oopspam/settings/settings';
       }
       $event->rules = array_merge([
         'oopspam' => $base,
         'oopspam/logs' => 'oopspam/logs/logs',
+        'oopspam/logs/index' => 'oopspam/logs/index',
+        'oopspam/logs/log' => 'oopspam/logs/index',
         'oopspam/logs/<id:[0-9]+>' => 'oopspam/logs/log',
         'oopspam/logs/clear' => 'oopspam/logs/clear',
         'oopspam/reputation' => 'oopspam/reputation/reputation',
+        'oopspam/reputation/index' => 'oopspam/reputation/index',
         'oopspam/test' => 'oopspam/test/test',
+        'oopspam/test/index' => 'oopspam/test/index',
         'oopspam/settings' => 'oopspam/settings/settings',
+        'oopspam/settings/index' => 'oopspam/settings/index',
+        'oopspam/widget/widget' => $base,
+        'oopspam/widget/settings' => $base,
         'settings/plugins/oopspam' => 'oopspam/settings/settings'
       ], $event->rules);
     });

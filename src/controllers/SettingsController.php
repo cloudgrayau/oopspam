@@ -5,14 +5,22 @@ use cloudgrayau\oopspam\OOPSpam;
 use cloudgrayau\oopspam\helpers\SettingsHelper;
 
 use Craft;
+use craft\helpers\UrlHelper;
 use craft\web\Controller;
 use craft\helpers\Cp;
 use yii\web\Response;
 
 class SettingsController extends Controller {
+  
+  use RequiresPluginAccess;
     
   // Public Methods
   // =========================================================================
+  
+  public function actionIndex(): void {
+    Craft::$app->response->redirect(UrlHelper::cpUrl('oopspam/settings'))->send();
+    exit();
+  }
 
   public function actionSettings(): Response {
     $settings = OOPSpam::$plugin->getSettings();

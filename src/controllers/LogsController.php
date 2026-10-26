@@ -12,12 +12,14 @@ use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 class LogsController extends Controller {
+  
+  use RequiresPluginAccess;
     
   // Public Methods
   // =========================================================================
   
   public function actionIndex(): void {
-    Craft::$app->response->redirect(UrlHelper::url('oopspam/logs'))->send();
+    Craft::$app->response->redirect(UrlHelper::cpUrl('oopspam/logs'))->send();
     exit();
   }
   
@@ -32,16 +34,20 @@ class LogsController extends Controller {
   
   public function actionDelete(): void {
     $this->requirePostRequest();
-    $deleteLogs = Craft::$app->getRequest()->getBodyParam('deleteLogs');
-    OOPSpam::$plugin->logs->deleteLogs($deleteLogs);
-    $this->setSuccessFlash(((count($deleteLogs) > 1) ? 'Logs' : 'Log').' deleted.');
+    $deleteLogs = (array)Craft::$app->getRequest()->getBodyParam('deleteLogs', []);
+    $count = OOPSpam::$plugin->logs->deleteLogs($deleteLogs);
+    if ($count > 0){
+      $this->setSuccessFlash(($count > 1 ? 'Logs' : 'Log').' deleted.');
+    } else {
+      $this->setFailFlash('No logs were deleted.');
+    }
   }
   
   public function actionClear(): void {
     OOPSpam::$plugin->logs->clearLogs();
     OOPSpam::$plugin->submissions->clearSubmissions();
-    Craft::$app->response->redirect(UrlHelper::url('oopspam/logs'))->send();
     $this->setSuccessFlash('Logs cleared.');
+    Craft::$app->response->redirect(UrlHelper::cpUrl('oopspam/logs'))->send();
   }
 
   public function actionLogs(): Response {
@@ -141,7 +147,7 @@ CSS;
         'id' => $id
       ]);
     } else {
-      Craft::$app->response->redirect(UrlHelper::url('oopspam/logs'))->send();
+      Craft::$app->response->redirect(UrlHelper::cpUrl('oopspam/logs'))->send();
       exit();
     }
   }

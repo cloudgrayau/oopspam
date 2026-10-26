@@ -257,7 +257,9 @@ class AntiSpamService extends Component {
         throw new \Exception('API Key is not set. Please set your API key in the plugin settings.');
       }
       $client = new Client([
-        'base_uri' => (OOPSpam::$plugin->settings->apiService == 'rapidapi') ? 'https://oopspam.p.rapidapi.com' : $this->baseUrl
+        'base_uri' => (OOPSpam::$plugin->settings->apiService == 'rapidapi') ? 'https://oopspam.p.rapidapi.com' : $this->baseUrl,
+        'timeout' => 10,
+        'connect_timeout' => 5
       ]);
       $response = $client->request('POST', $endpoint, [
         'json' => $params,
@@ -268,18 +270,22 @@ class AntiSpamService extends Component {
       ]);
       return [
         'response' => true,
-        'results' => json_decode((string)$response->getBody()->getContents(), true),
+        'results' => json_decode((string)$response->getBody(), true),
         'limits' => [
-          'limit' => $response->getHeader('X-RateLimit-Limit', true)[0],
-          'remaining' => $response->getHeader('X-RateLimit-Remaining', true)[0]
+          'limit' => (int)$response->getHeaderLine('X-RateLimit-Limit'),
+          'remaining' => (int)$response->getHeaderLine('X-RateLimit-Remaining')
         ]
       ];
-      return $response;
     } catch (GuzzleException $e) {
-      $error = json_decode((string)$e->getResponse()->getBody(), true);
+      $error = null;
+      if ($e instanceof RequestException && $e->hasResponse()){
+        $body = json_decode((string)$e->getResponse()->getBody(), true);
+        $error = is_array($body) ? ($body['error'] ?? null) : null;
+      }
+      Craft::warning('OOPSpam request failed: '.$e->getMessage(), __METHOD__);
       return [
         'response' => false,
-        'error' => $error['error']
+        'error' => $error ?? $e->getMessage()
       ];
     } catch (\Exception $e) {
       return [

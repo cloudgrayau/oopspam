@@ -4,10 +4,13 @@ namespace cloudgrayau\oopspam\controllers;
 use cloudgrayau\oopspam\OOPSpam;
 
 use Craft;
+use craft\helpers\UrlHelper;
 use craft\web\Controller;
 use yii\web\Response;
 
 class TestController extends Controller {
+  
+  use RequiresPluginAccess;
   
   static private function validateEmail($email):bool {
     return filter_var($email, FILTER_VALIDATE_EMAIL);
@@ -15,6 +18,11 @@ class TestController extends Controller {
     
   // Public Methods
   // =========================================================================
+  
+  public function actionIndex(): void {
+    Craft::$app->response->redirect(UrlHelper::cpUrl('oopspam/test'))->send();
+    exit();
+  }
 
   public function actionTest(): Response {
     $settings = OOPSpam::$plugin->getSettings();

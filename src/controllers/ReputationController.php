@@ -9,9 +9,16 @@ use craft\web\Controller;
 use yii\web\Response;
 
 class ReputationController extends Controller {
+  
+  use RequiresPluginAccess;
     
   // Public Methods
   // =========================================================================
+  
+  public function actionIndex(): void {
+    Craft::$app->response->redirect(UrlHelper::cpUrl('oopspam/reputation'))->send();
+    exit();
+  }
 
   public function actionReputation(): Response {
     $settings = OOPSpam::$plugin->getSettings();
@@ -23,7 +30,8 @@ class ReputationController extends Controller {
         if ((filter_var($domain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) && (str_contains($domain, '.')) && ((checkdnsrr($domain, 'A')) || (checkdnsrr($domain, 'MX')))){
           $results = OOPSpam::$plugin->antiSpam->checkReputation($domain);
           if (isset($results['error'])){
-            $errors[] = 'Error: '.$results['error']['code'];
+            $error = $results['error'];
+            $errors[] = 'Error: '.(is_array($error) ? ($error['code'] ?? 'Unknown') : $error);
           }
         } else {
           $errors[] = 'Domain Name is not valid';
