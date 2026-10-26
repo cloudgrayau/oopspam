@@ -10,6 +10,7 @@ use craft\helpers\App;
 use craft\helpers\StringHelper;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 
 class AntiSpamService extends Component {
   

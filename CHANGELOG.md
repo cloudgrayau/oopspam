@@ -2,7 +2,7 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
-## 1.7.2 - 2026-10-26
+## 1.7.3 - 2026-10-26
 ### Fixed
 - OOPSpam actions now require control panel access and the OOPSpam plugin permission
 - Network failures when contacting the OOPSpam API no longer throw errors

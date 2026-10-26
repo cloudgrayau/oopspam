@@ -25,7 +25,7 @@ class LogsController extends Controller {
   
   public function actionUpdate(): void {
     $this->requirePostRequest();
-    if (OOPSpam::$plugin->logs->updateLog(Craft::$app->getRequest()->getBodyParam('uid'))){
+    if (OOPSpam::$plugin->logs->updateLog((string)Craft::$app->getRequest()->getBodyParam('uid'))){
       $this->setSuccessFlash('Log reported.');
     } else {
       $this->setFailFlash('Couldn’t report log.');
