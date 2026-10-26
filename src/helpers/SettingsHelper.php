@@ -321,7 +321,7 @@ class SettingsHelper {
   
   private static $integrationList = [
     'forms' => [
-      'contact-form' => [
+      /*'contact-form' => [
         'title' => 'Contact Form',
         'information' => '(&gt;= 3.0.0)',
         'url' => 'https://plugins.craftcms.com/contact-form',
@@ -350,26 +350,26 @@ class SettingsHelper {
         'information' => '(&gt;= 2.0.0)',
         'url' => 'https://plugins.craftcms.com/formie',
         'minimum' => '2.0.0'
-      ],
+      ],*/
       'freeform' => [
         'title' => 'Freeform',
-        'information' => '(&gt;= 5.0.0)',
+        'information' => '(&gt;= 6.0.0)',
         'url' => 'https://plugins.craftcms.com/freeform',
-        'minimum' => '5.0.0'
+        'minimum' => '6.0.0'
       ],
-      'wheelform' => [
+      /*'wheelform' => [
         'title' => 'Wheel Form',
         'information' => '(&gt;= 4.0.2)',
         'url' => 'https://plugins.craftcms.com/wheelform',
         'minimum' => '4.0.2'
-      ]
+      ]*/
     ],
     'comments' => [
       'comments' => [
         'title' => 'Comments',
-        'information' => '(&gt;= 2.0.0)',
+        'information' => '(&gt;= 3.0.0)',
         'url' => 'https://plugins.craftcms.com/comments',
-        'minimum' => '2.0.0'
+        'minimum' => '3.0.0'
       ],
     ]
   ];
