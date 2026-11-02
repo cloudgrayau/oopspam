@@ -3,147 +3,20 @@ namespace cloudgrayau\oopspam\controllers;
 
 use cloudgrayau\oopspam\OOPSpam;
 
-use Craft;
-use craft\helpers\UrlHelper;
-use craft\web\Controller;
-use craft\web\twig\variables\Paginate;
+use CraftCms\Cms\Cp\Data\ActionItem;
+use CraftCms\Cms\Http\Responses\CpScreenResponse;
 
-use yii\web\NotFoundHttpException;
-use yii\web\Response;
+use function CraftCms\Cms\{cp_url, t};
 
-class LogsController extends Controller {
-    
-  // Public Methods
-  // =========================================================================
-  
-  public function actionIndex(): void {
-    Craft::$app->response->redirect(UrlHelper::url('oopspam/logs'))->send();
-    exit();
-  }
-  
-  public function actionUpdate(): void {
-    $this->requirePostRequest();
-    if (OOPSpam::$plugin->logs->updateLog(Craft::$app->getRequest()->getBodyParam('uid'))){
-      $this->setSuccessFlash('Log reported.');
-    } else {
-      $this->setFailFlash('Couldn’t report log.');
-    }
-  }
-  
-  public function actionDelete(): void {
-    $this->requirePostRequest();
-    $deleteLogs = Craft::$app->getRequest()->getBodyParam('deleteLogs');
-    OOPSpam::$plugin->logs->deleteLogs($deleteLogs);
-    $this->setSuccessFlash(((count($deleteLogs) > 1) ? 'Logs' : 'Log').' deleted.');
-  }
-  
-  public function actionClear(): void {
-    OOPSpam::$plugin->logs->clearLogs();
-    OOPSpam::$plugin->submissions->clearSubmissions();
-    Craft::$app->response->redirect(UrlHelper::url('oopspam/logs'))->send();
-    $this->setSuccessFlash('Logs cleared.');
-  }
+class LogsController {
 
-  public function actionLogs(): Response {
-    $settings = OOPSpam::$plugin->getSettings();
-    $paginator = OOPSpam::$plugin->logs->getLogsPaginator(
-      ((int)$settings->logsPerPage > 0) ? (int)$settings->logsPerPage : 10,
-      Craft::$app->getRequest()->getPageNum()
-    );
-    $js = <<<JS
-$('#main-form').submit(function(e){
-  if ($('input[name="deleteLogs[]"]:checked').length){
-    if (confirm('Are you sure you wish to delete the selected logs?')){
-      return true;
-    }
-  }
-  return false;
-});
-$('#clearLogs').click(function(e){
-  if (confirm('Are you sure you wish to clear the logs?')){
-    return true;
-  }
-  return false;
-});
-$('#logs .selectallcontainer .checkbox').click(function(e){
-  $(this).toggleClass('checked');
-  $('#logs tbody .checkbox').prop('checked', ($(this).hasClass('checked')) ? true : false);
-  updateSelected();
-});
-$('#logs tbody .checkbox').change(function(e){
-  if ($('#logs .checkbox:checked').length == 0){
-    $('#logs .selectallcontainer .checkbox').removeClass('checked');
-  }
-  updateSelected();
-});
-function updateSelected(){
-  $('#selected').html($('#logs .checkbox:checked').length);
-}
-JS;
-    Craft::$app->getView()->registerJs($js);
-    return $this->renderTemplate('oopspam/logs', [
-      'settings' => $settings,
-      'logs' => $paginator->getPageResults(),
-      'pageInfo' => Paginate::create($paginator),
-      'limits' => OOPSpam::$plugin->logs->getUsage()
-    ]);
-  }
-  
-  public function actionLog(int $id): Response {
-    $settings = OOPSpam::$plugin->getSettings();  
-    $log = OOPSpam::$plugin->logs->getLog($id);
-    if (isset($log->id)){
-      $js = <<<JS
-$('#isReport').click(function(e){
-  if ($('#isReport input').val() == 1){
-    $('#saveLog').removeClass('disabled');
-  } else {
-    $('#saveLog').addClass('disabled');
-  }
-});
-$('#main-form').submit(function(e){
-  if (confirm('Are you sure you wish to report this log?')){
-    return true;
-  }
-  return false;
-});
-JS;
-      $css = <<<CSS
-pre.sf-dump .sf-dump-compact {
-  display: block;
-}
-pre.sf-dump .sf-dump-expanded .sf-dump-compact {
-  display: inline !important;
-}
-.sf-dump-str-collapse {
-  display: inline !important;
-}
-.sf-dump-str-expand {
-  display: none !important;
-}
-.sf-dump-note {
-  pointer-events: none;
-}
-.sf-dump-toggle, .sf-dump-str-toggle {
-    display: none;
-}
-@media screen and (max-width: 1399px) {
-.oopspam {
-  grid-template-columns: 1fr !important;  
-}
-}
-CSS;
-      Craft::$app->getView()->registerCss($css);
-      Craft::$app->getView()->registerJs($js);
-      return $this->renderTemplate('oopspam/logs/log', [
-        'settings' => $settings,
-        'log' => $log,
-        'id' => $id
-      ]);
-    } else {
-      Craft::$app->response->redirect(UrlHelper::url('oopspam/logs'))->send();
-      exit();
-    }
+  public function index(): CpScreenResponse {
+    $name = OOPSpam::getInstance()->getSettings()->pluginName ?: 'OOPSpam';
+    return new CpScreenResponse()
+      ->title(t('Logs', category: 'oopspam'))
+      ->crumbs([new ActionItem()->label($name)->href(cp_url('oopspam'))])
+      ->contentTemplate('oopspam/_logs/_content')
+      ->inertiaPage('cp/Screen');
   }
 
 }

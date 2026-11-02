@@ -1,292 +1,161 @@
 <?php
 namespace cloudgrayau\oopspam\services;
 
+use cloudgrayau\oopspam\models\SettingsModel;
 use cloudgrayau\oopspam\OOPSpam;
-use cloudgrayau\oopspam\helpers\SettingsHelper;
 
-use Craft;
-use craft\base\Component;
-use craft\helpers\App;
-use craft\helpers\StringHelper;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
+use CraftCms\Cms\Support\Env;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
-class AntiSpamService extends Component {
-  
+class AntiSpamService {
+
   public string $apiVersion = '/v1';
   private string $baseUrl = 'https://api.oopspam.com';
   private string $endpoint = '/spamdetection';
-  
-  // Public Methods
-  // =========================================================================
-  
-  public function initRegistration(): void {
-    $className = '\cloudgrayau\oopspam\integrations\UserRegistrationIntegration';
-    $obj = new $className();
-    $obj->parse();
-  }
-  
-  public function initCommerce(): void {
-    $className = '\cloudgrayau\oopspam\integrations\CommerceIntegration';
-    $obj = new $className();
-    $obj->parse();
-  }
-  
-  public function initIntegrations(): void {
-    $integrations = SettingsHelper::getIntegrations();
-    foreach($integrations as $type => $object){
-      $objects = array_keys($object);
-      foreach($objects as $integration){        
-        if (in_array($integration, OOPSpam::$plugin->settings->integrations)){
-          if (Craft::$app->plugins->isPluginEnabled($integration)){
-            $plugin = Craft::$app->plugins->getPlugin($integration);
-            if ((!isset($object[$integration]['minimum'])) || (version_compare($plugin->getVersion(), $object[$integration]['minimum'], '>='))){
-              $classes = explode('-',$integration);
-              $class = implode('', array_map(function($n){
-                return ucfirst($n);
-              }, $classes));
-              $className = '\cloudgrayau\oopspam\integrations\\'.$class.'Integration';
-              $obj = new $className();
-              $obj->parse($integration);
-            }
-          }
+
+  public function checkSpam(array $params, string $type = '', bool $test = false): array|bool {
+    $settings = $this->settings();
+    $plugin = OOPSpam::getInstance();
+    $content = $params['content'] ?? '';
+    $email = trim((string) ($params['email'] ?? ''));
+    $senderIP = (string) ($params['ip'] ?? request()->ip());
+    $checkForLength = isset($params['checkForLength']) ? (bool) $params['checkForLength'] : $settings->checkForLength;
+    $text = trim(is_array($content) ? implode('; ', array_filter($content)) : (string) $content);
+    if (!empty($params['contextual'])) {
+      $data = [
+        'content' => $text,
+        'context' => $params['context'] ?? $settings->contextualContent,
+        'checkForLength' => $checkForLength,
+      ];
+    } else {
+      $data = ['senderIP' => $senderIP, 'email' => $email, 'content' => $text, 'checkForLength' => $checkForLength];
+    }
+    $endpoint = $this->apiVersion . $this->endpoint;
+
+    /* Manual rules */
+    if (in_array($email, $settings->values('allowedEmails'), true) || in_array($senderIP, $settings->values('allowedIPs'), true)) {
+      return $this->conclude($endpoint, $data, ['Score' => 0, 'Reason' => 'Allowed due to manual rules'], $type, $test, true);
+    }
+    if (in_array($email, $settings->values('blockedEmails'), true) || in_array($senderIP, $settings->values('blockedIPs'), true)) {
+      return $this->conclude($endpoint, $data, ['Score' => 6, 'Reason' => 'Blocked due to manual rules'], $type, $test, false);
+    }
+
+    /* Rate limits (checked after manual rules; never during a test) */
+    if (!$test && $settings->enableLimiting) {
+      $ip = (string) request()->ip();
+      $limited = $plugin->submissions->checkSubmission($ip);
+      $plugin->submissions->recordSubmission($ip);
+      if ($limited) {
+        return $this->conclude($endpoint, $data, ['Score' => 6, 'Reason' => 'Blocked due to too many submissions; rateLimit'], $type, false, false);
+      }
+    }
+
+    /* Content length */
+    if ($checkForLength && mb_strlen($data['content']) < 20) {
+      return $this->conclude($endpoint, $data, ['Score' => 6, 'Reason' => 'Blocked due to content length; checkForLength'], $type, $test, false);
+    }
+
+    /* Service check */
+    if ($settings->logIt) {
+      $data['logIt'] = true;
+    }
+    if (!isset($data['context'])) { // not contextual
+      foreach (['blockTempEmail', 'blockVPN', 'blockDC', 'urlFriendly'] as $flag) {
+        if ($settings->$flag) {
+          $data[$flag] = true;
+        }
+      }
+      foreach (['allowedLanguages', 'allowedCountries', 'blockedCountries'] as $list) {
+        if (!empty($settings->$list)) {
+          $data[$list] = (array) $settings->$list;
         }
       }
     }
-  }
-  
-  public function checkSpam(array $params, string $type=''): array|bool {    
-    $content = $params['content'] ?? '';
-    $email = StringHelper::trim($params['email'] ?? '');
-    $senderIP = $params['ip'] ?? Craft::$app->request->getUserIP();
-    $checkForLength = (isset($params['checkForLength'])) ? (bool)$params['checkForLength'] : (bool)OOPSpam::$plugin->settings->checkForLength;
-    if ((isset($params['contextual'])) && ($params['contextual'] == true)){
-      $data = [
-        'content' => (is_array($content)) ? StringHelper::trim(implode('; ', array_filter($content))) : StringHelper::trim($content),
-        'context' => (isset($params['context'])) ? $params['context'] : OOPSpam::$plugin->settings->contextualContent,
-        'checkForLength' => $checkForLength
-      ];
-    } else {
-      $data = [
-        'senderIP' => $senderIP,
-        'email' => $email,
-        'content' => (is_array($content)) ? StringHelper::trim(implode('; ', array_filter($content))) : StringHelper::trim($content),
-        'checkForLength' => $checkForLength
-      ];
-    }
-    $endpoint = $this->apiVersion.$this->endpoint;
-    
-    /* DO MANUAL CHECK */
-    $blockedEmails = array_map(['\cloudgrayau\oopspam\helpers\SettingsHelper', 'mapSettings'], OOPSpam::$plugin->settings->blockedEmails);
-    $blockedIPs = array_map(['\cloudgrayau\oopspam\helpers\SettingsHelper', 'mapSettings'], OOPSpam::$plugin->settings->blockedIPs);
-    $allowedEmails = array_map(['\cloudgrayau\oopspam\helpers\SettingsHelper', 'mapSettings'], OOPSpam::$plugin->settings->allowedEmails);
-    $allowedIPs = array_map(['\cloudgrayau\oopspam\helpers\SettingsHelper', 'mapSettings'], OOPSpam::$plugin->settings->allowedIPs);
-    if (in_array($email, $allowedEmails) || in_array($senderIP, $allowedIPs)){
-      if (OOPSpam::$plugin->settings->enableLogs){
-        OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
-          'Score' => 0,
-          'Reason' => 'Allowed due to manual rules'
-        ], $type);
-      }
-      if (defined('OOPSPAM_TEST')){
-        return [
-          'data' => $data,
-          'results' => [
-            'Score' => 0,
-            'Reason' => 'Allowed due to manual rules'
-          ]
-        ];
-      }
-      return true;
-    }
-    if (in_array($email, $blockedEmails) || in_array($senderIP, $blockedIPs)){
-      if (OOPSpam::$plugin->settings->enableLogs){
-        OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
-          'Score' => 6,
-          'Reason' => 'Blocked due to manual rules'
-        ], $type);
-      }
-      if (defined('OOPSPAM_TEST')){
-        return [
-          'data' => $data,
-          'results' => [
-            'Score' => 6,
-            'Reason' => 'Blocked due to manual rules'
-          ]
-        ];
-      }
-      return false;
-    }
-    
-    /* RATE LIMITS - check after manual checks */
-    if ((!defined('OOPSPAM_TEST')) && (OOPSpam::$plugin->settings->enableLimiting)){
-      $ipaddress = Craft::$app->request->getUserIP() ?? ''; /* Request REAL user IP again */
-      if (OOPSpam::$plugin->submissions->checkSubmission($ipaddress)){
-        OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
-          'Score' => 6,
-          'Reason' => 'Blocked due to too many submissions; rateLimit'
-        ], $type);
-        OOPSpam::$plugin->submissions->recordSubmission($ipaddress);
-        return false;
-      }
-      OOPSpam::$plugin->submissions->recordSubmission($ipaddress);
-    }
-    
-    /* CHECK LENGTH */
-    if ($checkForLength && (StringHelper::count($data['content']) < 20)){
-      if (OOPSpam::$plugin->settings->enableLogs){
-        OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
-          'Score' => 6,
-          'Reason' => 'Blocked due to content length; checkForLength'
-        ], $type);
-      }
-      if (defined('OOPSPAM_TEST')){
-        return [
-          'data' => $data,
-          'results' => [
-            'Score' => 6,
-            'Reason' => 'Blocked due to content length; checkForLength'
-          ]
-        ];
-      }
-      return false;
-    }
-    
-    /* DO SERVICE CHECK */
-    if ((bool)OOPSpam::$plugin->settings->logIt){
-      $data['logIt'] = (bool)OOPSpam::$plugin->settings->logIt;
-    }
-    if (!isset($data['context'])){ /* if not contextual */
-      if ((bool)OOPSpam::$plugin->settings->blockTempEmail){
-        $data['blockTempEmail'] = (bool)OOPSpam::$plugin->settings->blockTempEmail;
-      }
-      if ((bool)OOPSpam::$plugin->settings->blockVPN){
-        $data['blockVPN'] = (bool)OOPSpam::$plugin->settings->blockVPN;
-      }
-      if ((bool)OOPSpam::$plugin->settings->blockDC){
-        $data['blockDC'] = (bool)OOPSpam::$plugin->settings->blockDC;
-      }
-      if ((bool)OOPSpam::$plugin->settings->urlFriendly){
-        $data['urlFriendly'] = (bool)OOPSpam::$plugin->settings->urlFriendly;
-      }
-      if (!empty((array)OOPSpam::$plugin->settings->allowedLanguages)){
-        $data['allowedLanguages'] = (array)OOPSpam::$plugin->settings->allowedLanguages;
-      }
-      if (!empty((array)OOPSpam::$plugin->settings->allowedCountries)){
-        $data['allowedCountries'] = (array)OOPSpam::$plugin->settings->allowedCountries;
-      }
-      if (!empty((array)OOPSpam::$plugin->settings->blockedCountries)){
-        $data['blockedCountries'] = (array)OOPSpam::$plugin->settings->blockedCountries;
-      }
-    }
-    $data['source'] = Craft::$app->request->getHostName();
+    $data['source'] = request()->getHost();
     $result = $this->sendRequest($data, $endpoint);
-    
-    if (isset($data['context'])){ /* Contextual - Store Email and IP for logs ONLY */
+
+    if (isset($data['context'])) { // contextual: store email and IP for logs only
       $data['senderIP'] = $senderIP;
       $data['email'] = $email;
     }
-    if ($result['response']){
-      OOPSpam::$plugin->logs->updateUsage($result['limits']);
-      if (OOPSpam::$plugin->settings->enableLogs){
-        OOPSpam::$plugin->logs->recordLog($endpoint, $data, $result['results'], $type);
+    if ($result['response']) {
+      $plugin->logs->updateUsage($result['limits']);
+      if ($settings->enableLogs) {
+        $plugin->logs->recordLog($endpoint, $data, $result['results'], $type);
       }
-      if (defined('OOPSPAM_TEST')){
-        return [
-          'data' => $data,
-          'results' => $result['results']
-        ];
-      }
-      if (!$this->isSpam($result['results'])){
-        return true;
-      }
-      return false;
-    } else {
-      if (OOPSpam::$plugin->settings->enableLogs){
-        OOPSpam::$plugin->logs->recordLog($endpoint, $data, [
-          'Error' => $result['error']
-        ], $type);
-      }
-      if (defined('OOPSPAM_TEST')){
-        return [
-          'data' => $data,
-          'results' => $result['error']
-        ];
-      }
-      return true;
+      return $test ? ['data' => $data, 'results' => $result['results']] : !$this->isSpam($result['results']);
     }
+    if ($settings->enableLogs) {
+      $plugin->logs->recordLog($endpoint, $data, ['Error' => $result['error']], $type);
+    }
+    return $test ? ['data' => $data, 'results' => $result['error']] : true; // fail open
   }
-  
+
   public function checkReputation(string $domain): array {
-    $result = $this->sendRequest([
-      'domain' => $domain
-    ], $this->apiVersion.'/reputation/domain');
-    if ($result['response']){
-      OOPSpam::$plugin->logs->updateUsage($result['limits']);
+    $result = $this->sendRequest(['domain' => $domain], $this->apiVersion . '/reputation/domain');
+    if ($result['response']) {
+      OOPSpam::getInstance()->logs->updateUsage($result['limits']);
       return $result['results'];
-    } else {
-      return $result;
     }
+    return $result;
   }
-  
+
   public function reportLog(array $params, string $endpoint): array {
     return $this->sendRequest($params, $endpoint);
   }
-  
+
   public function isSpam(array $results): bool {
-    if (isset($results['isContentSpam'])){
-      if ((bool)OOPSpam::$plugin->settings->blockContentSpam && (string)$results['isContentSpam'] == 'spam'){
-        return true;
-      }
+    $settings = $this->settings();
+    if (isset($results['isContentSpam']) && $settings->blockContentSpam && (string) $results['isContentSpam'] === 'spam') {
+      return true;
     }
-    if (isset($results['Score'])){
-      if ((int)$results['Score'] >= (int)OOPSpam::$plugin->settings->spamScore){
-        return true;
-      }
-    }
-    return false;
+    return isset($results['Score']) && (int) $results['Score'] >= $settings->spamScore;
   }
-  
-  // Private Methods
-  // =========================================================================
+
+  private function conclude(string $endpoint, array $data, array $results, string $type, bool $test, bool $pass): array|bool {
+    if ($this->settings()->enableLogs) {
+      OOPSpam::getInstance()->logs->recordLog($endpoint, $data, $results, $type);
+    }
+    return $test ? ['data' => $data, 'results' => $results] : $pass;
+  }
 
   private function sendRequest(array $params, string $endpoint): array {
-    $apiKey = App::parseEnv(OOPSpam::$plugin->settings->apiKey);
+    $settings = $this->settings();
     try {
-      if (empty($apiKey)){
+      $apiKey = (string) Env::parse($settings->apiKey);
+      if ($apiKey === '') {
         throw new \Exception('API Key is not set. Please set your API key in the plugin settings.');
       }
-      $client = new Client([
-        'base_uri' => (OOPSpam::$plugin->settings->apiService == 'rapidapi') ? 'https://oopspam.p.rapidapi.com' : $this->baseUrl
-      ]);
-      $response = $client->request('POST', $endpoint, [
-        'json' => $params,
-        'headers' => [
-          'Content-Type' => 'application/json',
-          'X-Api-Key' => $apiKey
-        ]
-      ]);
+      $response = Http::baseUrl($settings->apiService === 'rapidapi' ? 'https://oopspam.p.rapidapi.com' : $this->baseUrl)
+        ->timeout(10)->connectTimeout(5)->asJson()->acceptJson()
+        ->withHeaders(['X-Api-Key' => $apiKey])
+        ->post($endpoint, $params);
+      if ($response->failed()) {
+        $body = $response->json();
+        $error = is_array($body) ? ($body['error'] ?? null) : null;
+        Log::warning('OOPSpam request failed: HTTP ' . $response->status());
+        return ['response' => false, 'error' => $error ?? ('HTTP ' . $response->status())];
+      }
       return [
         'response' => true,
-        'results' => json_decode((string)$response->getBody()->getContents(), true),
+        'results' => $response->json() ?? [],
         'limits' => [
-          'limit' => $response->getHeader('X-RateLimit-Limit', true)[0],
-          'remaining' => $response->getHeader('X-RateLimit-Remaining', true)[0]
-        ]
+          'limit' => (int) $response->header('X-RateLimit-Limit'),
+          'remaining' => (int) $response->header('X-RateLimit-Remaining'),
+        ],
       ];
-      return $response;
-    } catch (GuzzleException $e) {
-      $error = json_decode((string)$e->getResponse()->getBody(), true);
-      return [
-        'response' => false,
-        'error' => $error['error']
-      ];
-    } catch (\Exception $e) {
-      return [
-        'response' => false,
-        'error' => $e->getMessage()
-      ];
+    } catch (ConnectionException $e) {
+      Log::warning('OOPSpam request failed: ' . $e->getMessage());
+      return ['response' => false, 'error' => $e->getMessage()];
+    } catch (\Throwable $e) {
+      return ['response' => false, 'error' => $e->getMessage()];
     }
   }
-  
+
+  private function settings(): SettingsModel {
+    return OOPSpam::getInstance()->getSettings();
+  }
+
 }

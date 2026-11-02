@@ -1,15 +1,14 @@
 <?php
 namespace cloudgrayau\oopspam\models;
 
-use Craft;
-use craft\base\Model;
-use craft\validators\ArrayValidator;
+use cloudgrayau\oopspam\helpers\SettingsHelper;
 
-class SettingsModel extends Model {
-  
-  // Editable Variables
-  // =========================================================================
-  
+use CraftCms\Cms\Plugin\PluginSettings;
+use CraftCms\Cms\Validation\Rules\EnvValueRule;
+use Illuminate\Validation\Rule;
+
+class SettingsModel extends PluginSettings {
+
   /* GENERAL */
   public string $apiKey = '';
   public string $apiService = 'oopspam';
@@ -17,7 +16,7 @@ class SettingsModel extends Model {
   public int $maxLogs = 30;
   public int $logsPerPage = 100;
   public string $pluginName = '';
-  
+
   /* SECURITY */
   public int $spamScore = 3;
   public bool $blockContentSpam = true;
@@ -30,69 +29,67 @@ class SettingsModel extends Model {
   public array $allowedLanguages = [];
   public array $allowedCountries = [];
   public array $blockedCountries = [];
-  
+
   /* RATES */
   public bool $enableLimiting = false;
   public int $maxSubmissions = 5;
-  
+
   /* INTEGRATIONS */
   public bool $enableUserRegistration = true;
   public bool $enableCommerce = true;
   public bool $enableSubscriptions = false;
-  public array $integrations = [
-    'formie',
-    'freeform',
-    'contact-form',
-    'wheelform',
-    'express-forms',
-    'comments'
-  ];
-  
+  public array $integrations = ['formie', 'freeform', 'contact-form', 'wheelform', 'express-forms', 'comments'];
+
   /* CONTEXTUAL */
   public bool $enableContextual = false;
   public string $contextualContent = '';
-  public array $contextual = [
-    'formie',
-    'freeform',
-    'contact-form',
-    'wheelform',
-    'express-forms',
-    'comments'
-  ];
-  
+  public array $contextual = ['formie', 'freeform', 'contact-form', 'wheelform', 'express-forms', 'comments'];
+
   /* MANUAL */
   public array $blockedEmails = [];
   public array $blockedIPs = [];
   public array $allowedEmails = [];
   public array $allowedIPs = [];
-  
-  /* OVERRIDES */
-  public array $forms = [];
-  
-  // Public Methods
-  // =========================================================================
 
-  public function rules(): array {    
-    if (!Craft::$app->getRequest()->getBodyParam('settings[integrations]')){
-      $this->integrations = [''];
-    }
-    if (!Craft::$app->getRequest()->getBodyParam('settings[contextual]')){
-      $this->contextual  = [''];
-    }
+  /* OVERRIDES (config file only) */
+  public array $forms = [];
+
+  public function getRules(): array {
+    $booleans = ['enableLogs', 'blockContentSpam', 'blockTempEmail', 'blockVPN', 'blockDC', 'checkForLength',
+      'logIt', 'urlFriendly', 'enableLimiting', 'enableUserRegistration', 'enableCommerce', 'enableSubscriptions',
+      'enableContextual'];
+    $arrays = ['allowedLanguages', 'allowedCountries', 'blockedCountries', 'integrations', 'contextual',
+      'blockedEmails', 'blockedIPs', 'allowedEmails', 'allowedIPs', 'forms'];
     $rules = [
-      [['apiKey','apiService'], 'required'],
-      [['apiKey','apiService','contextualContent','pluginName'], 'string'],
-      [['enableUserRegistration','enableCommerce','enableSubscriptions','enableContextual','blockTempEmail','blockVPN','blockDC','checkForLength','logIt','urlFriendly','enableLimiting'], 'boolean'],
-      [['allowedLanguages','allowedCountries','blockedCountries','integrations','contextual','blockedEmails','blockedIPs','allowedEmails','allowedIPs','forms'], ArrayValidator::class],
-      ['maxLogs', 'integer', 'min' => 1, 'max' => 90],
-      ['logsPerPage', 'integer', 'min' => 10],
-      ['maxSubmissions', 'integer', 'min' => 1],
-      ['spamScore', 'integer', 'min' => 1, 'max' => 6]
+      'apiKey' => new EnvValueRule(['required', 'string']),
+      'apiService' => ['required', 'string', Rule::in(array_keys(SettingsHelper::getServices()))],
+      'pluginName' => ['string'],
+      'maxLogs' => ['integer', 'min:1', 'max:90'],
+      'logsPerPage' => ['integer', 'min:10'],
+      'maxSubmissions' => ['integer', 'min:1'],
+      'spamScore' => ['integer', 'min:1', 'max:6'],
+      'contextualContent' => ['string', Rule::requiredIf(fn () => $this->enableContextual)],
     ];
-    if ($this->enableContextual){
-      $rules[] = [['contextualContent'], 'required'];
+    foreach ($booleans as $property) {
+      $rules[$property] = ['boolean'];
     }
-    return $rules;
+    foreach ($arrays as $property) {
+      $rules[$property] = ['array'];
+    }
+    return array_merge(parent::getRules(), $rules);
   }
-  
+
+  /** Manual-list rows normalised to a flat list of trimmed values, however they were set. */
+  public function values(string $property): array {
+    $values = [];
+    foreach ((array) ($this->$property ?? []) as $row) {
+      $row = (array) $row;
+      $value = isset($row[0]) ? trim((string) $row[0]) : '';
+      if ($value !== '') {
+        $values[] = $value;
+      }
+    }
+    return $values;
+  }
+
 }

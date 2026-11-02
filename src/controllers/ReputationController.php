@@ -1,68 +1,65 @@
 <?php
 namespace cloudgrayau\oopspam\controllers;
 
+use cloudgrayau\oopspam\controllers\concerns\OOPSpamScreens;
+use cloudgrayau\oopspam\helpers\ResultsHelper;
 use cloudgrayau\oopspam\OOPSpam;
+use cloudgrayau\utils\UtilityHelper;
 
-use Craft;
-use craft\helpers\UrlHelper;
-use craft\web\Controller;
-use yii\web\Response;
+use CraftCms\Cms\Form\Controls\Text;
+use CraftCms\Cms\Form\Form;
+use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Http\Responses\CpScreenResponse;
+use Illuminate\Http\Request;
 
-class ReputationController extends Controller {
-    
-  // Public Methods
-  // =========================================================================
+use function CraftCms\Cms\{site_url, t};
 
-  public function actionReputation(): Response {
-    $settings = OOPSpam::$plugin->getSettings();
-    $results = [];
-    $errors = [];
-    if (isset($_POST['domain'])){
-      $domain = UrlHelper::isAbsoluteUrl(Craft::$app->getRequest()->getBodyParam('domain')) ? (parse_url(str_replace('www.', '', Craft::$app->getRequest()->getBodyParam('domain')))['host']) : trim(str_replace('www.', '', Craft::$app->getRequest()->getBodyParam('domain')));
-      if (!empty($domain)){        
-        if ((filter_var($domain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) && (str_contains($domain, '.')) && ((checkdnsrr($domain, 'A')) || (checkdnsrr($domain, 'MX')))){
-          $results = OOPSpam::$plugin->antiSpam->checkReputation($domain);
-          if (isset($results['error'])){
-            $errors[] = 'Error: '.$results['error']['code'];
-          }
-        } else {
-          $errors[] = 'Domain Name is not valid';
-        }
-      } else {
-        $errors[] = 'Domain Name cannot be blank';
-        $domain = parse_url(UrlHelper::siteHost())['host'];
-      }
-    } else {
-      $domain = parse_url(UrlHelper::siteHost())['host'];
+class ReputationController {
+
+  use OOPSpamScreens;
+
+  public function show(): CpScreenResponse {
+    return $this->screen((string) parse_url(site_url(), PHP_URL_HOST));
+  }
+
+  public function run(Request $request): CpScreenResponse {
+    $request->validate(['domain' => ['required', 'string', 'max:255']]);
+    $domain = $this->normalise((string) $request->input('domain'));
+    if (!$this->isValid($domain)) {
+      return $this->screen($domain, [], ['domain' => t('Domain name is not valid', category: 'oopspam')]);
     }
-    $css = <<<CSS
-pre.sf-dump .sf-dump-compact {
-  display: block;
-}
-pre.sf-dump .sf-dump-expanded .sf-dump-compact {
-  display: inline !important;
-}
-.sf-dump-str-collapse {
-  display: inline !important;
-}
-.sf-dump-str-expand {
-  display: none !important;
-}
-.sf-dump-note {
-  pointer-events: none;
-}
-.sf-dump-toggle, .sf-dump-str-toggle {
-    display: none;
-}
-CSS;
-    Craft::$app->getView()->registerCss($css);
-    return $this->renderTemplate('oopspam/reputation', [
-      'settings' => $settings,
-      'domain' => $domain,
-      'results' => $results,
-      'errors' => $errors,
-      'limits' => OOPSpam::$plugin->logs->getUsage()
+    $results = OOPSpam::getInstance()->antiSpam->checkReputation($domain);
+    if (isset($results['error'])) {
+      $error = $results['error'];
+      $results['error'] = t('Error: {code}', ['code' => is_array($error) ? ($error['code'] ?? 'Unknown') : $error], 'oopspam');
+      $status = 'Failed';
+    } else {
+      $status = array_key_exists('Blocked', $results) ? ($results['Blocked'] ? 'Spam' : 'Pass') : 'Failed';
+    }
+    return $this->screen($domain, ResultsHelper::nodes('reputation', $status, ['Response' => $results]));
+  }
+
+  private function screen(string $domain, array $nodes = [], array $errors = []): CpScreenResponse {
+    $form = Form::make([
+      Field::make(t('Domain Name', category: 'oopspam'), Text::make('domain')->placeholder('example.com'))
+        ->instructions(t('Query the reputation of a domain.', category: 'oopspam'))->required(),
+      ...$nodes,
+      UtilityHelper::footer('oopspam-footer-reputation'),
     ]);
+    return $this->formScreen(t('Domain Reputation', category: 'oopspam'), 'reputation', 'oopspam/reputation', t('Query', category: 'oopspam'), $form, ['domain' => $domain], $errors);
+  }
+
+  private function normalise(string $input): string {
+    $input = trim($input);
+    $host = preg_match('#^[a-z][a-z0-9+.-]*://#i', $input) ? (string) parse_url($input, PHP_URL_HOST) : $input;
+    return strtolower((string) preg_replace('/^www\./i', '', trim($host)));
+  }
+
+  private function isValid(string $domain): bool {
+    return $domain !== ''
+      && str_contains($domain, '.')
+      && filter_var($domain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
+      && (checkdnsrr($domain, 'A') || checkdnsrr($domain, 'MX'));
   }
 
 }
