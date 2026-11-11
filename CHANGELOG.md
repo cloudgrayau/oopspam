@@ -2,6 +2,17 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
+## 2.0.0-beta.1 - 2026-11-11
+### Added
+- Initial support for Craft 6.0.0
+
+## 1.7.3 - 2026-10-26
+### Fixed
+- OOPSpam actions now require control panel access and the OOPSpam plugin permission
+- Network failures when contacting the OOPSpam API no longer throw errors
+- Fixed a possible error on the Domain Reputation page
+- Log deletion now validates the submitted IDs
+
 ## 1.7.1 - 2026-10-06
 ### Added
 - Added `Easy Form` integration - [https://plugins.craftcms.com/easy-form](https://plugins.craftcms.com/easy-form)

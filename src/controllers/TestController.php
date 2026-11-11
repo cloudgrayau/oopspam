@@ -6,10 +6,10 @@ use cloudgrayau\oopspam\helpers\ResultsHelper;
 use cloudgrayau\oopspam\OOPSpam;
 use cloudgrayau\utils\UtilityHelper;
 
-use CraftCms\Cms\Form\Controls\{Choice, Lightswitch, Text, Textarea};
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\{FormContext, FormResolver};
-use CraftCms\Cms\Form\Nodes\{Field, Group};
+use CraftCms\Cms\Ui\Controls\{Choice, Lightswitch, Text, Textarea};
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\{UiContext, UiResolver};
+use CraftCms\Cms\Ui\Nodes\{Field, Group};
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -71,9 +71,9 @@ class TestController {
   
   public function refresh(Request $request): JsonResponse {
     $values = $this->withDefaults((array) $request->input('values', $request->all()));
-    return new JsonResponse(['form' => app(FormResolver::class)->resolve(
+    return new JsonResponse(['ui' => app(UiResolver::class)->resolve(
       $this->form($values),
-      new FormContext(values: $values, refreshable: true)
+      new UiContext(values: $values, refreshable: true)
     )]);
   }
   
@@ -83,9 +83,9 @@ class TestController {
     return $values;
   }
   
-  private function form(array $values, array $nodes = []): Form {
+  private function form(array $values, array $nodes = []): Ui {
     $type = $values['type'] ?? 'general';
-    return Form::make([
+    return Ui::make([
       Field::make(t('Test type', category: 'oopspam'), Choice::make('type')->reactive()->options([
         ['value' => 'general', 'label' => t('General', category: 'oopspam')],
         ['value' => 'contextual', 'label' => t('Contextual (Experimental)', category: 'oopspam')],

@@ -35,10 +35,16 @@ class AntiSpamService {
     $endpoint = $this->apiVersion . $this->endpoint;
 
     /* Manual rules */
-    if (in_array($email, $settings->values('allowedEmails'), true) || in_array($senderIP, $settings->values('allowedIPs'), true)) {
+    $emailKey = mb_strtolower($email);
+    $ipKey = $this->normaliseIp($senderIP);
+    $match = fn (array $emails, array $ips) =>
+      in_array($emailKey, array_map('mb_strtolower', $emails), true)
+      || in_array($ipKey, array_map($this->normaliseIp(...), $ips), true);
+    
+    if ($match($settings->values('allowedEmails'), $settings->values('allowedIPs'))) {
       return $this->conclude($endpoint, $data, ['Score' => 0, 'Reason' => 'Allowed due to manual rules'], $type, $test, true);
     }
-    if (in_array($email, $settings->values('blockedEmails'), true) || in_array($senderIP, $settings->values('blockedIPs'), true)) {
+    if ($match($settings->values('blockedEmails'), $settings->values('blockedIPs'))) {
       return $this->conclude($endpoint, $data, ['Score' => 6, 'Reason' => 'Blocked due to manual rules'], $type, $test, false);
     }
 
@@ -152,6 +158,18 @@ class AntiSpamService {
     } catch (\Throwable $e) {
       return ['response' => false, 'error' => $e->getMessage()];
     }
+  }
+  
+  private function normaliseIp(string $ip): string {
+    $ip = trim($ip);
+    $binary = @inet_pton($ip);
+    if ($binary === false) {
+      return $ip;
+    }
+    if (strlen($binary) === 16 && str_starts_with($binary, str_repeat("\0", 10) . "\xff\xff")) {
+      $binary = substr($binary, 12);
+    }
+    return (string) inet_ntop($binary);
   }
 
   private function settings(): SettingsModel {

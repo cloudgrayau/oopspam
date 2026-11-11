@@ -6,9 +6,9 @@ use cloudgrayau\oopspam\helpers\ResultsHelper;
 use cloudgrayau\oopspam\OOPSpam;
 use cloudgrayau\utils\UtilityHelper;
 
-use CraftCms\Cms\Form\Controls\Text;
-use CraftCms\Cms\Form\Form;
-use CraftCms\Cms\Form\Nodes\Field;
+use CraftCms\Cms\Ui\Controls\Text;
+use CraftCms\Cms\Ui\Ui;
+use CraftCms\Cms\Ui\Nodes\Field;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
 use Illuminate\Http\Request;
 
@@ -40,7 +40,7 @@ class ReputationController {
   }
 
   private function screen(string $domain, array $nodes = [], array $errors = []): CpScreenResponse {
-    $form = Form::make([
+    $form = Ui::make([
       Field::make(t('Domain Name', category: 'oopspam'), Text::make('domain')->placeholder('example.com'))
         ->instructions(t('Query the reputation of a domain.', category: 'oopspam'))->required(),
       ...$nodes,

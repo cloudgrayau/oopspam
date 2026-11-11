@@ -1,7 +1,7 @@
 <?php
 namespace cloudgrayau\oopspam\helpers;
 
-use CraftCms\Cms\Form\Nodes\{Callout, MarkdownContent, TemplateContent};
+use CraftCms\Cms\Ui\Nodes\{Callout, MarkdownContent, TemplateContent};
 
 use function CraftCms\Cms\t;
 

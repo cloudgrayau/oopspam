@@ -9,10 +9,10 @@ use cloudgrayau\utils\UtilityHelper;
 
 use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Cp\SelectOptions;
-use CraftCms\Cms\Form\{Form, FormContext};
-use CraftCms\Cms\Form\Controls\{Choice, Lightswitch, Number, Range, Table, Text, Textarea};
-use CraftCms\Cms\Form\Enums\ChoicePresentation;
-use CraftCms\Cms\Form\Nodes\{Callout, Field, Group, MarkdownContent, Tab};
+use CraftCms\Cms\Ui\{Ui, UiContext};
+use CraftCms\Cms\Ui\Controls\{Choice, Lightswitch, Number, Range, Table, Text, Textarea};
+use CraftCms\Cms\Ui\Enums\ChoicePresentation;
+use CraftCms\Cms\Ui\Nodes\{Callout, Field, Group, MarkdownContent, Tab};
 use CraftCms\Cms\Plugin\{Plugin, PluginSettings, Plugins};
 
 use function CraftCms\Cms\{cp_url, currentUser, t};
@@ -59,8 +59,7 @@ class OOPSpam extends Plugin {
     return SettingsRequest::class;
   }
 
-  #[\Override]
-  public function settingsForm(FormContext $context = new FormContext): ?Form {
+  public function settingsUi(UiContext $context = new UiContext): ?Ui {
     $s = $this->getSettings();
     $w = fn (string $setting) => UtilityHelper::configWarning($this->handle, $setting);
     $opts = fn (array $list) => array_map(fn ($value, $label) => ['value' => (string) $value, 'label' => $label], array_keys($list), $list);
@@ -90,7 +89,7 @@ class OOPSpam extends Plugin {
       'labelHtml' => '<strong>' . $obj['title'] . '</strong> <small>' . ($obj['information'] ?? '') . '</small><br><small>' . $obj['url'] . '</small>',
     ], array_keys($list), $list));
 
-    return Form::make([
+    return Ui::make([
       Tab::make('general', t('General', category: 'oopspam'), [
         Field::make(t('API Key', category: 'oopspam'), Text::make('apiKey')->textExpanderTriggers(SelectOptions::getEnvTextExpanderTriggers()))
           ->instructions(t('The [OOPSpam](https://oopspam.com/?ref=cloudgray) service API key.', category: 'oopspam'))
@@ -196,7 +195,7 @@ class OOPSpam extends Plugin {
     return app(Plugins::class)->isPluginEnabled($handle);
   }
 
-  private function current(FormContext $context, string $key, mixed $saved): mixed {
+  private function current(UiContext $context, string $key, mixed $saved): mixed {
     return $context->values['settings'][$key] ?? $context->values[$key] ?? $saved;
   }
   

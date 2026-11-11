@@ -26,11 +26,29 @@ class SettingsRequest extends FormRequest {
   
   protected function prepareForValidation(): void {
     $settings = (array) $this->input('settings', []);
+  
     foreach (['pluginName', 'contextualContent'] as $key) {
       if (array_key_exists($key, $settings) && $settings[$key] === null) {
         $settings[$key] = '';
       }
     }
+  
+    // Manual lists: drop blank rows and trim the rest, keeping the [[value], ...] shape
+    foreach (['blockedEmails', 'blockedIPs', 'allowedEmails', 'allowedIPs'] as $key) {
+      if (!array_key_exists($key, $settings)) {
+        continue;
+      }
+      $rows = [];
+      foreach ((array) $settings[$key] as $row) {
+        $value = is_array($row) ? ($row[0] ?? (count($row) ? reset($row) : '')) : $row;
+        $value = is_scalar($value) ? trim((string) $value) : '';
+        if ($value !== '') {
+          $rows[] = [$value];
+        }
+      }
+      $settings[$key] = $rows;
+    }
+  
     $this->merge(['settings' => $settings]);
   }
 
