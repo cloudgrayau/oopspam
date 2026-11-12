@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'can:accessCp', 'can:accessPlugin-oopspam'])->prefix('oopspam')->group(function () {
   Route::get('', LandingController::class);
   Route::get('logs', [LogsController::class, 'index']);
+  Route::delete('logs', [LogsController::class, 'destroy']);
   Route::get('reputation', [ReputationController::class, 'show']);
   Route::post('reputation', [ReputationController::class, 'run']);
   Route::get('test', [TestController::class, 'show']);

@@ -20,7 +20,7 @@ class ResultsHelper {
     foreach ($panels as $heading => $data) {
       $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
       $nodes[] = MarkdownContent::make("$id-heading-$i", '### ' . $heading)->displayInPane(false);
-      $nodes[] = TemplateContent::make("$id-panel-$i", '<pre style="white-space:pre-wrap;word-break:break-word;padding:16px;margin:0;background:rgba(0,0,0,0.05);font-size:13px;">' . e($json) . '</pre>');
+      $nodes[] = TemplateContent::make("$id-panel-$i", '<pre style="white-space:pre-wrap;word-break:break-word;padding:16px;margin:0;background:rgba(127,127,127,0.12);font-size:13px;">' . e($json) . '</pre>');
       $i++;
     }
     return $nodes;

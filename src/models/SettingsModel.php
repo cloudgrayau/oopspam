@@ -65,7 +65,7 @@ class SettingsModel extends PluginSettings {
       'apiService' => ['required', 'string', Rule::in(array_keys(SettingsHelper::getServices()))],
       'pluginName' => ['string'],
       'maxLogs' => ['integer', 'min:1', 'max:90'],
-      'logsPerPage' => ['integer', 'min:10'],
+      'logsPerPage' => ['integer', 'min:10', 'max:250'],
       'maxSubmissions' => ['integer', 'min:1'],
       'spamScore' => ['integer', 'min:1', 'max:6'],
       'contextualContent' => ['string', Rule::requiredIf(fn () => $this->enableContextual)],

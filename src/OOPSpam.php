@@ -1,6 +1,7 @@
 <?php
 namespace cloudgrayau\oopspam;
 
+use cloudgrayau\oopspam\console\GcCommand;
 use cloudgrayau\oopspam\helpers\SettingsHelper;
 use cloudgrayau\oopspam\models\SettingsModel;
 use cloudgrayau\oopspam\requests\SettingsRequest;
@@ -13,11 +14,16 @@ use CraftCms\Cms\Ui\{Ui, UiContext};
 use CraftCms\Cms\Ui\Controls\{Choice, Lightswitch, Number, Range, Table, Text, Textarea};
 use CraftCms\Cms\Ui\Enums\ChoicePresentation;
 use CraftCms\Cms\Ui\Nodes\{Callout, Field, Group, MarkdownContent, Tab};
+use CraftCms\Cms\Plugin\Events\PluginSettingsSaved;
 use CraftCms\Cms\Plugin\{Plugin, PluginSettings, Plugins};
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Event;
 
 use function CraftCms\Cms\{cp_url, currentUser, t};
 
 class OOPSpam extends Plugin {
+  
+  protected array $commands = [GcCommand::class];
 
   public string $schemaVersion = '2.0.0';
   public bool $hasCpSettings = true;
@@ -26,8 +32,26 @@ class OOPSpam extends Plugin {
   public AntiSpamService $antiSpam { get => $this->antiSpam ??= new AntiSpamService; }
   public LogsService $logs { get => $this->logs ??= new LogsService; }
   public SubmissionService $submissions { get => $this->submissions ??= new SubmissionService; }
+  
+  private bool $wasLogging = true;
+  private bool $wasLimiting = false;
 
   public function boot(): void {
+    $s = $this->getSettings();
+    $this->wasLogging = $s->enableLogs;
+    $this->wasLimiting = $s->enableLimiting;
+    Event::listen(function (PluginSettingsSaved $event): void {
+      if ($event->plugin->handle !== $this->handle) {
+        return;
+      }
+      $new = $this->getSettings();
+      if ($this->wasLogging !== $new->enableLogs) {
+        $this->logs->clearLogs();
+      }
+      if ($this->wasLimiting !== $new->enableLimiting) {
+        $this->submissions->clearSubmissions();
+      }
+    });
   }
 
   public function getCpNavItem(): NavItem|array|null {
@@ -49,6 +73,10 @@ class OOPSpam extends Plugin {
     }
     return $item;
   }
+  
+  protected function schedule(Schedule $schedule): void {
+    $schedule->command('oopspam:gc')->everySixHours()->withoutOverlapping();
+  }
 
   #[\Override]
   protected static function createSettings(): PluginSettings {
@@ -62,6 +90,8 @@ class OOPSpam extends Plugin {
   public function settingsUi(UiContext $context = new UiContext): ?Ui {
     $s = $this->getSettings();
     $w = fn (string $setting) => UtilityHelper::configWarning($this->handle, $setting);
+    $flag = fn (string $key, bool $saved): bool => filter_var($this->current($context, $key, $saved), FILTER_VALIDATE_BOOLEAN);
+    $num = fn (string $key, int $saved): int => (int) $this->current($context, $key, $saved) ?: $saved;
     $opts = fn (array $list) => array_map(fn ($value, $label) => ['value' => (string) $value, 'label' => $label], array_keys($list), $list);
     $row = fn (string $name, string $label, string $instructions, string $heading, string $add) =>
       Field::make($label, Table::make($name)
@@ -71,9 +101,9 @@ class OOPSpam extends Plugin {
         ->warning($w($name));
 
     $score = max(1, min(6, (int) $this->current($context, 'spamScore', $s->spamScore)));
-    $logsOn = (bool) $this->current($context, 'enableLogs', $s->enableLogs);
-    $limitOn = (bool) $this->current($context, 'enableLimiting', $s->enableLimiting);
-    $contextOn = (bool) $this->current($context, 'enableContextual', $s->enableContextual);
+    $logsOn = $flag('enableLogs', $s->enableLogs);
+    $limitOn = $flag('enableLimiting', $s->enableLimiting);
+    $contextOn = $flag('enableContextual', $s->enableContextual);
     $enabled = (array) $this->current($context, 'integrations', $s->integrations);
 
     // Form integrations that are both supported and installed
@@ -86,8 +116,15 @@ class OOPSpam extends Plugin {
     $integrationOptions = fn (array $list) => array_values(array_map(fn ($key, $obj) => [
       'value' => $key,
       'label' => $obj['title'],
-      'labelHtml' => '<strong>' . $obj['title'] . '</strong> <small>' . ($obj['information'] ?? '') . '</small><br><small>' . $obj['url'] . '</small>',
+      'labelHtml' => '<strong>' . $obj['title'] . '</strong> <small>' . ($obj['information'] ?? '') . '</small><small style="display:block;">' . $obj['url'] . '</small>',
     ], array_keys($list), $list));
+    
+    $perPageOptions = [10, 25, 50, 100, 250];
+    $perPage = $this->numeric($context, 'logsPerPage', $s->logsPerPage);
+    if (!in_array($perPage, $perPageOptions, true)) { // a value saved by an older version stays selectable
+      $perPageOptions[] = $perPage;
+      sort($perPageOptions);
+    }
 
     return Ui::make([
       Tab::make('general', t('General', category: 'oopspam'), [
@@ -100,12 +137,16 @@ class OOPSpam extends Plugin {
         Field::make(t('Enable Logs', category: 'oopspam'), Lightswitch::make('enableLogs')->reactive())
           ->instructions(t('Store spam submission calls and responses in Craft CMS.', category: 'oopspam'))
           ->warning($w('enableLogs')),
-        Group::make('logs-fields', $logsOn ? [
-          Field::make(t('Maximum Logs', category: 'oopspam'), Number::make('maxLogs')->min(1)->max(90))
+        ...($logsOn ? [
+          Field::make(t('Maximum Logs', category: 'oopspam'), Number::make('maxLogs')->min(1)->max(90)->value($num('maxLogs', $s->maxLogs)))
             ->instructions(t('Maximum amount of days to store logs.', category: 'oopspam'))->warning($w('maxLogs')),
-          Field::make(t('Logs Per Page', category: 'oopspam'), Number::make('logsPerPage')->min(10))
-            ->instructions(t('Maximum logs to display per page.', category: 'oopspam'))->warning($w('logsPerPage')),
-        ] : [])->dependsOn('enableLogs'),
+          Field::make(t('Default Logs Per Page', category: 'oopspam'), Choice::make('logsPerPage')
+          ->options(array_map(fn (int $n) => ['value' => (string) $n, 'label' => (string) $n], $perPageOptions))
+          ->withoutPlaceholder()
+          ->value((string) $perPage))
+          ->instructions(t('How many logs to show per page by default. You can change this on the Logs page.', category: 'oopspam'))
+          ->warning($w('logsPerPage')),
+        ] : []),
         Field::make(t('Plugin Name', category: 'oopspam'), Text::make('pluginName'))
           ->instructions(t('Override the plugin name (optional).', category: 'oopspam'))->warning($w('pluginName')),
         UtilityHelper::footer('oopspam-footer-general'),
@@ -142,10 +183,10 @@ class OOPSpam extends Plugin {
         Field::make(t('Enable Rate Limiting', category: 'oopspam'), Lightswitch::make('enableLimiting')->reactive())
           ->instructions(t('Configure rate limits to control the number of allowed submissions per IP, effectively preventing spam and abuse.', category: 'oopspam'))
           ->warning($w('enableLimiting')),
-        Group::make('rate-fields', $limitOn ? [
-          Field::make(t('Max Submissions', category: 'oopspam'), Number::make('maxSubmissions')->min(1))
+        ...($limitOn ? [
+          Field::make(t('Max Submissions', category: 'oopspam'), Number::make('maxSubmissions')->min(1)->value($num('maxSubmissions', $s->maxSubmissions)))
             ->instructions(t('Maximum submissions allowed per IP address per hour.', category: 'oopspam'))->warning($w('maxSubmissions')),
-        ] : [])->dependsOn('enableLimiting'),
+        ] : []),
         UtilityHelper::footer('oopspam-footer-rates'),
       ]),
       Tab::make('integrations', t('Integrations', category: 'oopspam'), array_values(array_filter([
@@ -190,12 +231,21 @@ class OOPSpam extends Plugin {
       ]),
     ]);
   }
+  
+  private function numeric(UiContext $context, string $key, int $saved): int {
+    $value = $this->current($context, $key, $saved);
+    return (is_numeric($value) && (int) $value > 0) ? (int) $value : $saved;
+  }
 
   private function pluginEnabled(string $handle): bool {
     return app(Plugins::class)->isPluginEnabled($handle);
   }
 
   private function current(UiContext $context, string $key, mixed $saved): mixed {
+    $old = old("settings.$key"); // input flashed by a save that failed validation
+    if ($old !== null) {
+      return $old;
+    }
     return $context->values['settings'][$key] ?? $context->values[$key] ?? $saved;
   }
   

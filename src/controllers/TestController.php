@@ -3,6 +3,7 @@ namespace cloudgrayau\oopspam\controllers;
 
 use cloudgrayau\oopspam\controllers\concerns\OOPSpamScreens;
 use cloudgrayau\oopspam\helpers\ResultsHelper;
+use cloudgrayau\oopspam\helpers\UsageHelper;
 use cloudgrayau\oopspam\OOPSpam;
 use cloudgrayau\utils\UtilityHelper;
 
@@ -86,6 +87,7 @@ class TestController {
   private function form(array $values, array $nodes = []): Ui {
     $type = $values['type'] ?? 'general';
     return Ui::make([
+      ...array_filter([UsageHelper::node('oopspam-usage-test')]),
       Field::make(t('Test type', category: 'oopspam'), Choice::make('type')->reactive()->options([
         ['value' => 'general', 'label' => t('General', category: 'oopspam')],
         ['value' => 'contextual', 'label' => t('Contextual (Experimental)', category: 'oopspam')],

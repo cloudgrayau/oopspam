@@ -3,6 +3,7 @@ namespace cloudgrayau\oopspam\controllers;
 
 use cloudgrayau\oopspam\controllers\concerns\OOPSpamScreens;
 use cloudgrayau\oopspam\helpers\ResultsHelper;
+use cloudgrayau\oopspam\helpers\UsageHelper;
 use cloudgrayau\oopspam\OOPSpam;
 use cloudgrayau\utils\UtilityHelper;
 
@@ -41,6 +42,7 @@ class ReputationController {
 
   private function screen(string $domain, array $nodes = [], array $errors = []): CpScreenResponse {
     $form = Ui::make([
+      ...array_filter([UsageHelper::node('oopspam-usage-reputation')]),
       Field::make(t('Domain Name', category: 'oopspam'), Text::make('domain')->placeholder('example.com'))
         ->instructions(t('Query the reputation of a domain.', category: 'oopspam'))->required(),
       ...$nodes,
