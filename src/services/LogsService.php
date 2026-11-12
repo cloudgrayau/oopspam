@@ -33,7 +33,7 @@ class LogsService {
   /** Reports a log back to OOPSpam as a false positive or negative. */
   public function report(string $uid): bool {
     $log = LogRecord::findByUid($uid);
-    if (!$log || $log->isReport) {
+    if (!$log || !$log->isValid || $log->isReport) {
       return false;
     }
     $anti = OOPSpam::getInstance()->antiSpam;

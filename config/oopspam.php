@@ -3,7 +3,7 @@
  * OOPSpam config
  *
  * Publish this file to `config/craft/oopspam.php` and change the settings there;
-  * values set here override the ones saved in the control panel.
+ * values set here override the ones saved in the control panel.
  */
 
 return [

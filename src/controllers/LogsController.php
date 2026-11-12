@@ -2,17 +2,21 @@
 namespace cloudgrayau\oopspam\controllers;
 
 use cloudgrayau\oopspam\helpers\LogStatus;
+use cloudgrayau\oopspam\helpers\ResultsHelper;
 use cloudgrayau\oopspam\helpers\UsageHelper;
 use cloudgrayau\oopspam\OOPSpam;
 use cloudgrayau\oopspam\records\LogRecord;
+use cloudgrayau\utils\UtilityHelper;
 
 use CraftCms\Cms\Cp\Data\ActionItem;
-use CraftCms\Cms\Ui\Nodes\ActionMenu;
+use CraftCms\Cms\Ui\Controls\Lightswitch;
+use CraftCms\Cms\Ui\Nodes\{ActionMenu, Field, Table, TemplateContent};
 use CraftCms\Cms\Http\RespondsWithFlash;
 use CraftCms\Cms\Http\Responses\CpScreenResponse;
-use CraftCms\Cms\Ui\Nodes\Table;
 use CraftCms\Cms\Ui\Ui;
 use CraftCms\Cms\Ui\UiContext;
+
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -92,6 +96,76 @@ class LogsController {
       ->crumbs([new ActionItem()->label($name)->href(cp_url('oopspam')), new ActionItem()->label(t('Logs', category: 'oopspam'))])
       ->ui(Ui::make(array_values(array_filter([UsageHelper::node('oopspam-usage-logs'), $menu, $table]))), new UiContext());
   }
+  
+  public function show(int $id): CpScreenResponse|RedirectResponse {
+    $plugin = OOPSpam::getInstance();
+    $log = $plugin->logs->getLog($id);
+    if ($log === null) {
+      return redirect(cp_url('oopspam/logs'));
+    }
+    $name = $plugin->getSettings()->pluginName ?: 'OOPSpam';
+    $score = $log->getResponse('Score');
+    $reportable = $log->isValid && !$log->isReport && !empty($log->getResponse('Details'));
+  
+    $summary = [
+      t('Spam Score', category: 'oopspam') => is_numeric($score) ? (string) $score : '-',
+      t('Endpoint', category: 'oopspam') => (string) $log->endpoint,
+      t('Email', category: 'oopspam') => (string) ($log->getParam('email') ?: '-'),
+      t('Integration', category: 'oopspam') => (string) $log->type,
+      t('IP Address', category: 'oopspam') => (string) ($log->getParam('senderIP') ?: t('None provided', category: 'oopspam')),
+      t('Created at', category: 'oopspam') => $log->dateCreated->format('j F Y - H:i:s'),
+    ];
+    if ($log->isReport) {
+      $summary[t('Reported at', category: 'oopspam')] = $log->dateUpdated->format('j F Y - H:i:s');
+    }
+    $html = '<dl style="display:grid;grid-template-columns:max-content 1fr;gap:6px 24px;margin:0;">';
+    foreach ($summary as $label => $value) {
+      $html .= '<dt style="font-weight:bold;">' . e($label) . '</dt><dd style="margin:0;word-break:break-word;">' . e($value) . '</dd>';
+    }
+    $html .= '</dl>';
+  
+    $nodes = [
+      LogStatus::node('log-status', $log),
+      TemplateContent::make('log-summary', $html),
+    ];
+    if ($reportable) {
+      $nodes[] = Field::make(t($log->isSpam ? 'Report as not spam' : 'Report as spam', category: 'oopspam'), Lightswitch::make('isReport'))
+        ->instructions(t('Tells OOPSpam this result was wrong, to improve its detection. This uses one API call and can’t be undone.', category: 'oopspam'));
+    }
+    $nodes = [
+      ...$nodes,
+      ...ResultsHelper::panels('log', [
+        t('Parameters', category: 'oopspam') => $log->getParams(),
+        t('Response', category: 'oopspam') => $log->getResponses(),
+      ]),
+      UtilityHelper::footer('oopspam-footer-log'),
+    ];
+  
+    $title = $log->dateCreated->format('j F Y - H:i:s');
+    $response = new CpScreenResponse()
+      ->title($title)
+      ->selectedSubnavItem('logs')
+      ->crumbs([
+        new ActionItem()->label($name)->href(cp_url('oopspam')),
+        new ActionItem()->label(t('Logs', category: 'oopspam'))->href(cp_url('oopspam/logs')),
+        new ActionItem()->label($title),
+      ])
+      ->ui(Ui::make($nodes), new UiContext(values: ['isReport' => false]), $reportable
+        ? ['submit' => ['method' => 'post', 'url' => cp_url("oopspam/logs/{$id}/report")]]
+        : []);
+    return $reportable ? $response->submitButtonLabel(t('Report', category: 'oopspam')) : $response;
+  }
+  
+  public function report(Request $request, int $id): Response {
+    $log = LogRecord::query()->find($id);
+    abort_if($log === null, 404);
+    if (!$request->boolean('isReport')) {
+      return $this->asFailure(t('Switch on the report option first.', category: 'oopspam'));
+    }
+    return OOPSpam::getInstance()->logs->report($log->uid)
+      ? $this->asSuccess(t('Log reported.', category: 'oopspam'), redirect: cp_url("oopspam/logs/{$id}"))
+      : $this->asFailure(t('Couldn’t report log.', category: 'oopspam'));
+  }
 
   public function destroy(Request $request): Response {
     $ids = (array) $request->input('ids', $request->input('id', []));
@@ -101,15 +175,6 @@ class LogsController {
       : $this->asFailure(t('No logs were deleted.', category: 'oopspam'));
   }
 
-  private function statusLabel(LogRecord $log): string {
-    $label = !$log->isValid ? t('Failed', category: 'oopspam') : ($log->isSpam ? t('Spam', category: 'oopspam') : t('Pass', category: 'oopspam'));
-    return $log->isReport ? $label . ' (' . t('Reported', category: 'oopspam') . ')' : $label;
-  }
-  
-  private function statusKey(LogRecord $log): string {
-    return !$log->isValid ? 'failed' : ($log->isSpam ? 'spam' : 'pass');
-  }
-  
   public function clear(): Response {
     OOPSpam::getInstance()->logs->clearLogs();
     return $this->asSuccess(t('Logs cleared.', category: 'oopspam'), redirect: cp_url('oopspam/logs'));

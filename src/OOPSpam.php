@@ -91,7 +91,6 @@ class OOPSpam extends Plugin {
     $s = $this->getSettings();
     $w = fn (string $setting) => UtilityHelper::configWarning($this->handle, $setting);
     $flag = fn (string $key, bool $saved): bool => filter_var($this->current($context, $key, $saved), FILTER_VALIDATE_BOOLEAN);
-    $num = fn (string $key, int $saved): int => (int) $this->current($context, $key, $saved) ?: $saved;
     $opts = fn (array $list) => array_map(fn ($value, $label) => ['value' => (string) $value, 'label' => $label], array_keys($list), $list);
     $row = fn (string $name, string $label, string $instructions, string $heading, string $add) =>
       Field::make($label, Table::make($name)
@@ -138,7 +137,7 @@ class OOPSpam extends Plugin {
           ->instructions(t('Store spam submission calls and responses in Craft CMS.', category: 'oopspam'))
           ->warning($w('enableLogs')),
         ...($logsOn ? [
-          Field::make(t('Maximum Logs', category: 'oopspam'), Number::make('maxLogs')->min(1)->max(90)->value($num('maxLogs', $s->maxLogs)))
+          Field::make(t('Maximum Logs', category: 'oopspam'), Number::make('maxLogs')->min(1)->max(90)->value($this->numeric($context, 'maxLogs', $s->maxLogs)))
             ->instructions(t('Maximum amount of days to store logs.', category: 'oopspam'))->warning($w('maxLogs')),
           Field::make(t('Default Logs Per Page', category: 'oopspam'), Choice::make('logsPerPage')
           ->options(array_map(fn (int $n) => ['value' => (string) $n, 'label' => (string) $n], $perPageOptions))
@@ -184,7 +183,7 @@ class OOPSpam extends Plugin {
           ->instructions(t('Configure rate limits to control the number of allowed submissions per IP, effectively preventing spam and abuse.', category: 'oopspam'))
           ->warning($w('enableLimiting')),
         ...($limitOn ? [
-          Field::make(t('Max Submissions', category: 'oopspam'), Number::make('maxSubmissions')->min(1)->value($num('maxSubmissions', $s->maxSubmissions)))
+          Field::make(t('Max Submissions', category: 'oopspam'), Number::make('maxSubmissions')->min(1)->value($this->numeric($context, 'maxSubmissions', $s->maxSubmissions)))
             ->instructions(t('Maximum submissions allowed per IP address per hour.', category: 'oopspam'))->warning($w('maxSubmissions')),
         ] : []),
         UtilityHelper::footer('oopspam-footer-rates'),

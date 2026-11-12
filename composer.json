@@ -26,7 +26,6 @@
     "require": {
         "craftcms/cms": "^6.0.0-beta.1",
         "php": "^8.5",
-        "guzzlehttp/guzzle": "^7.0",
         "cloudgrayau/utils": "^2.0.0"
     },
     "autoload": {

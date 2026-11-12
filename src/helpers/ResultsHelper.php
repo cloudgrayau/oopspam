@@ -1,21 +1,29 @@
 <?php
 namespace cloudgrayau\oopspam\helpers;
 
-use CraftCms\Cms\Ui\Nodes\{Callout, MarkdownContent, TemplateContent};
-
-use function CraftCms\Cms\t;
+use CraftCms\Cms\Ui\Contracts\Node;
+use CraftCms\Cms\Ui\Nodes\{MarkdownContent, TemplateContent};
 
 class ResultsHelper {
 
-  /** @param array<string, mixed> $panels heading => data */
+  /**
+   * A status bar followed by a JSON panel per heading.
+   *
+   * @param  string  $status  Pass | Spam | Failed
+   * @param  array<string, mixed>  $panels  heading => data
+   * @return list<Node>
+   */
   public static function nodes(string $id, string $status, array $panels): array {
-    $label = match ($status) {
-      'Pass' => t('Pass', category: 'oopspam'),
-      'Spam' => t('Spam', category: 'oopspam'),
-      default => t('Failed', category: 'oopspam'),
-    };
-    $nodes = [Callout::make("$id-status", '**' . t('Status', category: 'oopspam') . ':** ' . $label)
-      ->variant($status === 'Pass' ? 'info' : 'warning')];
+    $key = strtolower($status);
+    return [LogStatus::callout("$id-status", LogStatus::labelFor($key), LogStatus::variantFor($key)), ...self::panels($id, $panels)];
+  }
+
+  /**
+   * @param  array<string, mixed>  $panels  heading => data
+   * @return list<Node>
+   */
+  public static function panels(string $id, array $panels): array {
+    $nodes = [];
     $i = 0;
     foreach ($panels as $heading => $data) {
       $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
