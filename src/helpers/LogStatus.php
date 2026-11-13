@@ -39,8 +39,8 @@ class LogStatus {
       return Color::Yellow->value;
     }
     return match (self::key($log)) {
-      'failed' => Color::Red->value,
-      'spam' => Color::Blue->value,
+      'failed' => Color::Gray->value,
+      'spam' => Color::Red->value,
       default => Color::Green->value,
     };
   }
@@ -54,8 +54,8 @@ class LogStatus {
   public static function variantFor(string $key): string {
     return match ($key) {
       'pass' => 'success',   // green
-      'spam' => 'info',      // blue
-      default => 'danger',   // red
+      'spam' => 'danger',    // red
+      default => 'neutral',  // gray: the check failed, so there's no verdict
     };
   }
 
