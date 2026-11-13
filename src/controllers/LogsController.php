@@ -54,7 +54,7 @@ class LogsController {
     $table = Table::make($arrival ? 'oopspam-logs-' . bin2hex(random_bytes(4)) : 'oopspam-logs')
       ->columns([
         ['key' => 'date', 'label' => t('Date', category: 'oopspam'), 'sortable' => true],
-        ['key' => 'type', 'label' => t('Integration', category: 'oopspam'), 'sortable' => true, 'thin' => true],
+        ['key' => 'type', 'label' => t('Integration', category: 'oopspam'), 'sortable' => true],
         ['key' => 'score', 'label' => t('Score', category: 'oopspam'), 'sortable' => true, 'thin' => true],
         ['key' => 'status', 'label' => t('Status', category: 'oopspam'), 'thin' => true],
       ])
@@ -151,7 +151,7 @@ class LogsController {
         new ActionItem()->label($title),
       ])
       ->ui(Ui::make($nodes), new UiContext(values: ['isReport' => false]), $reportable
-        ? ['submit' => ['method' => 'post', 'url' => cp_url("oopspam/logs/{$id}/report")]]
+        ? ['submit' => ['method' => 'post', 'url' => cp_url("oopspam/logs/{$id}/report")], 'defaultFormActions' => []]
         : []);
     return $reportable ? $response->submitButtonLabel(t('Report', category: 'oopspam')) : $response;
   }

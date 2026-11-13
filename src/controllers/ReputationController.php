@@ -19,27 +19,6 @@ class ReputationController {
 
   use OOPSpamScreens;
 
-  public function show(): CpScreenResponse {
-    return $this->screen((string) parse_url(site_url(), PHP_URL_HOST));
-  }
-
-  public function run(Request $request): CpScreenResponse {
-    $request->validate(['domain' => ['required', 'string', 'max:255']]);
-    $domain = $this->normalise((string) $request->input('domain'));
-    if (!$this->isValid($domain)) {
-      return $this->screen($domain, [], ['domain' => t('Domain name is not valid', category: 'oopspam')]);
-    }
-    $results = OOPSpam::getInstance()->antiSpam->checkReputation($domain);
-    if (isset($results['error'])) {
-      $error = $results['error'];
-      $results['error'] = t('Error: {code}', ['code' => is_array($error) ? ($error['code'] ?? 'Unknown') : $error], 'oopspam');
-      $status = 'Failed';
-    } else {
-      $status = array_key_exists('Blocked', $results) ? ($results['Blocked'] ? 'Spam' : 'Pass') : 'Failed';
-    }
-    return $this->screen($domain, ResultsHelper::nodes('reputation', $status, ['Response' => $results]));
-  }
-
   private function screen(string $domain, array $nodes = [], array $errors = []): CpScreenResponse {
     $form = Ui::make([
       ...array_filter([UsageHelper::node('oopspam-usage-reputation')]),
@@ -62,6 +41,27 @@ class ReputationController {
       && str_contains($domain, '.')
       && filter_var($domain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
       && (checkdnsrr($domain, 'A') || checkdnsrr($domain, 'MX'));
+  }
+
+  public function show(): CpScreenResponse {
+    return $this->screen((string) parse_url(site_url(), PHP_URL_HOST));
+  }
+
+  public function run(Request $request): CpScreenResponse {
+    $request->validate(['domain' => ['required', 'string', 'max:255']]);
+    $domain = $this->normalise((string) $request->input('domain'));
+    if (!$this->isValid($domain)) {
+      return $this->screen($domain, [], ['domain' => t('Domain name is not valid', category: 'oopspam')]);
+    }
+    $results = OOPSpam::getInstance()->antiSpam->checkReputation($domain);
+    if (isset($results['error'])) {
+      $error = $results['error'];
+      $results['error'] = t('Error: {code}', ['code' => is_array($error) ? ($error['code'] ?? 'Unknown') : $error], 'oopspam');
+      $status = 'Failed';
+    } else {
+      $status = array_key_exists('Blocked', $results) ? ($results['Blocked'] ? 'Spam' : 'Pass') : 'Failed';
+    }
+    return $this->screen($domain, ResultsHelper::nodes('reputation', $status, ['Response' => $results]));
   }
 
 }

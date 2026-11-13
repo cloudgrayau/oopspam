@@ -13,7 +13,7 @@ trait OOPSpamScreens {
 
   protected function formScreen(string $title, string $selected, string $url, string $submitLabel, Ui $form, array $values, array $errors = [], ?string $refreshUrl = null): CpScreenResponse {
     $name = OOPSpam::getInstance()->getSettings()->pluginName ?: 'OOPSpam';
-    $props = ['submit' => ['method' => 'post', 'url' => cp_url($url)]];
+    $props = ['submit' => ['method' => 'post', 'url' => cp_url($url)], 'defaultFormActions' => []]; // a plain button, without the "Save and continue editing" menu
     if ($refreshUrl !== null) {
       $props['refreshUrl'] = cp_url($refreshUrl);
     }

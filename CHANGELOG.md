@@ -3,8 +3,9 @@
 Release notes for the OOPSpam Craft CMS plugin.
 
 ## 2.0.0-beta.1 - 2026-11-11
-### Added
-- Initial support for Craft 6.0.0
+### Changed
+- OOPSpam now requires Craft CMS 6.0 and PHP 8.5, and no longer needs the craftcms/yii2-adapter package.
+- OOPSpam now use Craft 6’s field settings and table UIs.
 
 ## 1.7.3 - 2026-10-26
 ### Fixed

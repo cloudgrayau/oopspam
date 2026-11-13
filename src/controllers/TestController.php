@@ -22,6 +22,40 @@ class TestController {
 
   use OOPSpamScreens;
 
+  private function screen(array $values, array $nodes = []): CpScreenResponse {
+    $values = $this->withDefaults($values);
+    return $this->formScreen(t('Test Suite', category: 'oopspam'), 'test', 'oopspam/test', t('Run Test', category: 'oopspam'), $this->form($values, $nodes), $values, [], 'oopspam/test/refresh');
+  }
+
+  private function withDefaults(array $values): array {
+    $values['type'] ??= 'general';
+    $values['context'] ??= OOPSpam::getInstance()->getSettings()->contextualContent;
+    return $values;
+  }
+  
+  private function form(array $values, array $nodes = []): Ui {
+    $type = $values['type'] ?? 'general';
+    return Ui::make([
+      ...array_filter([UsageHelper::node('oopspam-usage-test')]),
+      Field::make(t('Test type', category: 'oopspam'), Choice::make('type')->reactive()->options([
+        ['value' => 'general', 'label' => t('General', category: 'oopspam')],
+        ['value' => 'contextual', 'label' => t('Contextual (Experimental)', category: 'oopspam')],
+      ]))->required(),
+      ...($type === 'general' ? [
+        Field::make(t('Email Address', category: 'oopspam'), Text::make('email')->inputType('email')),
+        Field::make(t('IP Address', category: 'oopspam'), Text::make('ip')),
+      ] : [
+        Field::make(t('Contextual Analysis', category: 'oopspam'), Textarea::make('context')->rows(3))
+          ->instructions(t('Briefly describe your website’s purpose or business (2-3 sentences maximum).', category: 'oopspam')),
+      ]),
+      Field::make(t('Content', category: 'oopspam'), Textarea::make('content')->rows(5)),
+      Field::make(t('Check Content Length', category: 'oopspam'), Lightswitch::make('checkForLength'))
+        ->instructions(t('If the `content` parameter is shorter than 20 characters, it will be considered spam.', category: 'oopspam')),
+      ...$nodes,
+      UtilityHelper::footer('oopspam-footer-test'),
+    ]);
+  }
+
   public function show(): CpScreenResponse {
     $settings = OOPSpam::getInstance()->getSettings();
     return $this->screen([
@@ -65,46 +99,12 @@ class TestController {
     return $this->screen($values, ResultsHelper::nodes('test', $status, ['Parameters' => $out['data'], 'Response' => $results]));
   }
 
-  private function screen(array $values, array $nodes = []): CpScreenResponse {
-    $values = $this->withDefaults($values);
-    return $this->formScreen(t('Test Suite', category: 'oopspam'), 'test', 'oopspam/test', t('Run Test', category: 'oopspam'), $this->form($values, $nodes), $values, [], 'oopspam/test/refresh');
-  }
-  
   public function refresh(Request $request): JsonResponse {
     $values = $this->withDefaults((array) $request->input('values', $request->all()));
     return new JsonResponse(['ui' => app(UiResolver::class)->resolve(
       $this->form($values),
       new UiContext(values: $values, refreshable: true)
     )]);
-  }
-  
-  private function withDefaults(array $values): array {
-    $values['type'] ??= 'general';
-    $values['context'] ??= OOPSpam::getInstance()->getSettings()->contextualContent;
-    return $values;
-  }
-  
-  private function form(array $values, array $nodes = []): Ui {
-    $type = $values['type'] ?? 'general';
-    return Ui::make([
-      ...array_filter([UsageHelper::node('oopspam-usage-test')]),
-      Field::make(t('Test type', category: 'oopspam'), Choice::make('type')->reactive()->options([
-        ['value' => 'general', 'label' => t('General', category: 'oopspam')],
-        ['value' => 'contextual', 'label' => t('Contextual (Experimental)', category: 'oopspam')],
-      ]))->required(),
-      ...($type === 'general' ? [
-        Field::make(t('Email Address', category: 'oopspam'), Text::make('email')->inputType('email')),
-        Field::make(t('IP Address', category: 'oopspam'), Text::make('ip')),
-      ] : [
-        Field::make(t('Contextual Analysis', category: 'oopspam'), Textarea::make('context')->rows(3))
-          ->instructions(t('Briefly describe your website’s purpose or business (2-3 sentences maximum).', category: 'oopspam')),
-      ]),
-      Field::make(t('Content', category: 'oopspam'), Textarea::make('content')->rows(5)),
-      Field::make(t('Check Content Length', category: 'oopspam'), Lightswitch::make('checkForLength'))
-        ->instructions(t('If the `content` parameter is shorter than 20 characters, it will be considered spam.', category: 'oopspam')),
-      ...$nodes,
-      UtilityHelper::footer('oopspam-footer-test'),
-    ]);
   }
 
 }

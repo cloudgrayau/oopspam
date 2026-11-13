@@ -11,9 +11,66 @@ use Illuminate\Support\Facades\Log;
 
 class AntiSpamService {
 
-  public string $apiVersion = '/v1';
   private string $baseUrl = 'https://api.oopspam.com';
   private string $endpoint = '/spamdetection';
+
+  public string $apiVersion = '/v1';
+
+  private function conclude(string $endpoint, array $data, array $results, string $type, bool $test, bool $pass): array|bool {
+    if ($this->settings()->enableLogs) {
+      OOPSpam::getInstance()->logs->recordLog($endpoint, $data, $results, $type);
+    }
+    return $test ? ['data' => $data, 'results' => $results] : $pass;
+  }
+
+  private function sendRequest(array $params, string $endpoint): array {
+    $settings = $this->settings();
+    try {
+      $apiKey = (string) Env::parse($settings->apiKey);
+      if ($apiKey === '') {
+        throw new \Exception('API Key is not set. Please set your API key in the plugin settings.');
+      }
+      $response = Http::baseUrl($settings->apiService === 'rapidapi' ? 'https://oopspam.p.rapidapi.com' : $this->baseUrl)
+        ->timeout(10)->connectTimeout(5)->asJson()->acceptJson()
+        ->withHeaders(['X-Api-Key' => $apiKey])
+        ->post($endpoint, $params);
+      if ($response->failed()) {
+        $body = $response->json();
+        $error = is_array($body) ? ($body['error'] ?? null) : null;
+        Log::warning('OOPSpam request failed: HTTP ' . $response->status());
+        return ['response' => false, 'error' => $error ?? ('HTTP ' . $response->status())];
+      }
+      return [
+        'response' => true,
+        'results' => $response->json() ?? [],
+        'limits' => [
+          'limit' => (int) $response->header('X-RateLimit-Limit'),
+          'remaining' => (int) $response->header('X-RateLimit-Remaining'),
+        ],
+      ];
+    } catch (ConnectionException $e) {
+      Log::warning('OOPSpam request failed: ' . $e->getMessage());
+      return ['response' => false, 'error' => $e->getMessage()];
+    } catch (\Throwable $e) {
+      return ['response' => false, 'error' => $e->getMessage()];
+    }
+  }
+  
+  private function normaliseIp(string $ip): string {
+    $ip = trim($ip);
+    $binary = @inet_pton($ip);
+    if ($binary === false) {
+      return $ip;
+    }
+    if (strlen($binary) === 16 && str_starts_with($binary, str_repeat("\0", 10) . "\xff\xff")) {
+      $binary = substr($binary, 12);
+    }
+    return (string) inet_ntop($binary);
+  }
+
+  private function settings(): SettingsModel {
+    return OOPSpam::getInstance()->getSettings();
+  }
 
   public function checkSpam(array $params, string $type = '', bool $test = false): array|bool {
     $settings = $this->settings();
@@ -118,62 +175,6 @@ class AntiSpamService {
       return true;
     }
     return isset($results['Score']) && (int) $results['Score'] >= $settings->spamScore;
-  }
-
-  private function conclude(string $endpoint, array $data, array $results, string $type, bool $test, bool $pass): array|bool {
-    if ($this->settings()->enableLogs) {
-      OOPSpam::getInstance()->logs->recordLog($endpoint, $data, $results, $type);
-    }
-    return $test ? ['data' => $data, 'results' => $results] : $pass;
-  }
-
-  private function sendRequest(array $params, string $endpoint): array {
-    $settings = $this->settings();
-    try {
-      $apiKey = (string) Env::parse($settings->apiKey);
-      if ($apiKey === '') {
-        throw new \Exception('API Key is not set. Please set your API key in the plugin settings.');
-      }
-      $response = Http::baseUrl($settings->apiService === 'rapidapi' ? 'https://oopspam.p.rapidapi.com' : $this->baseUrl)
-        ->timeout(10)->connectTimeout(5)->asJson()->acceptJson()
-        ->withHeaders(['X-Api-Key' => $apiKey])
-        ->post($endpoint, $params);
-      if ($response->failed()) {
-        $body = $response->json();
-        $error = is_array($body) ? ($body['error'] ?? null) : null;
-        Log::warning('OOPSpam request failed: HTTP ' . $response->status());
-        return ['response' => false, 'error' => $error ?? ('HTTP ' . $response->status())];
-      }
-      return [
-        'response' => true,
-        'results' => $response->json() ?? [],
-        'limits' => [
-          'limit' => (int) $response->header('X-RateLimit-Limit'),
-          'remaining' => (int) $response->header('X-RateLimit-Remaining'),
-        ],
-      ];
-    } catch (ConnectionException $e) {
-      Log::warning('OOPSpam request failed: ' . $e->getMessage());
-      return ['response' => false, 'error' => $e->getMessage()];
-    } catch (\Throwable $e) {
-      return ['response' => false, 'error' => $e->getMessage()];
-    }
-  }
-  
-  private function normaliseIp(string $ip): string {
-    $ip = trim($ip);
-    $binary = @inet_pton($ip);
-    if ($binary === false) {
-      return $ip;
-    }
-    if (strlen($binary) === 16 && str_starts_with($binary, str_repeat("\0", 10) . "\xff\xff")) {
-      $binary = substr($binary, 12);
-    }
-    return (string) inet_ntop($binary);
-  }
-
-  private function settings(): SettingsModel {
-    return OOPSpam::getInstance()->getSettings();
   }
 
 }

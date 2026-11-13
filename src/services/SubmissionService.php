@@ -1,6 +1,7 @@
 <?php
 namespace cloudgrayau\oopspam\services;
 
+use cloudgrayau\oopspam\helpers\Writes;
 use cloudgrayau\oopspam\OOPSpam;
 use cloudgrayau\oopspam\records\SubmissionRecord;
 
@@ -10,6 +11,20 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class SubmissionService {
+
+  private function whereIp(Builder $query, string $binary): void {
+    if (DB::connection()->getDriverName() === 'pgsql') {
+      $query->whereRaw("ipaddress = decode(?, 'hex')", [bin2hex($binary)]);
+    } else {
+      $query->where('ipaddress', $binary);
+    }
+  }
+
+  private static function binary(string $ip): ?string {
+    $ip = trim($ip);
+    $binary = $ip === '' ? false : @inet_pton($ip);
+    return $binary === false ? null : $binary;
+  }
 
   public function recordSubmission(string $ipaddress): void {
     try {
@@ -24,7 +39,7 @@ class SubmissionService {
       $value = DB::connection()->getDriverName() === 'pgsql'
         ? DB::raw("decode('" . bin2hex($binary) . "', 'hex')")
         : $binary;
-      SubmissionRecord::query()->create(['ipaddress' => $value]);
+      Writes::query(SubmissionRecord::class)->create(['ipaddress' => $value]);
     } catch (\Throwable $e) {
       Log::warning('OOPSpam could not record a submission: ' . $e->getMessage());
     }
@@ -51,20 +66,6 @@ class SubmissionService {
 
   public function gcSubmissions(): void {
     SubmissionRecord::query()->where('dateCreated', '<', Query::prepareDateForDb(now()->subHour()))->delete();
-  }
-
-  private function whereIp(Builder $query, string $binary): void {
-    if (DB::connection()->getDriverName() === 'pgsql') {
-      $query->whereRaw("ipaddress = decode(?, 'hex')", [bin2hex($binary)]);
-    } else {
-      $query->where('ipaddress', $binary);
-    }
-  }
-
-  private static function binary(string $ip): ?string {
-    $ip = trim($ip);
-    $binary = $ip === '' ? false : @inet_pton($ip);
-    return $binary === false ? null : $binary;
   }
 
 }

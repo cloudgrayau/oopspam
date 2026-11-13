@@ -3,12 +3,15 @@ namespace cloudgrayau\oopspam;
 
 use cloudgrayau\oopspam\console\GcCommand;
 use cloudgrayau\oopspam\helpers\SettingsHelper;
+use cloudgrayau\oopspam\integrations\UserRegistrationIntegration;
 use cloudgrayau\oopspam\models\SettingsModel;
 use cloudgrayau\oopspam\requests\SettingsRequest;
 use cloudgrayau\oopspam\services\{AntiSpamService, LogsService, SubmissionService};
+use cloudgrayau\oopspam\widgets\OOPSpamWidget;
 use cloudgrayau\utils\UtilityHelper;
 
 use CraftCms\Cms\Cp\Data\NavItem;
+use CraftCms\Cms\Edition;
 use CraftCms\Cms\Cp\SelectOptions;
 use CraftCms\Cms\Ui\{Ui, UiContext};
 use CraftCms\Cms\Ui\Controls\{Choice, Lightswitch, Number, Range, Table, Text, Textarea};
@@ -24,6 +27,10 @@ use function CraftCms\Cms\{cp_url, currentUser, t};
 class OOPSpam extends Plugin {
   
   protected array $commands = [GcCommand::class];
+  protected array $widgets = [OOPSpamWidget::class];
+
+  private bool $wasLogging = true;
+  private bool $wasLimiting = false;
 
   public string $schemaVersion = '2.0.0';
   public bool $hasCpSettings = true;
@@ -32,9 +39,58 @@ class OOPSpam extends Plugin {
   public AntiSpamService $antiSpam { get => $this->antiSpam ??= new AntiSpamService; }
   public LogsService $logs { get => $this->logs ??= new LogsService; }
   public SubmissionService $submissions { get => $this->submissions ??= new SubmissionService; }
-  
-  private bool $wasLogging = true;
-  private bool $wasLimiting = false;
+
+  protected function schedule(Schedule $schedule): void {
+    $schedule->command('oopspam:gc')->everySixHours()->withoutOverlapping();
+  }
+
+  #[\Override]
+  protected static function createSettings(): PluginSettings {
+    return new SettingsModel();
+  }
+
+  private function numeric(UiContext $context, string $key, int $saved): int {
+    $value = $this->current($context, $key, $saved);
+    return (is_numeric($value) && (int) $value > 0) ? (int) $value : $saved;
+  }
+
+  private function pluginEnabled(string $handle): bool {
+    return app(Plugins::class)->isPluginEnabled($handle);
+  }
+
+  private function registerIntegrations(SettingsModel $s): void {
+    if (!$s->apiKey) {
+      return;
+    }
+    $integrations = [];
+    if ($s->enableUserRegistration && Edition::isAtLeast(Edition::Team)) { // Solo only has one user account
+      $integrations[] = new UserRegistrationIntegration;
+    }
+    // Form plugins: e.g. `contact-form` => integrations\ContactFormIntegration, once its class exists
+    $forms = SettingsHelper::getIntegrations()['forms'];
+    foreach ($s->integrations as $handle) {
+      $class = 'cloudgrayau\\oopspam\\integrations\\' . str_replace('-', '', ucwords((string) $handle, '-')) . 'Integration';
+      if (!isset($forms[$handle]) || !class_exists($class) || !$this->pluginEnabled($handle)) {
+        continue;
+      }
+      $minimum = $forms[$handle]['minimum'] ?? null;
+      if ($minimum !== null && version_compare((string) app(Plugins::class)->getPlugin($handle)?->version, $minimum, '<')) {
+        continue;
+      }
+      $integrations[] = new $class;
+    }
+    foreach ($integrations as $integration) {
+      $integration->register();
+    }
+  }
+
+  private function current(UiContext $context, string $key, mixed $saved): mixed {
+    $old = old("settings.$key"); // input flashed by a save that failed validation
+    if ($old !== null) {
+      return $old;
+    }
+    return $context->values['settings'][$key] ?? $context->values[$key] ?? $saved;
+  }
 
   public function boot(): void {
     $s = $this->getSettings();
@@ -52,6 +108,7 @@ class OOPSpam extends Plugin {
         $this->submissions->clearSubmissions();
       }
     });
+    $this->registerIntegrations($s);
   }
 
   public function getCpNavItem(): NavItem|array|null {
@@ -73,16 +130,7 @@ class OOPSpam extends Plugin {
     }
     return $item;
   }
-  
-  protected function schedule(Schedule $schedule): void {
-    $schedule->command('oopspam:gc')->everySixHours()->withoutOverlapping();
-  }
 
-  #[\Override]
-  protected static function createSettings(): PluginSettings {
-    return new SettingsModel();
-  }
-  
   public function getSettingsRequestClass(): ?string {
     return SettingsRequest::class;
   }
@@ -230,24 +278,7 @@ class OOPSpam extends Plugin {
       ]),
     ]);
   }
-  
-  private function numeric(UiContext $context, string $key, int $saved): int {
-    $value = $this->current($context, $key, $saved);
-    return (is_numeric($value) && (int) $value > 0) ? (int) $value : $saved;
-  }
 
-  private function pluginEnabled(string $handle): bool {
-    return app(Plugins::class)->isPluginEnabled($handle);
-  }
-
-  private function current(UiContext $context, string $key, mixed $saved): mixed {
-    $old = old("settings.$key"); // input flashed by a save that failed validation
-    if ($old !== null) {
-      return $old;
-    }
-    return $context->values['settings'][$key] ?? $context->values[$key] ?? $saved;
-  }
-  
   public static function checkSpam(array $params, string $type = ''): bool {
     $plugin = self::getInstance();
     return $plugin->getSettings()->apiKey ? $plugin->antiSpam->checkSpam($params, $type) : true;

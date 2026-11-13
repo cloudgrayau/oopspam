@@ -1,6 +1,7 @@
 <?php
 namespace cloudgrayau\oopspam\services;
 
+use cloudgrayau\oopspam\helpers\Writes;
 use cloudgrayau\oopspam\OOPSpam;
 use cloudgrayau\oopspam\records\{LogRecord, UsageRecord};
 
@@ -13,10 +14,17 @@ use function CraftCms\Cms\cp_url;
 
 class LogsService {
 
+  /** The score lives inside the JSON response, and logs without one (Failed) count as -1. */
+  private function scoreSql(): string {
+    return DB::connection()->getDriverName() === 'pgsql'
+      ? "COALESCE(CAST(response::json->>'Score' AS INTEGER), -1)"
+      : "COALESCE(CAST(JSON_UNQUOTE(JSON_EXTRACT(response, '$.Score')) AS SIGNED), -1)";
+  }
+
   public function recordLog(string $endpoint, array $params, array $results, string $type = ''): void {
     try {
       $flags = JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE;
-      LogRecord::query()->create([
+      Writes::query(LogRecord::class)->create([
         'endpoint' => $endpoint,
         'params' => json_encode($params, $flags),
         'response' => json_encode($results, $flags),
@@ -51,7 +59,7 @@ class LogsService {
 
   public function updateUsage(array $usage): void {
     try {
-      UsageRecord::query()->whereKey(1)->update([
+      Writes::query(UsageRecord::class)->whereKey(1)->update([
         'limit' => (int) ($usage['limit'] ?? 0),
         'remaining' => (int) ($usage['remaining'] ?? 0),
       ]);
@@ -74,6 +82,15 @@ class LogsService {
       $log->params = json_encode($params, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
     }
     return $log;
+  }
+
+  /** @return \Illuminate\Support\Collection<int, LogRecord> The newest logs, for the dashboard widget. */
+  public function recent(int $limit): \Illuminate\Support\Collection {
+    return LogRecord::query()
+      ->select(['id', 'response', 'isValid', 'isSpam', 'isReport', 'dateCreated'])
+      ->orderByDesc('dateCreated')->orderByDesc('id')
+      ->limit(max(1, $limit))
+      ->get();
   }
 
   public function paginate(int $perPage, string $status = '', array $sort = []): LengthAwarePaginator {
@@ -108,13 +125,6 @@ class LogsService {
         'status' => $status,
         'sort' => $field !== '' ? [['field' => $field, 'direction' => $direction]] : null,
       ]));
-  }
-  
-  /** The score lives inside the JSON response, and logs without one (Failed) count as -1. */
-  private function scoreSql(): string {
-    return DB::connection()->getDriverName() === 'pgsql'
-      ? "COALESCE(CAST(response::json->>'Score' AS INTEGER), -1)"
-      : "COALESCE(CAST(JSON_UNQUOTE(JSON_EXTRACT(response, '$.Score')) AS SIGNED), -1)";
   }
 
   /** @param list<int|string> $ids */
