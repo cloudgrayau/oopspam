@@ -38,20 +38,19 @@ The OOPSpam plugin also comes with optional rate limiting, which can be enabled 
 
 Protects form submissions from spam. The current form integrations are protected:
 
-**✓ Contact Form** (>= 3.0.0) - [https://plugins.craftcms.com/contact-form](https://plugins.craftcms.com/contact-form)  
-**✓ Easy Form** (>= 1.0.0) - [https://plugins.craftcms.com/easy-form](https://plugins.craftcms.com/easy-form)  
-**✓ Express Forms** (>= 2.0.0; no longer maintained) - [https://plugins.craftcms.com/express-forms](https://plugins.craftcms.com/express-forms)  
-**✓ Formable** (>= 1.0.0) - [https://plugins.craftcms.com/formable](https://plugins.craftcms.com/formable)  
-**✓ Formie** (>= 2.0.0) - [https://plugins.craftcms.com/formie](https://plugins.craftcms.com/formie)  
-**✓ Freeform** (>= 5.0.0) - [https://plugins.craftcms.com/freeform](https://plugins.craftcms.com/freeform)  
-**✓ Wheel Form** (>= 4.0.2) - [https://plugins.craftcms.com/wheelform](https://plugins.craftcms.com/wheelform)  
+**✓ Contact Form** (>= 4.0.0) - [https://plugins.craftcms.com/contact-form](https://plugins.craftcms.com/contact-form)  
+**✓ Easy Form** (>= 2.0.0) - [https://plugins.craftcms.com/easy-form](https://plugins.craftcms.com/easy-form)  
+**✓ Formable** (>= 2.0.0) - [https://plugins.craftcms.com/formable](https://plugins.craftcms.com/formable)  
+**✓ Formie** (>= 3.0.0) - [https://plugins.craftcms.com/formie](https://plugins.craftcms.com/formie)  
+**✓ Freeform** (>= 6.0.0) - [https://plugins.craftcms.com/freeform](https://plugins.craftcms.com/freeform)  
+**✓ Wheel Form** (>= 5.0.0) - [https://plugins.craftcms.com/wheelform](https://plugins.craftcms.com/wheelform)  
 **✓ Custom Forms** - requires custom programming
 
 ### Comment Protection
 
 Protects comment submissions from spam. The current comment integrations are protected:
 
-**✓ Comments** (>= 2.0.0) - [https://plugins.craftcms.com/comments](https://plugins.craftcms.com/comments)  
+**✓ Comments** (>= 3.0.0) - [https://plugins.craftcms.com/comments](https://plugins.craftcms.com/comments)  
 **✓ Custom Comments** - requires custom programming
     
 ## Overriding Settings
