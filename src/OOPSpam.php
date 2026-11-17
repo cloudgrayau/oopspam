@@ -16,9 +16,10 @@ use CraftCms\Cms\Cp\SelectOptions;
 use CraftCms\Cms\Ui\{Ui, UiContext};
 use CraftCms\Cms\Ui\Controls\{Choice, Lightswitch, Number, Range, Table, Text, Textarea};
 use CraftCms\Cms\Ui\Enums\ChoicePresentation;
-use CraftCms\Cms\Ui\Nodes\{Callout, Field, Group, MarkdownContent, Tab};
+use CraftCms\Cms\Ui\Nodes\{Callout, Field, Group, Tab};
 use CraftCms\Cms\Plugin\Events\PluginSettingsSaved;
-use CraftCms\Cms\Plugin\{Plugin, PluginSettings, Plugins};
+use CraftCms\Cms\Support\Html;
+use CraftCms\Cms\Plugin\{Plugin, PluginSettings};
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Event;
 
@@ -54,10 +55,6 @@ class OOPSpam extends Plugin {
     return (is_numeric($value) && (int) $value > 0) ? (int) $value : $saved;
   }
 
-  private function pluginEnabled(string $handle): bool {
-    return app(Plugins::class)->isPluginEnabled($handle);
-  }
-
   private function registerIntegrations(SettingsModel $s): void {
     if (!$s->apiKey) {
       return;
@@ -66,15 +63,11 @@ class OOPSpam extends Plugin {
     if ($s->enableUserRegistration && Edition::isAtLeast(Edition::Team)) { // Solo only has one user account
       $integrations[] = new UserRegistrationIntegration;
     }
-    // Form plugins: e.g. `contact-form` => integrations\ContactFormIntegration, once its class exists
-    $forms = SettingsHelper::getIntegrations()['forms'];
+    // Form and comment plugins: e.g. `contact-form` => integrations\ContactFormIntegration, once its class exists
+    $list = SettingsHelper::getPluginIntegrations();
     foreach ($s->integrations as $handle) {
       $class = 'cloudgrayau\\oopspam\\integrations\\' . str_replace('-', '', ucwords((string) $handle, '-')) . 'Integration';
-      if (!isset($forms[$handle]) || !class_exists($class) || !$this->pluginEnabled($handle)) {
-        continue;
-      }
-      $minimum = $forms[$handle]['minimum'] ?? null;
-      if ($minimum !== null && version_compare((string) app(Plugins::class)->getPlugin($handle)?->version, $minimum, '<')) {
+      if (!isset($list[$handle]) || !class_exists($class) || SettingsHelper::getIntegrationStatus($handle, $list[$handle]) !== 'available') {
         continue;
       }
       $integrations[] = new $class;
@@ -90,6 +83,77 @@ class OOPSpam extends Plugin {
       return $old;
     }
     return $context->values['settings'][$key] ?? $context->values[$key] ?? $saved;
+  }
+
+  /** One integration's name cell: its icon, linked title and status badge. */
+  private function integrationCell(string $key, array $integration, string $status): string {
+    [$label, $tone] = match ($status) {
+      'available' => [t('Available', category: 'oopspam'), 'success'],
+      'coming-soon' => [t('Coming soon', category: 'oopspam'), 'neutral'],
+      'edition' => [t('Requires Craft Team', category: 'oopspam'), 'neutral'],
+      'not-installed' => [t('Not installed', category: 'oopspam'), 'neutral'],
+      'disabled' => [t('Plugin disabled', category: 'oopspam'), 'neutral'],
+      'unsupported' => [t('Unsupported version', category: 'oopspam'), 'warning'],
+      'not-enabled' => [t('Not enabled under Integrations', category: 'oopspam'), 'neutral'],
+    };
+    $badge = in_array($tone, ['success', 'warning'], true)
+      ? "color:var(--c-color-$tone-on-quiet);background:var(--c-color-$tone-fill-quiet);border-color:var(--c-color-$tone-border-quiet);"
+      : 'color:var(--light-text-color);border-color:var(--hairline-color);';
+    $dim = $status === 'available' ? '' : 'opacity:.55;';
+    $icon = SettingsHelper::getIntegrationIcon($key, $integration);
+    $img = $icon === '' ? '' : '<img src="' . $icon . '" alt="" width="28" height="28" style="display:block;flex:0 0 28px;width:28px;height:28px;object-fit:contain;' . ($dim ? 'filter:grayscale(1);' . $dim : '') . '">';
+    $url = Html::encode($integration['url']);
+    $link = '<small style="display:block;margin-top:2px;' . $dim . '"><a href="' . $url . '" target="_blank" rel="noopener noreferrer">' . $url . '</a></small>';
+    $note = isset($integration['note'])
+      ? '<small style="display:block;color:var(--light-text-color);' . $dim . '">' . Html::encode(t($integration['note'], category: 'oopspam')) . '</small>'
+      : '';
+    return '<span style="display:flex;align-items:center;gap:12px;">' . $img
+      . '<span style="min-width:0;"><span style="display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;">'
+      . '<strong style="' . $dim . '">' . Html::encode($integration['title']) . '</strong>'
+      . '<span style="display:inline-flex;align-items:center;border:1px solid;border-radius:4px;padding:0 6px;font-size:11px;line-height:1.6;white-space:nowrap;' . $badge . '">' . Html::encode($label) . '</span>'
+      . '</span>' . $link . $note . '</span></span>';
+  }
+
+  /** Whether an integration is on: as toggled in its table (when the form refreshes), otherwise `$saved`. */
+  private function integrationOn(UiContext $context, string $table, string $key, bool $saved): bool {
+    $rows = $this->current($context, $table, null);
+    if (is_array($rows) && is_array($rows[$key] ?? null) && array_key_exists('enabled', $rows[$key])) {
+      return filter_var($rows[$key]['enabled'], FILTER_VALIDATE_BOOLEAN);
+    }
+    return $saved;
+  }
+
+  /**
+   * A fixed table of integrations with a lightswitch each. Rows that can't be enabled are dimmed,
+   * and their switches are off and disabled; SettingsRequest keeps their saved values.
+   *
+   * @param array<string, array{0: array, 1: string, 2: bool}> $rows key => [integration, status, on]
+   */
+  private function integrationTable(string $name, array $rows): Table {
+    // Enabled, then available but off, then unavailable; each alphabetically. Rows stay put while toggling, until the page reloads.
+    $tier = fn (array $row) => $row[1] !== 'available' ? 2 : ($row[2] ? 0 : 1);
+    $sortKey = fn (string $key) => [$tier($rows[$key]), mb_strtolower($rows[$key][0]['title'])];
+    uksort($rows, fn ($a, $b) => $sortKey($a) <=> $sortKey($b));
+    $value = [];
+    foreach ($rows as $key => [$integration, $status, $on]) {
+      $available = $status === 'available';
+      $minimum = isset($integration['version']) ? t($integration['version'], category: 'oopspam') : '—';
+      $value[$key] = [
+        'integration' => $this->integrationCell($key, $integration, $status),
+        'minimum' => '<span style="white-space:nowrap;' . ($available ? '' : 'opacity:.55;') . '">' . Html::encode($minimum) . '</span>',
+        'enabled' => $available && $on,
+        'available' => $available ? '1' : '',
+      ];
+    }
+    return Table::make($name)
+      ->keyed()
+      ->columns([
+        'integration' => ['type' => 'html', 'heading' => t('Integration', category: 'oopspam')],
+        'minimum' => ['type' => 'html', 'heading' => t('Minimum Version', category: 'oopspam')],
+        'enabled' => ['type' => 'lightswitch', 'heading' => t('Enabled', category: 'oopspam'), 'class' => 'thin'],
+        'available' => ['type' => 'hidden', 'toggle' => ['enabled']], // disables the switch when empty
+      ])
+      ->value($value);
   }
 
   public function boot(): void {
@@ -151,21 +215,34 @@ class OOPSpam extends Plugin {
     $logsOn = $flag('enableLogs', $s->enableLogs);
     $limitOn = $flag('enableLimiting', $s->enableLimiting);
     $contextOn = $flag('enableContextual', $s->enableContextual);
-    $enabled = (array) $this->current($context, 'integrations', $s->integrations);
+    $warnings = fn (string ...$settings): ?string => implode(' ', array_filter(array_map($w, $settings))) ?: null;
 
-    // Form integrations that are both supported and installed
-    $forms = [];
-    foreach (SettingsHelper::getIntegrations()['forms'] as $key => $obj) {
-      if ($this->pluginEnabled($key)) {
-        $forms[$key] = $obj;
+    // Integrations: Craft CMS ones are stored in their own boolean settings, plugins in the `integrations` list
+    $saved = (array) $this->current($context, 'integrations', $s->integrations);
+    $integrationRows = [];
+    $enabledPlugins = [];
+    foreach (SettingsHelper::getIntegrations() as $group => $list) {
+      foreach ($list as $key => $obj) {
+        $status = SettingsHelper::getIntegrationStatus($key, $obj);
+        $on = $this->integrationOn($context, 'integrationTable', $key, isset($obj['setting'])
+          ? $flag($obj['setting'], (bool) $s->{$obj['setting']})
+          : in_array($key, $saved, true));
+        $integrationRows[$key] = [$obj, $status, $on];
+        if ($group !== 'craft' && $status === 'available' && $on) {
+          $enabledPlugins[] = $key;
+        }
       }
     }
-    $integrationOptions = fn (array $list) => array_values(array_map(fn ($key, $obj) => [
-      'value' => $key,
-      'label' => $obj['title'],
-      'labelHtml' => '<strong>' . $obj['title'] . '</strong> <small>' . ($obj['information'] ?? '') . '</small><small style="display:block;">' . $obj['url'] . '</small>',
-    ], array_keys($list), $list));
-    
+    $saved = (array) $this->current($context, 'contextual', $s->contextual);
+    $contextualRows = [];
+    foreach (SettingsHelper::getPluginIntegrations() as $key => $obj) {
+      $status = SettingsHelper::getIntegrationStatus($key, $obj);
+      if ($status === 'available' && !in_array($key, $enabledPlugins, true)) {
+        $status = 'not-enabled';
+      }
+      $contextualRows[$key] = [$obj, $status, $this->integrationOn($context, 'contextualTable', $key, in_array($key, $saved, true))];
+    }
+
     $perPageOptions = [10, 25, 50, 100, 250];
     $perPage = $this->numeric($context, 'logsPerPage', $s->logsPerPage);
     if (!in_array($perPage, $perPageOptions, true)) { // a value saved by an older version stays selectable
@@ -236,37 +313,25 @@ class OOPSpam extends Plugin {
         ] : []),
         UtilityHelper::footer('oopspam-footer-rates'),
       ]),
-      Tab::make('integrations', t('Integrations', category: 'oopspam'), array_values(array_filter([
-        MarkdownContent::make('oopspam-craft-heading', '## Craft CMS')->displayInPane(false),
-        Field::make(t('Protect User Registrations', category: 'oopspam'), Lightswitch::make('enableUserRegistration'))
-          ->instructions(t('Protect user registrations from spam.', category: 'oopspam'))->warning($w('enableUserRegistration')),
-        $this->pluginEnabled('commerce') ? Field::make(t('Protect Commerce', category: 'oopspam'), Lightswitch::make('enableCommerce'))
-          ->instructions(t('Protect commerce orders from spam.', category: 'oopspam'))->warning($w('enableCommerce')) : null,
-        $this->pluginEnabled('commerce') ? Field::make(t('Protect Subscriptions', category: 'oopspam'), Lightswitch::make('enableSubscriptions'))
-          ->instructions(t('Protect commerce subscriptions from spam.', category: 'oopspam'))->warning($w('enableSubscriptions')) : null,
-        MarkdownContent::make('oopspam-forms-heading', '## Forms')->displayInPane(false),
-        $forms
-          ? Field::make(t('Protected form plugins', category: 'oopspam'), Choice::make('integrations')->multiple()->options($integrationOptions($forms)))
-              ->instructions(t('The current form plugins/systems are protected. Custom forms require custom programming.', category: 'oopspam'))
-              ->warning($w('integrations'))
-          : Callout::make('oopspam-no-forms', t('No supported form plugins are installed. Custom forms require custom programming.', category: 'oopspam')),
+      Tab::make('integrations', t('Integrations', category: 'oopspam'), [
+        Field::make(t('Protected Integrations', category: 'oopspam'), $this->integrationTable('integrationTable', $integrationRows))
+          ->instructions(t('Choose which parts of Craft CMS and which plugins are protected from spam. Custom forms require custom programming.', category: 'oopspam'))
+          ->warning($warnings('enableUserRegistration', 'enableCommerce', 'enableSubscriptions', 'integrations')),
         UtilityHelper::footer('oopspam-footer-integrations'),
-      ]))),
+      ]),
       Tab::make('contextual', t('Contextual (Experimental)', category: 'oopspam'), [
         Callout::make('oopspam-contextual-note', t('Use this feature **only** if your forms include a required text field. It relies on message content to function properly.', category: 'oopspam'))->variant('warning'),
         Field::make(t('Enable Contextual Detection', category: 'oopspam'), Lightswitch::make('enableContextual')->reactive())
           ->instructions(t('Improve spam accuracy by analysing form submissions based on your website’s purpose.', category: 'oopspam'))
           ->warning($w('enableContextual')),
-        Group::make('contextual-fields', $contextOn ? array_values(array_filter([
+        Group::make('contextual-fields', $contextOn ? [
           Field::make(t('Contextual Content', category: 'oopspam'), Textarea::make('contextualContent')->rows(5))
             ->instructions(t('Briefly describe your website’s purpose or business (2-3 sentences maximum).', category: 'oopspam'))
             ->warning($w('contextualContent')),
-          ($list = array_intersect_key($forms, array_flip($enabled)))
-            ? Field::make(t('Contextual Integrations', category: 'oopspam'), Choice::make('contextual')->multiple()->options($integrationOptions($list)))
-                ->instructions(t('Customise which enabled integrations contextual detection is enabled for.', category: 'oopspam'))
-                ->warning($w('contextual'))
-            : null,
-        ])) : [])->dependsOn('enableContextual'),
+          Field::make(t('Contextual Integrations', category: 'oopspam'), $this->integrationTable('contextualTable', $contextualRows))
+            ->instructions(t('Customise which integrations use contextual detection. An integration needs enabling under Integrations first.', category: 'oopspam'))
+            ->warning($w('contextual')),
+        ] : [])->dependsOn('enableContextual'),
         UtilityHelper::footer('oopspam-footer-contextual'),
       ]),
       Tab::make('manual', t('Manual', category: 'oopspam'), [

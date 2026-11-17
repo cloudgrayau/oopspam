@@ -1,6 +1,9 @@
 <?php
 namespace cloudgrayau\oopspam\helpers;
 
+use CraftCms\Cms\Edition;
+use CraftCms\Cms\Plugin\Plugins;
+
 class SettingsHelper {
   
   private static array $countryList = [
@@ -319,18 +322,91 @@ class SettingsHelper {
     'rapidapi' => 'RapidAPI' 
   ];
   
+  /**
+   * Every integration, grouped as the settings page shows them. Keys:
+   * - `title`: the name; `url`: the link shown under it; `icon`: an SVG in the root `resources/integrations` folder (defaults to the key)
+   * - `version`: the minimum shown in the settings; `minimum`: the version actually enforced
+   * - `plugin`: the plugin it needs (defaults to the key for `forms` and `comments`; none for Craft itself)
+   * - `setting`: a boolean setting it's stored in, instead of the `integrations` list
+   * - `edition`: the Craft edition it needs; `note`: a short line under the title
+   * - `comingSoon`: not ported to Craft 6 yet, so it's shown dimmed and can't be enabled
+   */
   private static $integrationList = [
+    'craft' => [
+      'user-registration' => [
+        'title' => 'User Registration',
+        'url' => 'https://craftcms.com/',
+        'icon' => 'craft',
+        'version' => 'Team edition',
+        'edition' => 'team',
+        'setting' => 'enableUserRegistration',
+      ],
+      'commerce' => [
+        'title' => 'Commerce Orders',
+        'url' => 'https://plugins.craftcms.com/commerce',
+        'plugin' => 'commerce',
+        'setting' => 'enableCommerce',
+        'comingSoon' => true,
+      ],
+      'subscriptions' => [
+        'title' => 'Commerce Subscriptions',
+        'url' => 'https://plugins.craftcms.com/commerce',
+        'icon' => 'commerce',
+        'plugin' => 'commerce',
+        'setting' => 'enableSubscriptions',
+        'comingSoon' => true,
+      ],
+    ],
     'forms' => [
+      'contact-form' => [
+        'title' => 'Contact Form',
+        'url' => 'https://plugins.craftcms.com/contact-form',
+        'version' => '4.0.0',
+        'minimum' => '4.0.0',
+      ],
+      'easy-form' => [
+        'title' => 'Easy Form',
+        'url' => 'https://plugins.craftcms.com/easy-form',
+        'comingSoon' => true,
+      ],
+      'express-forms' => [
+        'title' => 'Express Forms',
+        'url' => 'https://plugins.craftcms.com/express-forms',
+        'note' => 'No longer maintained',
+        'comingSoon' => true,
+      ],
+      'formable' => [
+        'title' => 'Formable',
+        'url' => 'https://plugins.craftcms.com/formable',
+        'comingSoon' => true,
+      ],
+      'formie' => [
+        'title' => 'Formie',
+        'url' => 'https://plugins.craftcms.com/formie',
+        'comingSoon' => true,
+      ],
       'freeform' => [
         'title' => 'Freeform',
-        'information' => '(&gt;= 6.0.0)',
         'url' => 'https://plugins.craftcms.com/freeform',
-        'minimum' => '6.0.0-beta'
+        'version' => '6.0.0',
+        'minimum' => '6.0.0-beta',
+      ],
+      'wheelform' => [
+        'title' => 'Wheel Form',
+        'url' => 'https://plugins.craftcms.com/wheelform',
+        'comingSoon' => true,
       ],
     ],
     'comments' => [
-    ]
+      'comments' => [
+        'title' => 'Comments',
+        'url' => 'https://plugins.craftcms.com/comments',
+        'comingSoon' => true,
+      ],
+    ],
   ];
+
+  private static array $iconUris = [];
   
   // Public Methods
   // =========================================================================
@@ -349,6 +425,50 @@ class SettingsHelper {
   
   public static function getIntegrations(): array {
     return self::$integrationList;
+  }
+
+  /** Form and comment integrations (the ones stored in the `integrations` list), keyed by plugin handle. */
+  public static function getPluginIntegrations(): array {
+    return self::$integrationList['forms'] + self::$integrationList['comments'];
+  }
+
+  /**
+   * `available`, or why the integration can't be enabled: `coming-soon`, `edition`, `not-installed`,
+   * `disabled` (the plugin is installed but disabled) or `unsupported` (below the minimum version).
+   */
+  public static function getIntegrationStatus(string $key, array $integration): string {
+    if (!empty($integration['comingSoon'])) {
+      return 'coming-soon';
+    }
+    if (($integration['edition'] ?? null) === 'team' && !Edition::isAtLeast(Edition::Team)) {
+      return 'edition';
+    }
+    $handle = $integration['plugin'] ?? (isset($integration['setting']) ? null : $key);
+    if ($handle === null) {
+      return 'available';
+    }
+    $plugins = app(Plugins::class);
+    if (!$plugins->isPluginInstalled($handle)) {
+      return 'not-installed';
+    }
+    if (!$plugins->isPluginEnabled($handle)) {
+      return 'disabled';
+    }
+    $minimum = $integration['minimum'] ?? null;
+    if ($minimum !== null && version_compare((string) $plugins->getPlugin($handle)?->version, $minimum, '<')) {
+      return 'unsupported';
+    }
+    return 'available';
+  }
+
+  /** The integration's icon as a data URI, so it doesn't need publishing as an asset. */
+  public static function getIntegrationIcon(string $key, array $integration): string {
+    $name = $integration['icon'] ?? $key;
+    if (!isset(self::$iconUris[$name])) {
+      $path = dirname(__DIR__, 2) . '/resources/integrations/' . basename($name) . '.svg';
+      self::$iconUris[$name] = is_file($path) ? 'data:image/svg+xml;base64,' . base64_encode((string) file_get_contents($path)) : '';
+    }
+    return self::$iconUris[$name];
   }
   
   public static function mapSettings(array $n): string {
