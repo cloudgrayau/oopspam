@@ -325,7 +325,7 @@ class SettingsHelper {
         'title' => 'Freeform',
         'information' => '(&gt;= 6.0.0)',
         'url' => 'https://plugins.craftcms.com/freeform',
-        'minimum' => '6.0.0'
+        'minimum' => '6.0.0-beta'
       ],
     ],
     'comments' => [

@@ -94,7 +94,7 @@ class LogsController {
       ->title(t('Logs', category: 'oopspam'))
       ->selectedSubnavItem('logs')
       ->crumbs([new ActionItem()->label($name)->href(cp_url('oopspam')), new ActionItem()->label(t('Logs', category: 'oopspam'))])
-      ->ui(Ui::make(array_values(array_filter([UsageHelper::node('oopspam-usage-logs'), $menu, $table]))), new UiContext());
+      ->ui(Ui::make(array_values(array_filter([UsageHelper::node('oopspam-usage-logs'), $menu, $table, UtilityHelper::footer('oopspam-footer-log')]))), new UiContext());
   }
   
   public function show(int $id): CpScreenResponse|RedirectResponse {

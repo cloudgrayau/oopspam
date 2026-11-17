@@ -6,7 +6,7 @@ A privacy friendly anti-spam utility to safeguard your website and customers.
 
 ## Requirements
 
-This plugin requires Craft CMS 4.0.0 or later.
+This plugin requires Craft CMS 6.0.0 or later.
 
 ## Installation
 

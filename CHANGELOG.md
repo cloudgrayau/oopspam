@@ -2,10 +2,16 @@
 
 Release notes for the OOPSpam Craft CMS plugin.
 
-## 2.0.0-beta.1 - 2026-11-11
+## 2.0.0-beta.1 - 2026-11-13
+### Added
+- Added the `oopspam:gc` console command, which deletes expired logs and rate-limit records. It also runs every six hours through Craft’s scheduler
+
 ### Changed
-- OOPSpam now requires Craft CMS 6.0 and PHP 8.5, and no longer needs the craftcms/yii2-adapter package.
-- OOPSpam now use Craft 6’s field settings and table UIs.
+- OOPSpam now requires Craft CMS 6.0 and PHP 8.5
+- The settings, logs, domain reputation and test screens have been rebuilt with Craft 6’s control panel UI
+- The config file is now published to `config/craft/oopspam.php`
+- User registration protection now only checks front-end registrations, and shows an error on the email field when a registration is flagged as spam
+- The `logsPerPage` setting is now limited to 250
 
 ## 1.7.3 - 2026-10-26
 ### Fixed
