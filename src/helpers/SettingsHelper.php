@@ -369,12 +369,6 @@ class SettingsHelper {
         'url' => 'https://plugins.craftcms.com/easy-form',
         'comingSoon' => true,
       ],
-      'express-forms' => [
-        'title' => 'Express Forms',
-        'url' => 'https://plugins.craftcms.com/express-forms',
-        'note' => 'No longer maintained',
-        'comingSoon' => true,
-      ],
       'formable' => [
         'title' => 'Formable',
         'url' => 'https://plugins.craftcms.com/formable',
