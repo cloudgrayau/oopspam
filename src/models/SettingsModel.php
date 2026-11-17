@@ -37,13 +37,12 @@ class SettingsModel extends PluginSettings {
   /* INTEGRATIONS */
   public bool $enableUserRegistration = true;
   public bool $enableCommerce = true;
-  public bool $enableSubscriptions = false;
-  public array $integrations = ['formie', 'freeform', 'contact-form', 'wheelform', 'express-forms', 'comments'];
+  public array $integrations = ['contact-form', 'easy-form', 'formable', 'formie', 'freeform', 'wheelform', 'comments'];
 
   /* CONTEXTUAL */
   public bool $enableContextual = false;
   public string $contextualContent = '';
-  public array $contextual = ['formie', 'freeform', 'contact-form', 'wheelform', 'express-forms', 'comments'];
+  public array $contextual = ['contact-form', 'easy-form', 'formable', 'formie', 'freeform', 'wheelform', 'comments'];
 
   /* MANUAL */
   public array $blockedEmails = [];
@@ -56,7 +55,7 @@ class SettingsModel extends PluginSettings {
 
   public function getRules(): array {
     $booleans = ['enableLogs', 'blockContentSpam', 'blockTempEmail', 'blockVPN', 'blockDC', 'checkForLength',
-      'logIt', 'urlFriendly', 'enableLimiting', 'enableUserRegistration', 'enableCommerce', 'enableSubscriptions',
+      'logIt', 'urlFriendly', 'enableLimiting', 'enableUserRegistration', 'enableCommerce',
       'enableContextual'];
     $arrays = ['allowedLanguages', 'allowedCountries', 'blockedCountries', 'integrations', 'contextual',
       'blockedEmails', 'blockedIPs', 'allowedEmails', 'allowedIPs', 'forms'];

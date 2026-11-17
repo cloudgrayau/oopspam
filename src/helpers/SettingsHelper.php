@@ -348,14 +348,6 @@ class SettingsHelper {
         'setting' => 'enableCommerce',
         'comingSoon' => true,
       ],
-      'subscriptions' => [
-        'title' => 'Commerce Subscriptions',
-        'url' => 'https://plugins.craftcms.com/commerce',
-        'icon' => 'commerce',
-        'plugin' => 'commerce',
-        'setting' => 'enableSubscriptions',
-        'comingSoon' => true,
-      ],
     ],
     'forms' => [
       'contact-form' => [

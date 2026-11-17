@@ -316,7 +316,7 @@ class OOPSpam extends Plugin {
       Tab::make('integrations', t('Integrations', category: 'oopspam'), [
         Field::make(t('Protected Integrations', category: 'oopspam'), $this->integrationTable('integrationTable', $integrationRows))
           ->instructions(t('Choose which parts of Craft CMS and which plugins are protected from spam. Custom forms require custom programming.', category: 'oopspam'))
-          ->warning($warnings('enableUserRegistration', 'enableCommerce', 'enableSubscriptions', 'integrations')),
+          ->warning($warnings('enableUserRegistration', 'enableCommerce', 'integrations')),
         UtilityHelper::footer('oopspam-footer-integrations'),
       ]),
       Tab::make('contextual', t('Contextual (Experimental)', category: 'oopspam'), [

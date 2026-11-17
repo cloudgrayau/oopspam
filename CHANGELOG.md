@@ -10,8 +10,12 @@ Release notes for the OOPSpam Craft CMS plugin.
 - OOPSpam now requires Craft CMS 6.0 and PHP 8.5
 - The settings, logs, domain reputation and test screens have been rebuilt with Craft 6’s control panel UI
 - The config file is now published to `config/craft/oopspam.php`
+- Improved `Freeform` intergrations
 - User registration protection now only checks front-end registrations, and shows an error on the email field when a registration is flagged as spam
 - The `logsPerPage` setting is now limited to 250
+
+### Removed
+- Removed `enableSubscriptions` as this has been removed from the Craft Commerce core.
 
 ## 1.7.3 - 2026-10-26
 ### Fixed
