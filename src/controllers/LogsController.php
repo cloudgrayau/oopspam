@@ -126,7 +126,7 @@ class LogsController {
   
     $nodes = [
       LogStatus::node('log-status', $log),
-      TemplateContent::make('log-summary', $html),
+      TemplateContent::make('log-summary', $html)->trusted(), // values escaped; trusted so the text can be selected
     ];
     if ($reportable) {
       $nodes[] = Field::make(t($log->isSpam ? 'Report as not spam' : 'Report as spam', category: 'oopspam'), Lightswitch::make('isReport'))

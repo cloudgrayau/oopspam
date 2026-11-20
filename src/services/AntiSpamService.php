@@ -73,6 +73,12 @@ class AntiSpamService {
   }
 
   public function checkSpam(array $params, string $type = '', bool $test = false): array|bool {
+    $result = $this->evaluate($params, $type, $test);
+    $settings = $this->settings();
+    return (!$test && $settings->debugMode && $settings->enableLogs) ? true : $result; // debug mode: verdict is logged, never enforced
+  }
+
+  private function evaluate(array $params, string $type, bool $test): array|bool {
     $settings = $this->settings();
     $plugin = OOPSpam::getInstance();
     $content = $params['content'] ?? '';

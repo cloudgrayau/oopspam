@@ -13,6 +13,7 @@ class SettingsModel extends PluginSettings {
   public string $apiKey = '';
   public string $apiService = 'oopspam';
   public bool $enableLogs = true;
+  public bool $debugMode = false;
   public int $maxLogs = 30;
   public int $logsPerPage = 100;
   public string $pluginName = '';
@@ -54,7 +55,7 @@ class SettingsModel extends PluginSettings {
   public array $forms = [];
 
   public function getRules(): array {
-    $booleans = ['enableLogs', 'blockContentSpam', 'blockTempEmail', 'blockVPN', 'blockDC', 'checkForLength',
+    $booleans = ['enableLogs', 'debugMode', 'blockContentSpam', 'blockTempEmail', 'blockVPN', 'blockDC', 'checkForLength',
       'logIt', 'urlFriendly', 'enableLimiting', 'enableUserRegistration', 'enableCommerce',
       'enableContextual'];
     $arrays = ['allowedLanguages', 'allowedCountries', 'blockedCountries', 'integrations', 'contextual',

@@ -14,9 +14,9 @@ use CraftCms\Cms\Cp\Data\NavItem;
 use CraftCms\Cms\Edition;
 use CraftCms\Cms\Cp\SelectOptions;
 use CraftCms\Cms\Ui\{Ui, UiContext};
-use CraftCms\Cms\Ui\Controls\{Choice, Lightswitch, Number, Range, Table, Text, Textarea};
+use CraftCms\Cms\Ui\Controls\{Choice, Lightswitch, Number, Table, Text, Textarea};
 use CraftCms\Cms\Ui\Enums\ChoicePresentation;
-use CraftCms\Cms\Ui\Nodes\{Callout, Field, Group, Tab};
+use CraftCms\Cms\Ui\Nodes\{Callout, Field, Group, Tab, TemplateContent};
 use CraftCms\Cms\Plugin\Events\PluginSettingsSaved;
 use CraftCms\Cms\Support\Html;
 use CraftCms\Cms\Plugin\{Plugin, PluginSettings};
@@ -83,6 +83,58 @@ class OOPSpam extends Plugin {
       return $old;
     }
     return $context->values['settings'][$key] ?? $context->values[$key] ?? $saved;
+  }
+
+  /**
+   * The spam score as Freeform-style radio cards: Craft's own Choice control (so it saves like any other
+   * setting), drawn as cards by giving each option a placeholder thumbnail, then restyled so each whole
+   * card is bordered, with a small icon, title and description inside and a radio in the corner.
+   *
+   * @return list<\CraftCms\Cms\Ui\Contracts\Node>
+   */
+  private function scoreCards(int $score, ?string $warning): array {
+    $options = [];
+    foreach (SettingsHelper::getScores() as $value => $label) {
+      $options[] = [
+        'value' => (string) $value,
+        'label' => sprintf('%d – %s', $value, t($label, category: 'oopspam')),
+        'labelHtml' => '<span class="oopspam-score-heading"><span class="oopspam-score-icon">' . SettingsHelper::scoreIcon($value) . '</span>'
+          . '<span>' . $value . ' – ' . Html::encode(t($label, category: 'oopspam')) . '</span></span>'
+          . '<span class="oopspam-score-description">' . Html::encode(t(SettingsHelper::getScoreDescriptions()[$value], category: 'oopspam')) . '</span>'
+          . '<span class="oopspam-score-radio" aria-hidden="true"></span>'
+          . ($value === 3 ? '<span class="oopspam-score-badge">' . Html::encode(t('Recommended', category: 'oopspam')) . '</span>' : ''),
+        'thumbnail' => ['svg' => '<svg width="1" height="1" xmlns="http://www.w3.org/2000/svg"></svg>'],
+      ];
+    }
+    $group = 'craft-radio-group:has(input[name$="[spamScore]"])';
+    $card = "$group craft-radio[data-card]";
+    $style = <<<CSS
+      [data-ui-node="oopspam-score-style"] { display: none; }
+      $group { --c-radio-card-min-size: 220px; --c-radio-card-max-size: 260px; max-inline-size: 800px; padding-block-start: 8px; }
+      $card { box-sizing: border-box; display: block; align-self: stretch; margin: 0 10px 0 0; padding: 14px; text-align: start; color: var(--c-text-default); background: var(--c-surface-default); border: 1px solid var(--c-form-control-border-color); border-radius: 6px; }
+      $group:is([data-wrapped]) craft-radio[data-card] { margin: 0; }
+      $card::part(icon) { display: none; }
+      $card:not([checked]):not([disabled]):hover { border-color: var(--c-color-accent-border-normal); }
+      $card\[checked] { background: var(--c-color-accent-fill-quiet); border-color: var(--c-color-accent-border-normal); box-shadow: inset 0 0 0 1px var(--c-color-accent-border-normal); }
+      $card\[focused-visible] { outline: 2px solid var(--c-color-focus-outline); outline-offset: 3px; }
+      $card .oopspam-score-heading { display: flex; gap: 8px; align-items: center; min-height: 20px; padding-inline-end: 24px; font-size: 14px; font-weight: 600; line-height: 20px; color: var(--c-text-default); }
+      $card .oopspam-score-icon { display: grid; flex: 0 0 20px; place-items: center; color: var(--c-text-quiet); }
+      $card\[checked] .oopspam-score-icon { color: var(--c-color-accent-fill-loud); }
+      $card .oopspam-score-icon svg { display: block; width: 20px; height: 20px; }
+      $card .oopspam-score-description { display: block; margin-top: 8px; font-size: 12px; font-weight: normal; line-height: 18px; color: var(--c-text-quiet); }
+      $card .oopspam-score-radio { position: absolute; inset-block-start: 16px; inset-inline-end: 14px; box-sizing: border-box; width: 16px; height: 16px; pointer-events: none; background: var(--c-input-fill, var(--c-surface-default)); border: 1px solid var(--c-form-control-border-color); border-radius: 50%; }
+      $card\[checked] .oopspam-score-radio { background: radial-gradient(circle, var(--c-color-accent-fill-loud) 3px, var(--c-surface-default) 3.5px); border-color: var(--c-color-accent-fill-loud); }
+      $card .oopspam-score-badge { position: absolute; inset-block-start: 0; inset-inline-end: 12px; transform: translateY(-50%); pointer-events: none; padding: 0 8px; font-size: 11px; font-weight: 600; line-height: 18px; color: var(--c-color-accent-fill-loud); background: var(--c-surface-default); border: 1px solid var(--c-color-accent-border-normal); border-radius: 9px; }
+    CSS;
+    return [
+      TemplateContent::make('oopspam-score-style', '<style>' . str_replace('\\[', '[', $style) . '</style>')->trusted(),
+      Field::make(t('Spam Score', category: 'oopspam'), Choice::make('spamScore')
+        ->presentation(ChoicePresentation::Radios)
+        ->options($options)
+        ->value((string) $score))
+        ->instructions(t('Block submissions at or above this spam score. 1 is the strictest and 6 the most lenient; generally a score of 3 and above can be considered spam.', category: 'oopspam'))
+        ->warning($warning),
+    ];
   }
 
   /** One integration's name cell: its icon, linked title and status badge. */
@@ -211,7 +263,7 @@ class OOPSpam extends Plugin {
         ->instructions($instructions)
         ->warning($w($name));
 
-    $score = max(1, min(6, (int) $this->current($context, 'spamScore', $s->spamScore)));
+    $score = max(1, min(6, $this->numeric($context, 'spamScore', $s->spamScore)));
     $logsOn = $flag('enableLogs', $s->enableLogs);
     $limitOn = $flag('enableLimiting', $s->enableLimiting);
     $contextOn = $flag('enableContextual', $s->enableContextual);
@@ -262,6 +314,9 @@ class OOPSpam extends Plugin {
           ->instructions(t('Store spam submission calls and responses in Craft CMS.', category: 'oopspam'))
           ->warning($w('enableLogs')),
         ...($logsOn ? [
+          Field::make(t('Debug Mode', category: 'oopspam'), Lightswitch::make('debugMode'))
+            ->instructions(t('Check and log submissions as normal, but never block them. Useful for tuning your settings before blocking spam.', category: 'oopspam'))
+            ->warning($w('debugMode')),
           Field::make(t('Maximum Logs', category: 'oopspam'), Number::make('maxLogs')->min(1)->max(90)->value($this->numeric($context, 'maxLogs', $s->maxLogs)))
             ->instructions(t('Maximum amount of days to store logs.', category: 'oopspam'))->warning($w('maxLogs')),
           Field::make(t('Default Logs Per Page', category: 'oopspam'), Choice::make('logsPerPage')
@@ -276,11 +331,7 @@ class OOPSpam extends Plugin {
         UtilityHelper::footer('oopspam-footer-general'),
       ]),
       Tab::make('security', t('Security', category: 'oopspam'), [
-        Field::make(t('Spam Score', category: 'oopspam'), Range::make('spamScore')->min(1)->max(6)->step(1)->reactive())
-          ->instructions(t('Block the overall spam score based on the parameters. The higher the score, the more likely it is to be spam. 1 is the strictest and 6 the most lenient; generally a score of 3 and above can be considered spam.', category: 'oopspam'))
-          ->warning($w('spamScore')),
-        Callout::make('oopspam-score-label', sprintf('**%d** – %s', $score, SettingsHelper::getScores()[$score]))
-          ->variant('info'),
+        ...$this->scoreCards($score, $w('spamScore')),
         Field::make(t('Block Spam Content (AI)', category: 'oopspam'), Lightswitch::make('blockContentSpam'))
           ->instructions(t('Block content that is marked as spam by a machine learning algorithm.', category: 'oopspam'))->warning($w('blockContentSpam')),
         Field::make(t('Block Temporary Emails', category: 'oopspam'), Lightswitch::make('blockTempEmail'))
@@ -359,7 +410,7 @@ class OOPSpam extends Plugin {
       switch ($key) {
         case 'spamScore': case 'maxSubmissions':
           $s->$key = (int) $value; break;
-        case 'enableLogs': case 'blockContentSpam': case 'blockTempEmail': case 'blockVPN': case 'blockDC':
+        case 'debugMode': case 'enableLogs': case 'blockContentSpam': case 'blockTempEmail': case 'blockVPN': case 'blockDC':
         case 'checkForLength': case 'logIt': case 'urlFriendly': case 'enableLimiting': case 'enableContextual':
           $s->$key = (bool) $value; break;
         case 'allowedLanguages': case 'allowedCountries': case 'blockedCountries':

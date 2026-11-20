@@ -461,11 +461,33 @@ class SettingsHelper {
     return (isset($n[0])) ? $n[0] : '';
   }
   
+  /** A small strength meter for a spam score's card: the stricter the score, the more bars are filled. */
+  public static function scoreIcon(int $score): string {
+    $bars = '';
+    for ($i = 0; $i < 6; $i++) {
+      $height = 4 + $i * 3;
+      $bars .= sprintf('<rect x="%.1f" y="%d" width="2.4" height="%d" rx="0.8" fill="currentColor"%s/>',
+        1 + $i * 3.6, 21 - $height, $height, $i < 7 - $score ? '' : ' opacity="0.25"');
+    }
+    return '<svg viewBox="0 0 24 24" aria-hidden="true">' . $bars . '</svg>';
+  }
+
+  public static function getScoreDescriptions(): array {
+    return [
+      1 => 'Blocks submissions with a score of 1 or more. The strictest setting.',
+      2 => 'Blocks submissions with a score of 2 or more.',
+      3 => 'Blocks submissions with a score of 3 or more. OOPSpam suggests 3 and above can generally be considered spam.',
+      4 => 'Blocks submissions with a score of 4 or more.',
+      5 => 'Blocks submissions with a score of 5 or more.',
+      6 => 'Only blocks submissions with the highest score of 6. The most lenient setting.',
+    ];
+  }
+
   public static function getScores(): array {
     return [
       1 => 'Extremely strict',
       2 => 'Very strict',
-      3 => 'Moderate (recommended)',
+      3 => 'Moderate',
       4 => 'Slightly lenient',
       5 => 'Lenient',
       6 => 'Very lenient',

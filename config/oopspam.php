@@ -10,6 +10,7 @@ return [
   'apiKey' => '',
   'apiService' => 'oopspam', /* oopspam|rapidapi*/
   'enableLogs' => true,
+  'debugMode' => false,
   'maxLogs' => 30, /* 1-90 */
   'logsPerPage' => 100,
   'pluginName' => '',
